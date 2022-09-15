@@ -36,7 +36,7 @@ namespace AsapWiki.Shared.Repository
 					Id = item.Id,
 					EmailAddress = item.EmailAddress,
 					DisplayName = item.DisplayName,
-					Password = item.Password
+					PasswordHash = item.PasswordHash
 				};
 
                 handler.Connection.Execute("UpdateUserById",
@@ -52,7 +52,7 @@ namespace AsapWiki.Shared.Repository
 				{
 					EmailAddress = item.EmailAddress,
 					DisplayName = item.DisplayName,
-					Password = item.Password
+					PasswordHash = item.PasswordHash
 				};
 
                 return handler.Connection.ExecuteScalar<int>("InsertUser",
