@@ -34,7 +34,8 @@ namespace AsapWiki.Shared.Repository
 				var param = new
 				{
 					Id = item.Id,
-					Name = item.Name
+					Name = item.Name,
+					Description = item.Description
 				};
 
                 handler.Connection.Execute("UpdateConfigurationGroupById",
@@ -48,7 +49,8 @@ namespace AsapWiki.Shared.Repository
             {
 				var param = new
 				{
-					Name = item.Name
+					Name = item.Name,
+					Description = item.Description
 				};
 
                 return handler.Connection.ExecuteScalar<int>("InsertConfigurationGroup",
