@@ -35,9 +35,9 @@ namespace AsapWiki.Shared.Repository
 				{
 					Id = item.Id,
 					Name = item.Name,
+					Navigation = item.Navigation,
 					Description = item.Description,
 					Body = item.Body,
-					Navigation = item.Navigation,
 					CreatedByUserId = item.CreatedByUserId,
 					CreatedDate = item.CreatedDate,
 					ModifiedByUserId = item.ModifiedByUserId,
@@ -56,9 +56,9 @@ namespace AsapWiki.Shared.Repository
 				var param = new
 				{
 					Name = item.Name,
+					Navigation = item.Navigation,
 					Description = item.Description,
 					Body = item.Body,
-					Navigation = item.Navigation,
 					CreatedByUserId = item.CreatedByUserId,
 					CreatedDate = item.CreatedDate,
 					ModifiedByUserId = item.ModifiedByUserId,
