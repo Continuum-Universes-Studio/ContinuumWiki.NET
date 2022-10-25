@@ -29,7 +29,7 @@ namespace TightWiki.Shared.Library
                 }
             }
 
-            return list;
+            return list.OrderBy(o => o.Text).ToList();
         }
     }
 }
