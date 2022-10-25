@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TightWiki.Shared.Models.View
 {
-    public class PageDeleteModel
+    public class PageDeleteModel : ModelBase
     {
     }
 }
