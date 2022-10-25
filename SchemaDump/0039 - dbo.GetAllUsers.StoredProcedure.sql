@@ -39,6 +39,7 @@ BEGIN--PROCEDURE
 		FirstName,
 		LastName,
 		TimeZone,
+		[Language],
 		Country,
 		CreatedDate,
 		ModifiedDate,
