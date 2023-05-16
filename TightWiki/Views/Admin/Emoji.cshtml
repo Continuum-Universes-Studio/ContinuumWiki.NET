@@ -32,13 +32,14 @@
                         @using (Html.BeginForm(null, null, new { navigation = Model.Emoji.Name }, FormMethod.Post, true, new { enctype = "multipart/form-data" }))
                         {
                             @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.OriginalName)
+                            @Html.HiddenFor(m => m.Emoji.Id)
 
                             <table border="0">
 
                                 <tr class="padded">
                                     <td width="200"><strong>Image</strong></td>
                                     <td>
-                                        @Html.HiddenFor(m => m.Emoji.Name)
                                         @if (@Model.Emoji.Name != "")
                                         {
                                             <img src="/File/Emoji/@Model.Emoji.Name" /><br /><br />
@@ -51,15 +52,13 @@
                                 <tr class="padded">
                                     <td><strong>@Html.LabelFor(m => m.Emoji.Name)</strong></td>
                                     <td>
-                                        @Html.HiddenFor(m => m.OriginalName)
-                                        @Html.HiddenFor(m => m.Emoji.Id)
                                         @Html.TextBoxFor(m => m.Emoji.Name, new { @class = "input-control" })
                                     </td>
                                 </tr>
 
                                 <tr><td colspan="2"><div class="text-danger">@Html.ValidationMessageFor(m => m.Categories)</div></td></tr>
                                 <tr class="padded">
-                                    <td><strong>@Html.LabelFor(m => m.Categories)</strong></td>
+                                    <td><strong>@Html.LabelFor(m => m.Categories)</strong> (comma seperated)</td>
                                     <td>
                                         @Html.TextBoxFor(m => m.Categories, new { @class = "input-control" })
                                     </td>
