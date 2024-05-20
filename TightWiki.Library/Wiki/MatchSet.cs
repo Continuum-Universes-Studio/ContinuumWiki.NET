@@ -1,7 +1,7 @@
-﻿using TightWiki.Library.Wiki.Function;
-using static TightWiki.Library.Wiki.Constants;
+﻿using TightWiki.Wiki.Function;
+using static TightWiki.Wiki.Constants;
 
-namespace TightWiki.Library.Wiki
+namespace TightWiki.Wiki
 {
     public class MatchSet
     {

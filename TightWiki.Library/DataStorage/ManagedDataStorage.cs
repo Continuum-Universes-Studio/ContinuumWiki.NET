@@ -1,4 +1,4 @@
-﻿namespace TightWiki.Library.DataStorage
+﻿namespace TightWiki.DataStorage
 {
     /// <summary>
     /// Stores instances of ManagedDataStorageFactories that are used to store various parts of the data for the site.

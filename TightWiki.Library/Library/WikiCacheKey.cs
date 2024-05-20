@@ -1,6 +1,6 @@
-﻿using static TightWiki.Library.Library.WikiCache;
+﻿using static TightWiki.Library.WikiCache;
 
-namespace TightWiki.Library.Library
+namespace TightWiki.Library
 {
     /// <summary>
     /// Contains a verbatum cache key.
