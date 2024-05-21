@@ -1,4 +1,4 @@
-﻿namespace TightWiki.Library.Wiki
+﻿namespace TightWiki.Wiki
 {
     //Table of contense tag.
     public class TOCTag

@@ -1,4 +1,4 @@
-﻿namespace TightWiki.Library.Wiki
+﻿namespace TightWiki.Wiki
 {
     public class OrderedMatch
     {

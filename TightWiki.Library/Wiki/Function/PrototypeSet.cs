@@ -1,4 +1,4 @@
-﻿namespace TightWiki.Library.Wiki.Function
+﻿namespace TightWiki.Wiki.Function
 {
     public class PrototypeSet
     {

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using static TightWiki.Library.Library.WikiCache;
+using static TightWiki.Library.WikiCache;
 
-namespace TightWiki.Library.Library
+namespace TightWiki.Library
 {
     /// <summary>
     /// Contains a verbatum cache key which also includes the calling function name.

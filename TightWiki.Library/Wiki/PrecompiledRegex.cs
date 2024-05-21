@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace TightWiki.Library.Wiki
+namespace TightWiki.Wiki
 {
     internal static partial class PrecompiledRegex
     {

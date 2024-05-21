@@ -1,4 +1,4 @@
-﻿namespace TightWiki.Library.Models
+﻿namespace TightWiki.Models
 {
     public class TagCoudItem
     {
