@@ -1,6 +1,6 @@
 ﻿namespace TightWiki.Models.DataModels
 {
-    public class PageRevisionHistory
+    public class PageRevision
     {
         public int PaginationSize { get; set; }
         public int PaginationCount { get; set; }
