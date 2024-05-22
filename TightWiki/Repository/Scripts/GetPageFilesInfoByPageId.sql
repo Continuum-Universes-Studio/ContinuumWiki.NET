@@ -25,4 +25,4 @@ INNER JOIN PageFileRevision as PFR
 	AND PFR.Revision = PRA.FileRevision
 WHERE
 	P.Id = @PageId
-	AND PR.Revision = Coalesce(@PageRevision, P.Revision)
+	AND PR.Revision = P.Revision
