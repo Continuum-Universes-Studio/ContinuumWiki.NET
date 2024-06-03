@@ -63,7 +63,7 @@
                                 }
                             </table>
 
-                            @Html.Raw(TightWiki.Library.PageSelectorGenerator.Generate($"/Admin/Emojis", Context.Request.QueryString, Model.PaginationPageCount))
+                            @Html.Raw(TightWiki.Library.PageSelectorGenerator.Generate(Context.Request.QueryString, Model.PaginationPageCount))
                         }
 
                         <br />
