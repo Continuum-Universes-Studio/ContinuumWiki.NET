@@ -25,7 +25,7 @@
                         }
 
                         @Html.Raw(TightWiki.Library.ConfirmActionHelper.GenerateDangerButton("This will permanently purge all deleted pages. Continue?",
-                                 "Purge Deleted Pages", "/Admin/PurgeDeletedPages", "", "/Admin/DeletedPages", "/Admin/DeletedPages"))
+                                 "Purge Deleted Pages", "/Admin/PurgeDeletedPages", "", Context.Request.Path.Value, Context.Request.Path.Value))
                         <br />
 
                         @using (Html.BeginForm(FormMethod.Get))
