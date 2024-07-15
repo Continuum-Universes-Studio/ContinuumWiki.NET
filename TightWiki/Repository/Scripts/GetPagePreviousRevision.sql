@@ -3,8 +3,8 @@ SELECT
 FROM
 	[PageRevision] as PR
 WHERE
-	PR.PageId = 1
-	AND PR.Revision < 9
+	PR.PageId = @PageId
+	AND PR.Revision < @Revision
 ORDER BY
 	PR.Revision DESC
 LIMIT 1;
