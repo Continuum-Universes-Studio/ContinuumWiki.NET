@@ -2,7 +2,7 @@
 
 namespace TightWiki.Models.ViewModels.Page
 {
-    public class PageRevisionsViewModel : ViewModelBase
+    public class RevisionsViewModel : ViewModelBase
     {
         public List<PageRevision> Revisions { get; set; } = new();
 
