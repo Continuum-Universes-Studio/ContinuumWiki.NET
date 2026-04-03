@@ -7,7 +7,7 @@ SELECT
 	P.CreatedByUserId,
 	P.CreatedDate,
 	P.ModifiedByUserId,
-	P.ModifiedDate
+	IFNULL(P.ModifiedDate, P.CreatedDate) as ModifiedDate
 FROM
 	[Page] as P
 ORDER BY
