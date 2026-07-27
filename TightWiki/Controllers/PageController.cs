@@ -1,5 +1,5 @@
-﻿using ImageMagick;
-using DiffPlex.DiffBuilder;
+﻿using DiffPlex.DiffBuilder;
+using ImageMagick;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;

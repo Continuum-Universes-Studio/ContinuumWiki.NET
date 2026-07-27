@@ -1,4 +1,4 @@
-﻿using NTDLS.SqliteDapperWrapper;
+﻿using NTDLS.EmbeddedResource;
 
 namespace TightWiki.Repository.Helpers
 {
@@ -9,7 +9,7 @@ namespace TightWiki.Repository.Helpers
         /// </summary>
         public static string TransposeOrderby(string filename, string? orderBy, string? orderByDirection)
         {
-            var script = EmbeddedResource.Load(filename);
+            var script = EmbeddedResourceReader.LoadText(filename);
 
             if (string.IsNullOrEmpty(orderBy))
             {
