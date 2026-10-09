@@ -74,7 +74,7 @@ namespace TightWiki.Repository
 
             return await StatisticsFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("pages.db", "pages_db");
 
                 var query = RepositoryHelpers.TransposeOrderby("GetPageStatisticsPaged.sql", orderBy, orderByDirection);
                 return await o.QueryAsync<TwPageStatistics>(query, param);

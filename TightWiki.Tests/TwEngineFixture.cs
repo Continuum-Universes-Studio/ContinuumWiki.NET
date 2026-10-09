@@ -41,6 +41,7 @@ namespace TightWiki.Tests
                         var originalDatabasePath = configuration.GetConnectionString("OriginalDatabasePath").EnsureNotNull();
                         var databasePath = configuration.GetConnectionString("DatabasePath").EnsureNotNull();
                         Directory.CreateDirectory(originalDatabasePath);
+                        Directory.CreateDirectory(databasePath);
 
                         //Copy all prod-release databases to the test directory.
                         foreach (var file in Directory.GetFiles(originalDatabasePath))

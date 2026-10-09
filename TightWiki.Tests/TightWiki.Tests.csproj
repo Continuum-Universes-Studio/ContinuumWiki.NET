@@ -34,6 +34,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <!-- Test inputs are copied beside the test assembly; the fixture copies them
+	       into its separate writable database directory before initialization. -->
+	  <Content Include="..\Data\*.db" Link="TestData\%(Filename)%(Extension)">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 	  <EmbeddedResource Include="Scripts\EventLogRowsExists.sql" />
 	  <EmbeddedResource Include="Scripts\PageStatisticsRowsExists.sql" />
 	</ItemGroup>

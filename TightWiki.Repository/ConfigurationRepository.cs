@@ -71,8 +71,8 @@ namespace TightWiki.Repository
         {
             return await ConfigFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
-                using var pages_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
+                using var pages_db = o.AttachSiblingDatabase("pages.db", "pages_db");
 
                 return await o.QuerySingleAsync<TwWikiDatabaseStatistics>("GetWikiDatabaseStatistics.sql");
             });
