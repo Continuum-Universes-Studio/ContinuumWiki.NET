@@ -5,6 +5,7 @@ using System.Net;
 using System.Security.Claims;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
 using TightWiki.ViewModels;
 
@@ -16,13 +17,12 @@ namespace TightWiki.Controllers
             IHttpContextAccessor httpContextAccessor,
             ILogger<ITwEngine> logger,
             ITwSharedLocalizationText localizer,
-            ITwUsersRepository usersRepository,
+            ITwApplicationIdentityRepository usersRepository,
             SignInManager<IdentityUser> signInManager,
             TwConfiguration wikiConfiguration,
-            UserManager<IdentityUser> userManager,
-            ITwDatabaseManager databaseManager
+            UserManager<IdentityUser> userManager
         )
-        : TwController<AccountController>(logger, signInManager, userManager, localizer, wikiConfiguration, databaseManager)
+        : TwController<AccountController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
         [HttpGet("ExternalLogin")]
         [ValidateAntiForgeryToken]
@@ -88,7 +88,7 @@ namespace TightWiki.Controllers
                     // User exists, sign them in:
                     await SignInManager.SignInAsync(user, isPersistent: false);
 
-                    if (await usersRepository.GetBasicProfileByUserId(Guid.Parse(user.Id)) == null)
+                    if (await usersRepository.GetBasicProfileByUserIdAsync(Guid.Parse(user.Id)) == null)
                     {
                         if (WikiConfiguration.AllowSignup != true)
                         {
@@ -122,7 +122,7 @@ namespace TightWiki.Controllers
                         }
                         await SignInManager.SignInAsync(user, isPersistent: false);
 
-                        if (await usersRepository.GetBasicProfileByUserId(Guid.Parse(user.Id)) == null)
+                        if (await usersRepository.GetBasicProfileByUserIdAsync(Guid.Parse(user.Id)) == null)
                         {
                             if (WikiConfiguration.AllowSignup != true)
                             {
@@ -173,7 +173,7 @@ namespace TightWiki.Controllers
 
                 if (Guid.TryParse(userIdString, out var userId))
                 {
-                    var profile = await usersRepository.GetBasicProfileByUserId(userId);
+                    var profile = await usersRepository.GetBasicProfileByUserIdAsync(userId);
                     if (profile != null)
                     {
                         Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName,

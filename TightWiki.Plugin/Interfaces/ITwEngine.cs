@@ -2,6 +2,7 @@
 using TightWiki.Plugin.Interfaces.Module;
 using TightWiki.Plugin.Interfaces.Module.Function;
 using TightWiki.Plugin.Interfaces.Module.Handlers;
+using TightWiki.Plugin.Interfaces.Persistence;
 
 namespace TightWiki.Plugin.Interfaces
 {
@@ -31,6 +32,8 @@ namespace TightWiki.Plugin.Interfaces
         /// Gets the database manager used to perform database operations.
         /// </summary>
         ITwDatabaseManager DatabaseManager { get; }
+        /// <summary>Provider-neutral page access for built-in engine handlers.</summary>
+        ITwApplicationPageRepository ApplicationPageRepository { get; }
         /// <summary>
         /// Gets the logger instance used for logging diagnostic and operational information for the engine.
         /// </summary>

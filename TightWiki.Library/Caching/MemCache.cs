@@ -311,6 +311,11 @@ namespace TightWiki.Library.Caching
         /// <param name="category"></param>
         public static void ClearCategory(MemCacheKey cacheKey)
         {
+            if (_cache == null)
+            {
+                return;
+            }
+
             var keys = new List<string>();
 
             foreach (var item in Cache)

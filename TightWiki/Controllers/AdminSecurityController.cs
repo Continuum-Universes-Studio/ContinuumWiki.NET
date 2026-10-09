@@ -7,6 +7,7 @@ using TightWiki.Library;
 using TightWiki.Library.Caching;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
 using TightWiki.Plugin.Models;
 using TightWiki.RequestModels;
@@ -21,16 +22,15 @@ namespace TightWiki.Controllers
     [Route("[controller]")]
     public class AdminSecurityController(
             ILogger<ITwEngine> logger,
-            ITwConfigurationRepository configurationRepository,
-            ITwPageRepository pageRepository,
+            ITwApplicationConfigurationRepository configurationRepository,
+            ITwApplicationPageRepository applicationPageRepository,
             ITwSharedLocalizationText localizer,
-            ITwUsersRepository usersRepository,
+            ITwApplicationIdentityRepository usersRepository,
             SignInManager<IdentityUser> signInManager,
             TwConfiguration wikiConfiguration,
-            UserManager<IdentityUser> userManager,
-            ITwDatabaseManager databaseManager
+            UserManager<IdentityUser> userManager
         )
-        : TwController<AdminSecurityController>(logger, signInManager, userManager, localizer, wikiConfiguration, databaseManager)
+        : TwController<AdminSecurityController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
         #region Roles.
 
@@ -50,7 +50,7 @@ namespace TightWiki.Controllers
                 }
                 if (model.UserSelection == true)
                 {
-                    await usersRepository.DeleteRole(roleId);
+                    await usersRepository.DeleteRoleAsync(roleId);
                     MemCache.ClearCategory(MemCache.Category.Security);
                     return NotifyOfSuccess(Localize("The specified role has been deleted."), model.YesRedirectURL);
                 }
@@ -77,10 +77,10 @@ namespace TightWiki.Controllers
 
                 TwAddAccountMembershipResult? result = null;
 
-                bool alreadyExists = await usersRepository.IsAccountAMemberOfRole(request.UserId, request.RoleId, true);
+                bool alreadyExists = await usersRepository.IsAccountMemberOfRoleAsync(request.UserId, request.RoleId);
                 if (!alreadyExists)
                 {
-                    result = await usersRepository.AddAccountMembership(request.UserId, request.RoleId);
+                    result = await usersRepository.AddAccountMembershipAsync(request.UserId, request.RoleId);
                 }
                 MemCache.ClearCategory(MemCache.Category.Security);
 
@@ -106,10 +106,10 @@ namespace TightWiki.Controllers
 
                 TwAddRoleMemberResult? result = null;
 
-                bool alreadyExists = await usersRepository.IsAccountAMemberOfRole(request.UserId, request.RoleId, true);
+                bool alreadyExists = await usersRepository.IsAccountMemberOfRoleAsync(request.UserId, request.RoleId);
                 if (!alreadyExists)
                 {
-                    result = await usersRepository.AddRoleMember(request.UserId, request.RoleId);
+                    result = await usersRepository.AddRoleMemberAsync(request.UserId, request.RoleId);
                 }
                 MemCache.ClearCategory(MemCache.Category.Security);
 
@@ -132,7 +132,7 @@ namespace TightWiki.Controllers
             try
             {
                 await SessionState.RequireAdminPermission();
-                await usersRepository.RemoveRoleMember(roleId, userId);
+                await usersRepository.RemoveRoleMemberAsync(roleId, userId);
                 MemCache.ClearCategory(MemCache.Category.Security);
 
                 return Ok(new { success = true, message = (string?)null });
@@ -154,7 +154,7 @@ namespace TightWiki.Controllers
             try
             {
                 await SessionState.RequireAdminPermission();
-                await usersRepository.RemoveRolePermission(id);
+                await usersRepository.RemoveRolePermissionAsync(id);
                 MemCache.ClearCategory(MemCache.Category.Security);
 
                 return Ok(new { success = true, message = (string?)null });
@@ -179,11 +179,11 @@ namespace TightWiki.Controllers
 
                 TwInsertRolePermissionResult? result = null;
 
-                bool alreadyExists = await usersRepository.IsRolePermissionDefined(
-                    request.RoleId, request.PermissionId, request.PermissionDispositionId, request.Namespace, request.PageId, true);
+                bool alreadyExists = await usersRepository.IsRolePermissionDefinedAsync(
+                    request.RoleId, request.PermissionId, request.PermissionDispositionId, request.Namespace, request.PageId);
                 if (!alreadyExists)
                 {
-                    result = await usersRepository.InsertRolePermission(
+                    result = await usersRepository.InsertRolePermissionAsync(
                         request.RoleId, request.PermissionId, request.PermissionDispositionId, request.Namespace, request.PageId);
                 }
                 MemCache.ClearCategory(MemCache.Category.Security);
@@ -242,13 +242,13 @@ namespace TightWiki.Controllers
                     return View(model);
                 }
 
-                if (await usersRepository.DoesRoleExist(model.Name))
+                if (await usersRepository.RoleExistsAsync(model.Name))
                 {
                     ModelState.AddModelError("Name", Localize("Role name is already in use."));
                     return View(model);
                 }
 
-                await usersRepository.InsertRole(model.Name, model.Description);
+                await usersRepository.InsertRoleAsync(model.Name, model.Description);
                 MemCache.ClearCategory(MemCache.Category.Security);
 
                 return Redirect($"{WikiConfiguration.BasePath}/AdminSecurity/Roles");
@@ -278,7 +278,7 @@ namespace TightWiki.Controllers
 
                 navigation = TwNavigation.Clean(navigation);
 
-                var role = await usersRepository.GetRoleByName(navigation);
+                var role = (await usersRepository.GetRoleByNameAsync(navigation)).EnsureNotNull();
 
                 var model = new RoleViewModel()
                 {
@@ -286,14 +286,14 @@ namespace TightWiki.Controllers
                     Id = role.Id,
                     Name = role.Name,
 
-                    Members = await usersRepository.GetRoleMembersPaged(role.Id,
-                        GetQueryValue("Page_Members", 1), GetQueryValue<string>("OrderBy_Members"), GetQueryValue<string>("OrderByDirection_Members")),
+                    Members = (await usersRepository.GetRoleMembersPagedAsync(role.Id,
+                        GetQueryValue("Page_Members", 1), 50)).ToList(),
 
-                    AssignedPermissions = await usersRepository.GetRolePermissionsPaged(role.Id,
-                        GetQueryValue("Page_Permissions", 1), GetQueryValue<string>("OrderBy_Permission"), GetQueryValue<string>("OrderByDirection_Permissions")),
+                    AssignedPermissions = (await usersRepository.GetRolePermissionsPagedAsync(role.Id,
+                        GetQueryValue("Page_Permissions", 1), 50)).ToList(),
 
-                    PermissionDispositions = await usersRepository.GetAllPermissionDispositions(),
-                    Permissions = await usersRepository.GetAllPermissions()
+                    PermissionDispositions = (await usersRepository.GetPermissionDispositionsAsync()).ToList(),
+                    Permissions = (await usersRepository.GetPermissionsAsync()).ToList()
                 };
 
                 model.PaginationPageCount_Members = (model.Members.FirstOrDefault()?.PaginationPageCount ?? 0);
@@ -327,7 +327,7 @@ namespace TightWiki.Controllers
 
                 var model = new RolesViewModel()
                 {
-                    Roles = await usersRepository.GetAllRoles(orderBy, orderByDirection)
+                    Roles = (await usersRepository.GetRolesAsync()).ToList()
                 };
 
                 return View(model);
@@ -356,11 +356,11 @@ namespace TightWiki.Controllers
 
                 TwInsertAccountPermissionResult? result = null;
 
-                bool alreadyExists = await usersRepository.IsAccountPermissionDefined(
-                    request.UserId, request.PermissionId, request.PermissionDispositionId, request.Namespace, request.PageId, true);
+                bool alreadyExists = await usersRepository.IsAccountPermissionDefinedAsync(
+                    request.UserId, request.PermissionId, request.PermissionDispositionId, request.Namespace, request.PageId);
                 if (!alreadyExists)
                 {
-                    result = await usersRepository.InsertAccountPermission(
+                    result = await usersRepository.InsertAccountPermissionAsync(
                         request.UserId, request.PermissionId, request.PermissionDispositionId, request.Namespace, request.PageId);
                 }
                 MemCache.ClearCategory(MemCache.Category.Security);
@@ -384,7 +384,7 @@ namespace TightWiki.Controllers
             try
             {
                 await SessionState.RequireAdminPermission();
-                await usersRepository.RemoveAccountPermission(id);
+                await usersRepository.RemoveAccountPermissionAsync(id);
                 MemCache.ClearCategory(MemCache.Category.Security);
 
                 return Ok(new { success = true, message = (string?)null });
@@ -414,7 +414,7 @@ namespace TightWiki.Controllers
 
                 navigation = TwNavigation.Clean(navigation);
 
-                var profile = await usersRepository.GetAccountProfileByNavigation(navigation)
+                var profile = await usersRepository.GetProfileByNavigationAsync(navigation)
                     ?? throw new Exception(Localize("Account not found."));
 
                 var model = new AccountRolesViewModel()
@@ -422,14 +422,14 @@ namespace TightWiki.Controllers
                     Id = profile.UserId,
                     AccountName = profile.AccountName,
 
-                    Memberships = await usersRepository.GetAccountRoleMembershipPaged(profile.UserId,
-                        GetQueryValue("Page_Memberships", 1), GetQueryValue<string>("OrderBy_Members"), GetQueryValue<string>("OrderByDirection_Memberships")),
+                    Memberships = (await usersRepository.GetAccountRoleMembershipPagedAsync(profile.UserId,
+                        GetQueryValue("Page_Memberships", 1), 50)).ToList(),
 
-                    AssignedPermissions = await usersRepository.GetAccountPermissionsPaged(profile.UserId,
-                        GetQueryValue("Page_Permissions", 1), GetQueryValue<string>("OrderBy_Permissions"), GetQueryValue<string>("OrderByDirection_Permissions")),
+                    AssignedPermissions = (await usersRepository.GetAccountPermissionsPagedAsync(profile.UserId,
+                        GetQueryValue("Page_Permissions", 1), 50)).ToList(),
 
-                    PermissionDispositions = await usersRepository.GetAllPermissionDispositions(),
-                    Permissions = await usersRepository.GetAllPermissions()
+                    PermissionDispositions = (await usersRepository.GetPermissionDispositionsAsync()).ToList(),
+                    Permissions = (await usersRepository.GetPermissionsAsync()).ToList()
                 };
 
                 model.PaginationPageCount_Members = (model.Memberships.FirstOrDefault()?.PaginationPageCount ?? 0);
@@ -463,18 +463,18 @@ namespace TightWiki.Controllers
                     return NotifyOfError(ex.GetBaseException().Message, "/");
                 }
 
-                var accountProfile = await usersRepository.GetAccountProfileByNavigation(TwNavigation.Clean(navigation))
+                var accountProfile = await usersRepository.GetProfileByNavigationAsync(TwNavigation.Clean(navigation))
                     ?? throw new Exception(Localize("Account not found."));
 
                 var model = new AccountProfileViewModel()
                 {
                     AccountProfile = AccountProfileAccountViewModel.FromDataModel(accountProfile),
                     Credential = new CredentialViewModel(),
-                    Themes = await configurationRepository.GetAllThemes(),
+                    Themes = (await configurationRepository.GetThemesAsync()).ToList(),
                     TimeZones = TimeZoneItem.GetAll(),
                     Countries = CountryItem.GetAll(),
                     Languages = LanguageItem.GetAll(),
-                    Roles = await usersRepository.GetAllRoles()
+                    Roles = (await usersRepository.GetRolesAsync()).ToList()
                 };
 
                 model.AccountProfile.CreatedDate = SessionState.LocalizeDateTime(model.AccountProfile.CreatedDate);
@@ -506,11 +506,11 @@ namespace TightWiki.Controllers
                 {
                     return NotifyOfError(ex.GetBaseException().Message, "/");
                 }
-                model.Themes = await configurationRepository.GetAllThemes();
+                model.Themes = (await configurationRepository.GetThemesAsync()).ToList();
                 model.TimeZones = TimeZoneItem.GetAll();
                 model.Countries = CountryItem.GetAll();
                 model.Languages = LanguageItem.GetAll();
-                model.Roles = await usersRepository.GetAllRoles();
+                model.Roles = (await usersRepository.GetRolesAsync()).ToList();
                 model.AccountProfile.Navigation = TwNamespaceNavigation.CleanAndValidate(model.AccountProfile.AccountName.ToLowerInvariant());
 
                 if (!ModelState.IsValid)
@@ -533,7 +533,7 @@ namespace TightWiki.Controllers
 
                         if (model.AccountProfile.AccountName.Equals(Constants.DEFAULTACCOUNT, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            await usersRepository.SetAdminPasswordIsChanged();
+                            await usersRepository.SetAdminPasswordChangedAsync();
                         }
                     }
                     catch (Exception ex)
@@ -543,10 +543,10 @@ namespace TightWiki.Controllers
                     }
                 }
 
-                var profile = await usersRepository.GetAccountProfileByUserId(model.AccountProfile.UserId, true);
+                var profile = (await usersRepository.GetProfileByUserIdAsync(model.AccountProfile.UserId)).EnsureNotNull();
                 if (!profile.Navigation.Equals(model.AccountProfile.Navigation, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (await usersRepository.DoesProfileAccountExist(model.AccountProfile.AccountName))
+                    if (await usersRepository.ProfileAccountExistsAsync(model.AccountProfile.AccountName))
                     {
                         ModelState.AddModelError("AccountProfile.AccountName", Localize("Account name is already in use."));
                         return View(model);
@@ -555,7 +555,7 @@ namespace TightWiki.Controllers
 
                 if (!profile.EmailAddress.Equals(model.AccountProfile.EmailAddress, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (await usersRepository.DoesEmailAddressExist(model.AccountProfile.EmailAddress))
+                    if (await usersRepository.EmailAddressExistsAsync(model.AccountProfile.EmailAddress))
                     {
                         ModelState.AddModelError("AccountProfile.EmailAddress", Localize("Email address is already in use."));
                         return View(model);
@@ -579,7 +579,7 @@ namespace TightWiki.Controllers
                         {
                             var imageBytes = Utility.ConvertHttpFileToBytes(file);
                             var image = ImagesUtility.CropImageToCenteredSquare(new MemoryStream(imageBytes));
-                            await usersRepository.UpdateProfileAvatar(profile.UserId, image, "image/webp");
+                            await usersRepository.UpdateProfileAvatarAsync(profile.UserId, image, "image/webp");
                         }
                         catch
                         {
@@ -592,7 +592,7 @@ namespace TightWiki.Controllers
                 profile.Navigation = TwNamespaceNavigation.CleanAndValidate(model.AccountProfile.AccountName);
                 profile.Biography = model.AccountProfile.Biography;
                 profile.ModifiedDate = DateTime.UtcNow;
-                await usersRepository.UpdateProfile(profile);
+                await usersRepository.UpdateProfileAsync(profile);
 
                 var claims = new List<Claim>
                     {
@@ -603,7 +603,11 @@ namespace TightWiki.Controllers
                         new ("lastname", model.AccountProfile.LastName ?? ""),
                         new ("theme", model.AccountProfile.Theme ?? ""),
                     };
-                await usersRepository.UpsertUserClaims(UserManager, user, claims);
+                var existingClaims = await UserManager.GetClaimsAsync(user);
+                var claimResult = await UserManager.RemoveClaimsAsync(user, existingClaims);
+                if (!claimResult.Succeeded) throw new InvalidOperationException(string.Join("<br />\r\n", claimResult.Errors.Select(o => o.Description)));
+                claimResult = await UserManager.AddClaimsAsync(user, claims);
+                if (!claimResult.Succeeded) throw new InvalidOperationException(string.Join("<br />\r\n", claimResult.Errors.Select(o => o.Description)));
 
                 //If we are changing the currently logged in user, then make sure we take some extra actions so we can see the changes immediately.
                 if (SessionState.Profile?.UserId == model.AccountProfile.UserId)
@@ -614,7 +618,7 @@ namespace TightWiki.Controllers
                     MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.User, [profile.UserId]));
 
                     //This is not 100% necessary, I just want to prevent the user from needing to refresh to view the new theme.
-                    SessionState.UserTheme = (await configurationRepository.GetAllThemes())
+                    SessionState.UserTheme = (await configurationRepository.GetThemesAsync())
                         .SingleOrDefault(o => o.Name == model.AccountProfile.Theme) ?? WikiConfiguration.SystemTheme;
                 }
 
@@ -684,9 +688,9 @@ namespace TightWiki.Controllers
                 {
                     return NotifyOfError(ex.GetBaseException().Message, "/");
                 }
-                var membershipConfig = await configurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Membership);
+                var membershipConfig = new TwConfigurationEntries((await configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Membership)).ToList());
                 var defaultSignupRole = membershipConfig.Value<string>("Default Signup Role").EnsureNotNull();
-                var customizationConfig = await configurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Customization);
+                var customizationConfig = new TwConfigurationEntries((await configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Customization)).ToList());
 
                 var model = new AccountProfileViewModel()
                 {
@@ -698,12 +702,12 @@ namespace TightWiki.Controllers
                         Language = customizationConfig.Value<string>("Default Language", string.Empty)
                     },
                     DefaultRole = defaultSignupRole,
-                    Themes = await configurationRepository.GetAllThemes(),
+                        Themes = (await configurationRepository.GetThemesAsync()).ToList(),
                     Credential = new CredentialViewModel(),
                     TimeZones = TimeZoneItem.GetAll(),
                     Countries = CountryItem.GetAll(),
                     Languages = LanguageItem.GetAll(),
-                    Roles = await usersRepository.GetAllRoles()
+                    Roles = (await usersRepository.GetRolesAsync()).ToList()
                 };
 
                 return View(model);
@@ -732,11 +736,11 @@ namespace TightWiki.Controllers
                 {
                     return NotifyOfError(ex.GetBaseException().Message, "/");
                 }
-                model.Themes = await configurationRepository.GetAllThemes();
+                model.Themes = (await configurationRepository.GetThemesAsync()).ToList();
                 model.TimeZones = TimeZoneItem.GetAll();
                 model.Countries = CountryItem.GetAll();
                 model.Languages = LanguageItem.GetAll();
-                model.Roles = await usersRepository.GetAllRoles();
+                model.Roles = (await usersRepository.GetRolesAsync()).ToList();
                 model.AccountProfile.Navigation = TwNamespaceNavigation.CleanAndValidate(model.AccountProfile.AccountName?.ToLowerInvariant());
 
                 if (!ModelState.IsValid)
@@ -750,13 +754,13 @@ namespace TightWiki.Controllers
                     return View(model);
                 }
 
-                if (await usersRepository.DoesProfileAccountExist(model.AccountProfile.AccountName))
+                if (await usersRepository.ProfileAccountExistsAsync(model.AccountProfile.AccountName))
                 {
                     ModelState.AddModelError("AccountProfile.AccountName", Localize("Account name is already in use."));
                     return View(model);
                 }
 
-                if (await usersRepository.DoesEmailAddressExist(model.AccountProfile.EmailAddress))
+                if (await usersRepository.EmailAddressExistsAsync(model.AccountProfile.EmailAddress))
                 {
                     ModelState.AddModelError("AccountProfile.EmailAddress", Localize("Email address is already in use."));
                     return View(model);
@@ -794,23 +798,24 @@ namespace TightWiki.Controllers
                         new ("lastname", model.AccountProfile.LastName ?? ""),
                         new ("theme", model.AccountProfile.Theme ?? ""),
                     };
-                    await usersRepository.UpsertUserClaims(UserManager, identityUser, claims);
+                    var claimResult = await UserManager.AddClaimsAsync(identityUser, claims);
+                    if (!claimResult.Succeeded) throw new InvalidOperationException(string.Join("<br />\r\n", claimResult.Errors.Select(o => o.Description)));
                 }
                 catch (Exception ex)
                 {
                     return NotifyOfError(ex.Message);
                 }
 
-                await usersRepository.CreateProfile(userId.Value, model.AccountProfile.AccountName);
-                await usersRepository.AddRoleMemberByname(userId.Value, model.DefaultRole);
+                await usersRepository.CreateProfileAsync(userId.Value, model.AccountProfile.AccountName);
+                await usersRepository.AddRoleMemberByNameAsync(userId.Value, model.DefaultRole);
 
-                var profile = await usersRepository.GetAccountProfileByUserId(userId.Value);
+                var profile = (await usersRepository.GetProfileByUserIdAsync(userId.Value)).EnsureNotNull();
 
                 profile.AccountName = model.AccountProfile.AccountName;
                 profile.Navigation = TwNamespaceNavigation.CleanAndValidate(model.AccountProfile.AccountName);
                 profile.Biography = model.AccountProfile.Biography;
                 profile.ModifiedDate = DateTime.UtcNow;
-                await usersRepository.UpdateProfile(profile);
+                await usersRepository.UpdateProfileAsync(profile);
 
                 var file = Request.Form.Files["Avatar"];
                 if (file != null && file.Length > 0)
@@ -829,7 +834,7 @@ namespace TightWiki.Controllers
                         {
                             var imageBytes = Utility.ConvertHttpFileToBytes(file);
                             var image = ImagesUtility.CropImageToCenteredSquare(new MemoryStream(imageBytes));
-                            await usersRepository.UpdateProfileAvatar(profile.UserId, image, "image/webp");
+                            await usersRepository.UpdateProfileAvatarAsync(profile.UserId, image, "image/webp");
                         }
                         catch
                         {
@@ -869,7 +874,7 @@ namespace TightWiki.Controllers
 
                 var model = new AccountsViewModel()
                 {
-                    Users = await usersRepository.GetAllUsersPaged(pageNumber, orderBy, orderByDirection, searchString),
+                    Users = (await usersRepository.GetUsersPagedAsync(pageNumber, 50, searchString)).ToList(),
                     SearchString = searchString
                 };
 
@@ -909,7 +914,7 @@ namespace TightWiki.Controllers
                 }
                 if (model.UserSelection == true)
                 {
-                    var profile = await usersRepository.GetAccountProfileByNavigation(navigation)
+                    var profile = await usersRepository.GetProfileByNavigationAsync(navigation)
                         ?? throw new Exception(Localize("Account not found."));
 
                     var user = await UserManager.FindByIdAsync(profile.UserId.ToString());
@@ -924,7 +929,7 @@ namespace TightWiki.Controllers
                         throw new Exception(string.Join("<br />\r\n", result.Errors.Select(o => o.Description)));
                     }
 
-                    await usersRepository.AnonymizeProfile(profile.UserId);
+                    await usersRepository.AnonymizeProfileAsync(profile.UserId);
                     MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.User, [profile.Navigation]));
 
                     if (profile.UserId == SessionState.Profile?.UserId)
@@ -959,7 +964,7 @@ namespace TightWiki.Controllers
         {
             try
             {
-                var roles = await usersRepository.AutoCompleteRole(q);
+                var roles = await usersRepository.AutoCompleteRolesAsync(q);
 
                 return Json(roles.Select(o => new
                 {
@@ -980,7 +985,7 @@ namespace TightWiki.Controllers
         {
             try
             {
-                var accounts = await usersRepository.AutoCompleteAccount(q);
+                var accounts = await usersRepository.AutoCompleteAccountsAsync(q);
 
                 return Json(accounts.Select(o => new
                 {
@@ -1001,7 +1006,7 @@ namespace TightWiki.Controllers
         {
             try
             {
-                var pages = await pageRepository.AutoCompletePage(q);
+                var pages = await applicationPageRepository.AutoCompletePageAsync(q);
 
                 var results = pages.Select(o => new
                 {
@@ -1034,7 +1039,7 @@ namespace TightWiki.Controllers
         {
             try
             {
-                var namespaces = await pageRepository.AutoCompleteNamespace(q);
+                var namespaces = await applicationPageRepository.AutoCompleteNamespaceAsync(q);
 
                 if (showCatchAll == true)
                 {

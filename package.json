@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build:css": "lessc TightWiki/Styles/continuum.less TightWiki/wwwroot/css/continuum.css",
+    "watch:css": "less-watch-compiler TightWiki/Styles TightWiki/wwwroot/css continuum.less",
+    "check:css": "lessc --no-color TightWiki/Styles/continuum.less /tmp/continuumwiki-css-check.css"
+  },
+  "devDependencies": {
+    "less": "^4.9.1",
+    "less-watch-compiler": "^1.19.9"
+  }
+}

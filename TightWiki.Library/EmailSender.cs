@@ -3,14 +3,15 @@ using MailKit.Security;
 using Microsoft.Extensions.Logging;
 using MimeKit;
 using TightWiki.Plugin.Interfaces;
-using TightWiki.Plugin.Interfaces.Repository;
+using TightWiki.Plugin.Interfaces.Persistence;
+using TightWiki.Plugin.Models;
 using static TightWiki.Plugin.TwConstants;
 
 namespace TightWiki.Library
 {
     public class EmailSender(
                 ILogger<EmailSender> logger,
-                ITwConfigurationRepository configurationRepository
+                ITwApplicationConfigurationRepository configurationRepository
             )
         : ITwEmailSender
     {
@@ -18,7 +19,7 @@ namespace TightWiki.Library
         {
             try
             {
-                var values = await configurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Email);
+                var values = new TwConfigurationEntries((await configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Email)).ToList());
                 var smtpPassword = values.Value<string>("Password") ?? string.Empty;
                 var smtpUsername = values.Value<string>("Username");
                 var smtpAddress = values.Value<string>("Address");

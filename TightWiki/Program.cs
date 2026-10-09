@@ -15,10 +15,13 @@ using Microsoft.IdentityModel.Tokens;
 using NTDLS.Helpers;
 using TightWiki.Engine;
 using TightWiki.Library;
+using TightWiki.Library.Database;
 using TightWiki.Library.Dummy;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
+using TightWiki.Plugin.Models;
 using TightWiki.Repository.Helpers;
 using TightWiki.Translations;
 using static TightWiki.Plugin.TwConstants;
@@ -33,6 +36,14 @@ namespace TightWiki
 
             var builder = WebApplication.CreateBuilder(args);
 
+            var selectedProvider = DatabaseProviderConfiguration.GetProvider(builder.Configuration);
+            if (selectedProvider == DatabaseProviderConfiguration.MySQL)
+            {
+                await MySqlDevelopmentRuntime.RunAsync(args);
+                return;
+            }
+            DatabaseProviderConfiguration.ValidateSupportedProvider(builder.Configuration);
+
             var databaseManager = new DatabaseManager(builder.Configuration);
             bool wasDatabaseUpgraded = await databaseManager.ApplyDatabaseUpgradeScripts(databaseManager.Logger);
 
@@ -45,14 +56,15 @@ namespace TightWiki
             var userConnectionString = databaseManager.UsersRepository.UsersFactory.Ephemeral(o => o.NativeConnection.ConnectionString);
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(userConnectionString));
 
-            var wikiConfigurationManager = new WikiConfigurationManager(builder.Configuration, databaseManager);
+            var sqliteApplicationConfigurationRepository = new SqliteApplicationConfigurationRepository(databaseManager.ConfigurationRepository);
+            var wikiConfigurationManager = new WikiConfigurationManager(builder.Configuration, databaseManager, sqliteApplicationConfigurationRepository);
 
             // Add DiffPlex services.
             builder.Services.AddScoped<IDiffer, Differ>();
             builder.Services.AddScoped<ISideBySideDiffBuilder>(sp =>
                 new SideBySideDiffBuilder(sp.GetRequiredService<IDiffer>()));
 
-            var membershipConfig = await databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Membership);
+            var membershipConfig = new TwConfigurationEntries((await sqliteApplicationConfigurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Membership)).ToList());
             var requireConfirmedAccount = membershipConfig.Value<bool>("Require Email Verification");
 
             // Add services to the container.
@@ -70,6 +82,11 @@ namespace TightWiki
             builder.Services.AddLocalization();
 
             builder.Services.AddSingleton<TranslationDatabase>(); //All of the UI text comes from the Translations.db
+            builder.Services.AddSingleton<ITwApplicationTranslationRepository, SqliteTranslationRepository>();
+            builder.Services.AddSingleton<ITwApplicationConfigurationRepository>(sqliteApplicationConfigurationRepository);
+            builder.Services.AddSingleton<ITwApplicationIdentityRepository>(new SqliteApplicationIdentityRepository(databaseManager.UsersRepository));
+            builder.Services.AddSingleton<ITwApplicationOperationsRepository>(new SqliteApplicationOperationsRepository(databaseManager.StatisticsRepository, databaseManager.LoggingRepository));
+            builder.Services.AddSingleton<ITwApplicationMaintenanceRepository>(new SqliteApplicationMaintenanceRepository(databaseManager));
             builder.Services.AddSingleton<IStringLocalizerFactory, TranslationStringLocalizerFactory>();
 
             builder.Services.AddScoped<ITwSharedLocalizationText, SharedLocalizationText>();
@@ -105,6 +122,9 @@ namespace TightWiki
             builder.Services.AddSingleton<ITwEmojiRepository>(databaseManager.EmojiRepository);
             builder.Services.AddSingleton<ITwStatisticsRepository>(databaseManager.StatisticsRepository);
             builder.Services.AddSingleton<ITwPageRepository>(databaseManager.PageRepository);
+            builder.Services.AddSingleton<ITwApplicationPageRepository>(new SqliteApplicationPageRepository(databaseManager.PageRepository));
+            builder.Services.AddSingleton<ITwApplicationPageSupportRepository>(new SqliteApplicationPageSupportRepository(databaseManager.PageRepository));
+            builder.Services.AddSingleton<PageMetadataRebuilder>();
             builder.Services.AddSingleton<ITwUsersRepository>(databaseManager.UsersRepository);
             builder.Services.AddSingleton<ITwDatabaseManager>(databaseManager);
 
@@ -238,7 +258,10 @@ namespace TightWiki
             }
 
             var pluginFolder = Path.Combine(Environment.CurrentDirectory, "Plugins");
-            PluginLoader.LoadPlugins(databaseManager.Logger, pluginFolder);
+            var selectedPluginProvider = DatabaseProviderConfiguration.GetProvider(builder.Configuration) == DatabaseProviderConfiguration.MySQL
+                ? TightWiki.Plugin.Interfaces.Persistence.TwPersistenceProvider.MySQL
+                : TightWiki.Plugin.Interfaces.Persistence.TwPersistenceProvider.SQLite;
+            PluginLoader.LoadPlugins(databaseManager.Logger, pluginFolder, selectedPluginProvider);
 
             builder.Services.AddControllersWithViews();
 

@@ -14,10 +14,9 @@ namespace TightWiki.Controllers
             ITwSharedLocalizationText localizer,
             SignInManager<IdentityUser> signInManager,
             TwConfiguration wikiConfiguration,
-            UserManager<IdentityUser> userManager,
-            ITwDatabaseManager databaseManager
+            UserManager<IdentityUser> userManager
         )
-        : TwController<UtilityController>(logger, signInManager, userManager, localizer, wikiConfiguration, databaseManager)
+        : TwController<UtilityController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
         [AllowAnonymous]
         [HttpGet("Notify")]

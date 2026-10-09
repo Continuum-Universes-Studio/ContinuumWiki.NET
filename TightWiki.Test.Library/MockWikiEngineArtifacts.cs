@@ -12,6 +12,7 @@ using TightWiki.Library;
 using TightWiki.Library.Dummy;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
 using TightWiki.Plugin.Models;
 using TightWiki.Repository.Helpers;
@@ -42,7 +43,8 @@ namespace TightWiki.Test.Library
                 .Build();
 
             DatabaseManager = new DatabaseManager(configuration);
-            WikiConfigurationManager = new WikiConfigurationManager(configuration, DatabaseManager);
+            var applicationPageRepository = new SqliteApplicationPageRepository(DatabaseManager.PageRepository);
+            WikiConfigurationManager = new WikiConfigurationManager(configuration, DatabaseManager, new SqliteApplicationConfigurationRepository(DatabaseManager.ConfigurationRepository));
 
             PluginLoader.LoadPlugins(DatabaseManager.Logger, Environment.CurrentDirectory);
 
@@ -69,6 +71,7 @@ namespace TightWiki.Test.Library
                            containerBuilder.RegisterInstance<ITwPageRepository>(DatabaseManager.PageRepository);
                            containerBuilder.RegisterInstance<ITwUsersRepository>(DatabaseManager.UsersRepository);
                            containerBuilder.RegisterInstance<ITwDatabaseManager>(DatabaseManager);
+                           containerBuilder.RegisterInstance<ITwApplicationPageRepository>(applicationPageRepository);
                            containerBuilder.RegisterType<WikiEngine>().As<ITwEngine>().SingleInstance();
                        }).Build();
 

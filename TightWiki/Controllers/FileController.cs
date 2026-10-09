@@ -8,6 +8,7 @@ using TightWiki.Library;
 using TightWiki.Library.Caching;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
 using TightWiki.Plugin.Models;
 using TightWiki.ViewModels.File;
@@ -20,14 +21,14 @@ namespace TightWiki.Controllers
     public class FileController(
             ILogger<ITwEngine> logger,
             ITwEmojiRepository emojiRepository,
-            ITwPageRepository pageRepository,
+            ITwApplicationPageRepository applicationPageRepository,
+            ITwApplicationPageSupportRepository applicationPageSupportRepository,
             ITwSharedLocalizationText localizer,
             SignInManager<IdentityUser> signInManager,
             TwConfiguration wikiConfiguration,
-            UserManager<IdentityUser> userManager,
-            ITwDatabaseManager databaseManager
+            UserManager<IdentityUser> userManager
         )
-        : TwController<FileController>(logger, signInManager, userManager, localizer, wikiConfiguration, databaseManager)
+        : TwController<FileController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
         /// <summary>
         /// Gets an image attached to a page.
@@ -52,7 +53,7 @@ namespace TightWiki.Controllers
                     return File(cached.Bytes, cached.ContentType);
                 }
 
-                var file = await pageRepository.GetPageFileAttachmentByPageNavigationFileRevisionAndFileNavigation(pageNavigation.Canonical, fileNavigation.Canonical, fileRevision);
+                var file = await applicationPageSupportRepository.GetPageFileAttachmentByPageNavigationFileRevisionAndFileNavigationAsync(pageNavigation.Canonical, fileNavigation.Canonical, fileRevision);
                 if (file != null)
                 {
                     if (file.ContentType == "image/x-icon")
@@ -168,7 +169,7 @@ namespace TightWiki.Controllers
                     return File(cached.Bytes, cached.ContentType);
                 }
 
-                var file = await pageRepository.GetPageFileAttachmentByPageNavigationFileRevisionAndFileNavigation(pageNavigation.Canonical, fileNavigation.Canonical, fileRevision);
+                var file = await applicationPageSupportRepository.GetPageFileAttachmentByPageNavigationFileRevisionAndFileNavigationAsync(pageNavigation.Canonical, fileNavigation.Canonical, fileRevision);
                 if (file != null)
                 {
                     var img = new MagickImage(Utility.Decompress(file.Data));
@@ -270,7 +271,7 @@ namespace TightWiki.Controllers
                 var pageNavigation = new TwNamespaceNavigation(givenPageNavigation);
                 var fileNavigation = new TwNamespaceNavigation(givenFileNavigation);
 
-                var file = await pageRepository.GetPageFileAttachmentByPageNavigationFileRevisionAndFileNavigation(pageNavigation.Canonical, fileNavigation.Canonical, fileRevision);
+                var file = await applicationPageSupportRepository.GetPageFileAttachmentByPageNavigationFileRevisionAndFileNavigationAsync(pageNavigation.Canonical, fileNavigation.Canonical, fileRevision);
 
                 if (file != null)
                 {
@@ -313,8 +314,8 @@ namespace TightWiki.Controllers
                 {
                     PageNavigation = pageNavigation.Canonical,
                     FileNavigation = fileNavigation.Canonical,
-                    Revisions = await pageRepository.GetPageFileAttachmentRevisionsByPageAndFileNavigationPaged
-                        (pageNavigation.Canonical, fileNavigation.Canonical, GetQueryValue("page", 1))
+                    Revisions = (await applicationPageSupportRepository.GetPageFileAttachmentRevisionsByPageAndFileNavigationPagedAsync
+                        (pageNavigation.Canonical, fileNavigation.Canonical, GetQueryValue("page", 1))).ToList()
                 };
 
                 model.PaginationPageCount = (model.Revisions.FirstOrDefault()?.PaginationPageCount ?? 0);
@@ -347,16 +348,16 @@ namespace TightWiki.Controllers
                 }
                 var pageNavigation = new TwNamespaceNavigation(givenPageNavigation);
 
-                var page = await pageRepository.GetPageRevisionByNavigation(pageNavigation);
+                    var page = await applicationPageRepository.GetPageByNavigationAsync(pageNavigation.Canonical);
                 if (page != null)
                 {
-                    var pageFiles = await pageRepository.GetPageFilesInfoByPageId(page.Id);
+                    var pageFiles = await applicationPageSupportRepository.GetPageFilesInfoByPageIdAsync(page.Id);
 
                     return View(new FileAttachmentViewModel
                     {
                         PageNavigation = page.Navigation,
                         PageRevision = page.Revision,
-                        Files = pageFiles
+                        Files = pageFiles.ToList()
                     });
                 }
 
@@ -393,7 +394,7 @@ namespace TightWiki.Controllers
                 {
                     var pageNavigation = new TwNamespaceNavigation(givenPageNavigation);
 
-                    var page = (await pageRepository.GetPageInfoByNavigation(pageNavigation.Canonical)).EnsureNotNull();
+                    var page = (await applicationPageRepository.GetPageByNavigationAsync(pageNavigation.Canonical)).EnsureNotNull();
 
                     foreach (IFormFile file in postedFiles)
                     {
@@ -409,7 +410,7 @@ namespace TightWiki.Controllers
 
                                 var fileName = HttpUtility.UrlDecode(file.FileName);
 
-                                await pageRepository.UpsertPageFile(new TwPageFileAttachment()
+                                await applicationPageSupportRepository.UpsertPageFileAsync(new TwPageFileAttachment()
                                 {
                                     Data = Utility.ConvertHttpFileToBytes(file),
                                     CreatedDate = DateTime.UtcNow,
@@ -422,6 +423,7 @@ namespace TightWiki.Controllers
                             }
                         }
                     }
+                    MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [page.Navigation]));
                     return Json(new { success = true, message = Localize("files: {0:n0}", postedFiles.Count) });
                 }
                 catch (Exception ex)
@@ -456,7 +458,7 @@ namespace TightWiki.Controllers
                 }
                 var pageNavigation = new TwNamespaceNavigation(givenPageNavigation);
 
-                var page = (await pageRepository.GetPageInfoByNavigation(pageNavigation.Canonical)).EnsureNotNull();
+                var page = (await applicationPageRepository.GetPageByNavigationAsync(pageNavigation.Canonical)).EnsureNotNull();
 
                 if (fileData != null)
                 {
@@ -470,7 +472,7 @@ namespace TightWiki.Controllers
 
                         var fileName = HttpUtility.UrlDecode(fileData.FileName);
 
-                        await pageRepository.UpsertPageFile(new TwPageFileAttachment()
+                        await applicationPageSupportRepository.UpsertPageFileAsync(new TwPageFileAttachment()
                         {
                             Data = Utility.ConvertHttpFileToBytes(fileData),
                             CreatedDate = DateTime.UtcNow,
@@ -480,6 +482,8 @@ namespace TightWiki.Controllers
                             Size = fileSize,
                             ContentType = Utility.GetMimeType(fileName)
                         }, (SessionState.Profile?.UserId).EnsureNotNullOrEmpty());
+
+                        MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [page.Navigation]));
 
                         return Content(Localize("Success"));
                     }
@@ -511,9 +515,11 @@ namespace TightWiki.Controllers
                     return NotifyOfError(ex.GetBaseException().Message, "/");
                 }
 
-                await pageRepository.DetachPageRevisionAttachment(
+                await applicationPageSupportRepository.DetachPageRevisionAttachmentAsync(
                     new TwNamespaceNavigation(givenPageNavigation).Canonical,
                     new TwNamespaceNavigation(givenFileNavigation).Canonical, pageRevision);
+
+                MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [new TwNamespaceNavigation(givenPageNavigation).Canonical]));
 
                 return Content(Localize("Success"));
             }

@@ -341,7 +341,11 @@
         /// <summary>Reusable include pages.</summary>
         IncludePages,
         /// <summary>Predefined feature templates.</summary>
-        FeatureTemplates = 5
+        FeatureTemplates = 5,
+        /// <summary>Shipped localized application translations.</summary>
+        Translations = 6,
+        /// <summary>Shipped navigation menu items.</summary>
+        Menus = 7
     }
 
     /// <summary>

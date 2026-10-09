@@ -7,11 +7,12 @@
 @using TightWiki.Plugin
 @using TightWiki.Plugin.Interfaces
 @using TightWiki.Plugin.Interfaces.Repository
+@using TightWiki.Plugin.Interfaces.Persistence
 @using static TightWiki.Plugin.TwConstants
 @inject ITwSharedLocalizationText Localizer
 @inject ITwEngine TightEngine
 @inject TwConfiguration WikiConfiguration
-@inject ITwUsersRepository UsersRepository
+@inject ITwApplicationIdentityRepository IdentityRepository
 @inject Microsoft.AspNetCore.Mvc.ViewFeatures.IFileVersionProvider FileVersion
 
 @{
@@ -27,9 +28,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@(sessionState.PageTitle ?? sessionState.Page.Name)</title>
+    <title>@(sessionState.PageTitle ?? sessionState.Page.Name) · @WikiConfiguration.ApplicationName</title>
 
-    <link rel="icon" type="image/x-icon" href="@Url.Content("~/favicon.ico")">
+    <link rel="icon" type="image/x-icon" href="@Url.Content(WikiConfiguration.FaviconPath)">
     <link rel="icon" type="image/png" sizes="32x32" href="@Url.Content("~/favicon-32.png")">
     <link rel="icon" type="image/png" sizes="16x16" href="@Url.Content("~/favicon-16.png")">
 
@@ -40,7 +41,7 @@
 
     @if (WikiConfiguration.IncludeWikiDescriptionInMeta)
     {
-        <meta name="description" content="@sessionState.Page.Description">
+        <meta name="description" content="@(sessionState.Page.Description ?? WikiConfiguration.ApplicationDescription)">
     }
 
     @if (WikiConfiguration.IncludeWikiTagsInMeta)
@@ -72,6 +73,7 @@
 
     @* The version hash makes browsers fetch the stylesheet again whenever it changes. *@
     <link rel="stylesheet" href="@FileVersion.AddFileVersionToPath(Context.Request.PathBase, Url.Content("~/css/base.css"))" />
+    <link rel="stylesheet" href="@FileVersion.AddFileVersionToPath(Context.Request.PathBase, Url.Content("~/css/continuum.css"))" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -99,11 +101,11 @@
         <nav class="@navBarClass">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-2" href="@WikiConfiguration.BasePath/">
-                    <span class="site-branding d-inline-flex align-items-center gap-2 @theme.ClassBranding">
+                    <span class="site-branding cw-branding d-inline-flex align-items-center gap-2 @theme.ClassBranding">
                         <img src="@Url.Content(WikiConfiguration.BrandImageSmall)"
-                             alt="@WikiConfiguration.Name"
+                             alt="@(string.IsNullOrWhiteSpace(WikiConfiguration.Name) ? WikiConfiguration.ApplicationName : WikiConfiguration.Name)"
                              style="max-height: 28px;" />
-                        <span>@WikiConfiguration.Name</span>
+                        <span>@(string.IsNullOrWhiteSpace(WikiConfiguration.Name) ? WikiConfiguration.ApplicationName : WikiConfiguration.Name)</span>
                     </span>
                 </a>
 
@@ -308,7 +310,7 @@
         <main role="main" class="pb-3">
             @Html.Raw(WikiConfiguration.HTMLPreBody)
 
-            @if (await UsersRepository.AdminPasswordStatus() != TwAdminPasswordChangeState.HasBeenChanged)
+            @if (await IdentityRepository.GetAdminPasswordStatusAsync() != TwAdminPasswordChangeState.HasBeenChanged)
             {
                 <div class="card shadow-sm border-warning mb-3">
                     <div class="card-header bg-warning-subtle border-warning">
@@ -380,7 +382,20 @@
                     @Html.Raw(WikiConfiguration.Copyright)
                 </div>
             }
+
         }
+
+        <div class="text-muted small">
+            @WikiConfiguration.ApplicationName · @WikiConfiguration.OrganizationName
+            @if (!string.IsNullOrWhiteSpace(WikiConfiguration.ApplicationVersion))
+            {
+                <span> · v@WikiConfiguration.ApplicationVersion</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(WikiConfiguration.ProductWebsite))
+            {
+                <span> · <a href="@WikiConfiguration.ProductWebsite">@WikiConfiguration.ProductWebsite</a></span>
+            }
+        </div>
 
         @Html.Raw(WikiConfiguration.HTMLFooter)
     </footer>

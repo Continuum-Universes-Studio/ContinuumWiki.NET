@@ -14,7 +14,9 @@ using TightWiki.Library.Security;
 using TightWiki.Pages;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
+using TightWiki.Plugin.Models;
 using static TightWiki.Plugin.TwConstants;
 
 namespace TightWiki.Areas.Identity.Pages.Account
@@ -40,8 +42,8 @@ namespace TightWiki.Areas.Identity.Pages.Account
         private readonly ILogger<ITwEngine> _logger;
         private readonly ITwSharedLocalizationText _localizer;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ITwConfigurationRepository _configurationRepository;
-        private readonly ITwUsersRepository _usersRepository;
+        private readonly ITwApplicationConfigurationRepository _configurationRepository;
+        private readonly ITwApplicationIdentityRepository _usersRepository;
 
         public LoginModel(
                 ILogger<ITwEngine> logger,
@@ -50,8 +52,8 @@ namespace TightWiki.Areas.Identity.Pages.Account
                 ITwSharedLocalizationText localizer,
                 IHttpContextAccessor httpContextAccessor,
                 TwConfiguration wikiConfiguration,
-                ITwConfigurationRepository configurationRepository,
-                ITwUsersRepository usersRepository,
+                ITwApplicationConfigurationRepository configurationRepository,
+                ITwApplicationIdentityRepository usersRepository,
                 ITwDatabaseManager databaseManager
             )
             : base(logger, signInManager, localizer, wikiConfiguration, databaseManager)
@@ -98,7 +100,7 @@ namespace TightWiki.Areas.Identity.Pages.Account
         {
             try
             {
-                var ldapAuthenticationConfiguration = await _configurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.LDAPAuthentication);
+                var ldapAuthenticationConfiguration = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.LDAPAuthentication)).ToList());
 
                 ReturnUrl = WebUtility.UrlDecode(returnUrl ?? $"{WikiConfiguration.BasePath}/");
 
@@ -138,7 +140,7 @@ namespace TightWiki.Areas.Identity.Pages.Account
 
                                 var foundUser = await _userManager.FindByLoginAsync(loginInfo.LoginProvider, loginInfo.ProviderKey);
 
-                                if (foundUser != null && await _usersRepository.GetBasicProfileByUserId(Guid.Parse(foundUser.Id)) != null)
+                                if (foundUser != null && await _usersRepository.GetBasicProfileByUserIdAsync(Guid.Parse(foundUser.Id)) != null)
                                 {
                                     await SignInManager.SignInAsync(foundUser, Input.RememberMe);
                                     return Redirect(returnUrl);
@@ -183,7 +185,7 @@ namespace TightWiki.Areas.Identity.Pages.Account
                                     }
 
                                     // Check if the user has a profile, if not, redirect to the supplemental info page.
-                                    if (await _usersRepository.GetBasicProfileByUserId(Guid.Parse(foundUser.Id)) == null)
+                                    if (await _usersRepository.GetBasicProfileByUserIdAsync(Guid.Parse(foundUser.Id)) == null)
                                     {
                                         if (WikiConfiguration.AllowSignup != true)
                                         {
@@ -233,7 +235,7 @@ namespace TightWiki.Areas.Identity.Pages.Account
 
                 if (Guid.TryParse(userIdString, out var userId))
                 {
-                    var profile = await _usersRepository.GetBasicProfileByUserId(userId);
+                    var profile = await _usersRepository.GetBasicProfileByUserIdAsync(userId);
                     if (profile != null)
                     {
                         Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName,

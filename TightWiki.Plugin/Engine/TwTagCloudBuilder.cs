@@ -1,5 +1,7 @@
 ﻿using System.Text;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Interfaces.Repository;
+using TightWiki.Plugin.Models;
 
 namespace TightWiki.Plugin.Engine
 {
@@ -15,9 +17,9 @@ namespace TightWiki.Plugin.Engine
         /// The font size of each tag is determined by its relevance score, allowing for a visual
         /// representation of the importance of each page in the search results.
         /// </summary>
-        public static async Task<string> Build(ITwPageRepository pageRepository, string basePath, string seedTag, int? maxCount)
+        public static async Task<string> Build(ITwApplicationPageRepository pageRepository, string basePath, string seedTag, int? maxCount)
         {
-            var tags = (await pageRepository.GetAssociatedTags(seedTag))
+            var tags = (await pageRepository.GetAssociatedTagsAsync(seedTag))
                 .OrderByDescending(o => o.PageCount)
                 .ToList();
 
@@ -54,6 +56,32 @@ namespace TightWiki.Plugin.Engine
             html.Append("</div>");
 
             return html.ToString();
+        }
+
+        /// <summary>Legacy plugin compatibility overload; application consumers use the provider-neutral overload.</summary>
+        public static async Task<string> Build(ITwPageRepository pageRepository, string basePath, string seedTag, int? maxCount)
+        {
+            var tags = (await pageRepository.GetAssociatedTags(seedTag))
+                .OrderByDescending(o => o.PageCount)
+                .Take(maxCount is > 0 ? maxCount.Value : int.MaxValue)
+                .OrderBy(o => o.Tag)
+                .ToList();
+            return BuildHtml(tags, basePath);
+        }
+
+        private static string BuildHtml(List<TwTagAssociation> tags, string basePath)
+        {
+            if (tags.Count == 0) return string.Empty;
+            int maxPageCount = tags.Max(o => o.PageCount);
+            int minPageCount = tags.Min(o => o.PageCount);
+            var html = new StringBuilder("<div class=\"text-center lh-sm\">");
+            foreach (var tag in tags)
+            {
+                var encodedTag = System.Net.WebUtility.HtmlEncode(tag.Tag);
+                var url = $"{basePath}/Tags/Browse/{TwNamespaceNavigation.CleanAndValidate(tag.Tag)}";
+                html.Append($"<a href=\"{url}\" class=\"badge rounded-pill border text-decoration-none text-reset me-1 mb-1 {GetTierClass(tag.PageCount, minPageCount, maxPageCount)}\">{encodedTag}</a>");
+            }
+            return html.Append("</div>").ToString();
         }
 
         private static string GetTierClass(int pageCount, int minPageCount, int maxPageCount)

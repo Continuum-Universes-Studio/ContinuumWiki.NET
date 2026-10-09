@@ -1,0 +1,43 @@
+:root {
+  --cw-page-background: var(--bs-body-bg, #fff);
+  --cw-surface-background: var(--bs-secondary-bg, #f8f9fa);
+  --cw-elevated-surface: var(--bs-tertiary-bg, #fff);
+  --cw-primary-text: var(--bs-body-color, #212529);
+  --cw-secondary-text: var(--bs-secondary-color, #6c757d);
+  --cw-border: var(--bs-border-color, #dee2e6);
+  --cw-accent: var(--bs-primary, #6f42c1);
+  --cw-accent-hover: var(--bs-primary-text-emphasis, #59359a);
+  --cw-focus: var(--bs-focus-ring-color, rgba(111, 66, 193, 0.35));
+  --cw-space-1: 0.25rem;
+  --cw-space-2: 0.5rem;
+  --cw-space-3: 0.75rem;
+  --cw-space-4: 1rem;
+  --cw-radius: 0.5rem;
+  --cw-radius-small: 0.25rem;
+  --cw-font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.cw-branding,
+.cw-branding * {
+  font-family: var(--cw-font-family);
+}
+.cw-branding {
+  color: var(--cw-primary-text);
+  gap: var(--cw-space-2);
+}
+.cw-branding {
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.cw-branding:hover,
+.cw-branding:focus-visible {
+  color: var(--cw-accent-hover);
+}
+.cw-branding:focus-visible {
+  outline: 2px solid var(--cw-focus);
+  outline-offset: 3px;
+  border-radius: var(--cw-radius-small);
+}
+body {
+  background-color: var(--cw-page-background);
+  color: var(--cw-primary-text);
+}

@@ -23,7 +23,8 @@ namespace TightWiki.Pages
 
         public override async Task OnPageHandlerExecutionAsync(PageHandlerExecutingContext context, PageHandlerExecutionDelegate next)
         {
-            var sessionState = await SessionState.Hydrate(logger, SignInManager, this, WikiConfiguration, databaseManager);
+            _ = databaseManager; // Retained in the page-model constructor for binary/page-model compatibility; hydration resolves neutral services from the request scope.
+            var sessionState = await SessionState.Hydrate(logger, SignInManager, this, WikiConfiguration);
             ViewData["SessionState"] = sessionState;
             await next();
         }

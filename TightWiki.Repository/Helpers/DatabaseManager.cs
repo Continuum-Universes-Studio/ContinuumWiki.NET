@@ -9,6 +9,7 @@ using System.Security.Claims;
 using TightWiki.Library;
 using TightWiki.Library.Dummy;
 using TightWiki.Library.Extensions;
+using TightWiki.Library.Database;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
 using TightWiki.Plugin.Interfaces.Repository;
@@ -39,6 +40,7 @@ namespace TightWiki.Repository.Helpers
 
         public DatabaseManager(IConfiguration configuration)
         {
+            DatabaseProviderConfiguration.ValidateSupportedProvider(configuration);
             Logger = new ConsoleLogger();
 
             ConfigurationRepository = new ConfigurationRepository(configuration);

@@ -1,13 +1,35 @@
-# TightWiki
+# ContinuumWiki.NET
 
 [![Regression Tests](https://github.com/NTDLS/TightWiki/actions/workflows/Regression%20Tests.yml/badge.svg)](https://github.com/NTDLS/TightWiki/actions/workflows/Regression%20Tests.yml)
+
+ContinuumWiki.NET is a purpose-built wiki, lore database, and worldbuilding platform for Continuum Universes. It is a compatible fork of [NTDLS/TightWiki](https://github.com/NTDLS/TightWiki), preserving its MVC/Razor architecture, routes, plugin contracts, SQLite persistence, and MIT licensing.
+
+The existing TightWiki feature set remains the compatibility baseline. Product identity is configurable through `TightWiki/appsettings.json` and the existing database-backed site customization settings; C# namespaces and assembly names intentionally remain `TightWiki`.
+
+## Development
+
+The project targets .NET 10 and uses ASP.NET Core MVC/Razor Pages, Identity, Dapper, Entity Framework Core, SQLite, and the TightWiki markup/plugin system.
+
+```bash
+dotnet restore TightWiki.sln
+dotnet build TightWiki.sln --configuration Debug -m:1
+dotnet test TightWiki.sln --configuration Debug --no-restore -m:1
+```
+
+Run locally with `dotnet run --project TightWiki`. Do not commit local databases or secrets.
+
+Application metadata is configured under the `Application` section in `TightWiki/appsettings.json` (name, organization, description, website, version, and favicon). Existing database settings remain authoritative for operator-controlled wiki name, address, logo, footer, copyright, theme, and menu.
+
+Architecture documentation is available in [`docs/architecture`](docs/architecture/), including the [upstream baseline](docs/architecture/UPSTREAM-BASELINE.md), [dependency map](docs/architecture/DEPENDENCY-MAP.md), and [extensibility audit](docs/architecture/EXTENSIBILITY-AUDIT.md). The migration assessments are documentation only: the application remains SQLite-backed and uses TightWiki markup.
+
+Current development status: identity and branding foundation in progress; unfinished wishlist features are not claimed as implemented.
 
 For years I’ve worked at places where we just needed a simple to use, searchable, unobtrusive, no-nonsense, collaborative and free place to dump documentation.
 The first thing that comes to mind is a Wiki but for some reason I can never find anything that "checks all the boxes". Hopefully you'll find this one does for you.
 
-:yum: TightWiki is an ASP.NET Core MVC Razor wiki written in C# that sits on top of a SQLite database (zero configuration required).
+:yum: ContinuumWiki.NET is an ASP.NET Core MVC Razor wiki written in C# that sits on top of a SQLite database (zero configuration required).
 
-:crossed_fingers: Play with the latest dev build at http://TightWiki.com/. If you want to edit, you can signup using google auth or native TightWiki login.
+:crossed_fingers: The original TightWiki project is available at https://tightwiki.com/. ContinuumWiki.NET is developed for the Continuum Universes franchise.
 
 :eyes: Or check out the full wiki [documentation](https://tightwiki.com/Wiki%20Help%20::%20Wiki%20Help) to learn about the engine functionality.
 
@@ -26,7 +48,7 @@ The first thing that comes to mind is a Wiki but for some reason I can never fin
 * Role-based and per-user security for managing who can read/edit/delete/moderate pages and namespaces.
 * Easy page linking. Can even link to pages that do not exist and the link will subtly prompt you to create the page when logged in with a role that has page creation support.
 * Admin shows missing pages, namespace metrics, users, roles, etc.
-* Multi-language. Translated into 47 languages, so if you speak it - so does TightWiki.
+* Multi-language support through the existing localization system.
 * Manual account creation, editing and deletion.
 * Emojis! Lots built-in, and you can add custom - including animations.
 * Page creation templates - to assist in uniformity and rapid page creation.

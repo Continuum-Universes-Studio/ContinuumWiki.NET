@@ -9,8 +9,15 @@ namespace TightWiki.Plugin
     /// The plugin version should be in the format of "Major.Minor.Patch".
     /// </summary>
     public class TwPluginModule
-        : ITwPluginModule
+        : ITwPluginModule, Interfaces.Persistence.ITwPluginPersistenceCompatibility
     {
+        /// <summary>Gets the providers supported by the built-in plugin module.</summary>
+        public IReadOnlyCollection<Interfaces.Persistence.TwPersistenceProvider> SupportedProviders { get; } =
+            new[] { Interfaces.Persistence.TwPersistenceProvider.SQLite, Interfaces.Persistence.TwPersistenceProvider.MySQL };
+
+        /// <summary>Gets whether this module requires legacy SQLite repository services.</summary>
+        public bool RequiresLegacySqliteRepositories => false;
+
         /// <summary>
         /// Gets the current assembly version in Major.Minor.Patch format.
         /// </summary>

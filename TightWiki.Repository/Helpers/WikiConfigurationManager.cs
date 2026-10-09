@@ -2,22 +2,44 @@
 using System.Diagnostics;
 using TightWiki.Library.Caching;
 using TightWiki.Plugin;
+using TightWiki.Plugin.Interfaces.Persistence;
+using TightWiki.Plugin.Models;
 using static TightWiki.Plugin.TwConstants;
 
 namespace TightWiki.Repository.Helpers
 {
     public class WikiConfigurationManager
     {
-        private readonly DatabaseManager _databaseManager;
+        private readonly Func<bool, int, Task<List<TwEmoji>>> _reloadEmojis;
+        private readonly ITwApplicationConfigurationRepository _configurationRepository;
         public TwConfiguration WikiConfiguration { get; private set; }
 
-        public WikiConfigurationManager(IConfiguration configuration, DatabaseManager databaseManager)
+        public WikiConfigurationManager(IConfiguration configuration, DatabaseManager databaseManager, ITwApplicationConfigurationRepository configurationRepository)
+            : this(configuration, configurationRepository, (preload, height) => databaseManager.EmojiRepository.ReloadEmojis(preload, height))
         {
-            _databaseManager = databaseManager;
+        }
+
+        public WikiConfigurationManager(IConfiguration configuration, ITwApplicationConfigurationRepository configurationRepository, Func<bool, int, Task<List<TwEmoji>>> reloadEmojis)
+        {
+            _configurationRepository = configurationRepository;
+            _reloadEmojis = reloadEmojis;
             WikiConfiguration = new TwConfiguration()
             {
-                BasePath = configuration.GetValue<string?>("BasePath") ?? string.Empty
+                BasePath = configuration.GetValue<string?>("BasePath") ?? string.Empty,
+                ApplicationName = configuration.GetValue<string?>("Application:Name") ?? "ContinuumWiki.NET",
+                OrganizationName = configuration.GetValue<string?>("Application:Organization") ?? "Continuum Universes Studio",
+                ApplicationDescription = configuration.GetValue<string?>("Application:Description") ?? "A purpose-built wiki, lore database, and worldbuilding platform for Continuum Universes.",
+                ProductWebsite = configuration.GetValue<string?>("Application:Website") ?? string.Empty,
+                ApplicationVersion = configuration.GetValue<string?>("Application:Version")
+                    ?? typeof(WikiConfigurationManager).Assembly.GetName().Version?.ToString(3)
+                    ?? string.Empty,
+                FaviconPath = configuration.GetValue<string?>("Application:FaviconPath") ?? "/favicon.ico"
             };
+
+            if (string.IsNullOrWhiteSpace(WikiConfiguration.ApplicationVersion))
+            {
+                WikiConfiguration.ApplicationVersion = typeof(WikiConfigurationManager).Assembly.GetName().Version?.ToString(3) ?? string.Empty;
+            }
 
             ReloadAll().Wait();
         }
@@ -28,21 +50,21 @@ namespace TightWiki.Repository.Helpers
 
             WikiConfiguration.IsDebug = Debugger.IsAttached;
 
-            var performanceConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Performance);
+            var performanceConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Performance)).ToList());
             WikiConfiguration.PageCacheSeconds = performanceConfig.Value<int>("Page Cache Time (Seconds)");
             WikiConfiguration.RecordCompilationMetrics = performanceConfig.Value<bool>("Record Compilation Metrics");
             WikiConfiguration.CacheMemoryLimitMB = performanceConfig.Value<int>("Cache Memory Limit MB");
 
             MemCache.Initialize(WikiConfiguration.CacheMemoryLimitMB, TimeSpan.FromSeconds(WikiConfiguration.PageCacheSeconds));
 
-            var basicConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Basic);
-            var customizationConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Customization);
-            var htmlConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.HTMLLayout);
-            var functionalityConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Functionality);
-            var membershipConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Membership);
-            var searchConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.Search);
-            var filesAndAttachmentsConfig = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.FilesAndAttachments);
-            var ldapAuthentication = await _databaseManager.ConfigurationRepository.GetConfigurationEntryValuesByGroupName(TwConfigGroup.LDAPAuthentication);
+            var basicConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Basic)).ToList());
+            var customizationConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Customization)).ToList());
+            var htmlConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.HTMLLayout)).ToList());
+            var functionalityConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Functionality)).ToList());
+            var membershipConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Membership)).ToList());
+            var searchConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.Search)).ToList());
+            var filesAndAttachmentsConfig = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.FilesAndAttachments)).ToList());
+            var ldapAuthentication = new TwConfigurationEntries((await _configurationRepository.GetEntriesByGroupNameAsync(TwConfigGroup.LDAPAuthentication)).ToList());
             WikiConfiguration.EnableLDAPAuthentication = ldapAuthentication.Value("LDAP : Enable LDAP Authentication", false);
 
             WikiConfiguration.Address = basicConfig?.Value<string>("Address") ?? string.Empty;
@@ -55,7 +77,7 @@ namespace TightWiki.Repository.Helpers
             WikiConfiguration.AllowSignup = membershipConfig.Value("Allow Signup", false);
             WikiConfiguration.DefaultProfileRecentlyModifiedCount = performanceConfig.Value<int>("Default Profile Recently Modified Count");
             WikiConfiguration.PreLoadAnimatedEmojis = performanceConfig.Value<bool>("Pre-Load Animated Emojis");
-            WikiConfiguration.SystemTheme = (await _databaseManager.ConfigurationRepository.GetAllThemes()).Single(o => o.Name == themeName);
+            WikiConfiguration.SystemTheme = (await _configurationRepository.GetThemesAsync()).Single(o => o.Name == themeName);
             WikiConfiguration.DefaultEmojiHeight = customizationConfig.Value<int>("Default Emoji Height");
             WikiConfiguration.PaginationSize = customizationConfig.Value<int>("Pagination Size");
 
@@ -87,12 +109,12 @@ namespace TightWiki.Repository.Helpers
 
         public async Task ReloadMenu()
         {
-            WikiConfiguration.MenuItems = await _databaseManager.ConfigurationRepository.GetAllMenuItems();
+            WikiConfiguration.MenuItems = (await _configurationRepository.GetMenuItemsAsync()).ToList();
         }
 
         public async Task ReloadEmojis()
         {
-            WikiConfiguration.Emojis = await _databaseManager.EmojiRepository.ReloadEmojis(
+            WikiConfiguration.Emojis = await _reloadEmojis(
                 WikiConfiguration.PreLoadAnimatedEmojis, WikiConfiguration.DefaultEmojiHeight);
         }
     }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Localization;
 using System.Globalization;
+using TightWiki.Plugin.Interfaces.Persistence;
 
 namespace TightWiki.Translations
 {
@@ -10,19 +11,19 @@ namespace TightWiki.Translations
     public class TranslationStringLocalizer
         : IStringLocalizer
     {
-        private readonly TranslationDatabase _database;
+        private readonly ITwApplicationTranslationRepository _repository;
 
-        public TranslationStringLocalizer(TranslationDatabase database)
+        public TranslationStringLocalizer(ITwApplicationTranslationRepository repository)
         {
-            _database = database;
+            _repository = repository;
         }
 
         public LocalizedString this[string name]
         {
             get
             {
-                var found = _database.TryGetTranslation(CultureInfo.CurrentUICulture, name, out var translation);
-                return new LocalizedString(name, found ? translation : name, resourceNotFound: !found);
+                var translation = _repository.GetTranslationAsync(CultureInfo.CurrentUICulture.Name, name).GetAwaiter().GetResult();
+                return new LocalizedString(name, translation ?? name, resourceNotFound: translation is null);
             }
         }
 
@@ -30,8 +31,8 @@ namespace TightWiki.Translations
         {
             get
             {
-                var found = _database.TryGetTranslation(CultureInfo.CurrentUICulture, name, out var translation);
-                return new LocalizedString(name, string.Format(found ? translation : name, arguments), resourceNotFound: !found);
+                var translation = _repository.GetTranslationAsync(CultureInfo.CurrentUICulture.Name, name).GetAwaiter().GetResult();
+                return new LocalizedString(name, string.Format(translation ?? name, arguments), resourceNotFound: translation is null);
             }
         }
 
@@ -47,9 +48,9 @@ namespace TightWiki.Translations
     {
         private readonly TranslationStringLocalizer _localizer;
 
-        public TranslationStringLocalizerFactory(TranslationDatabase database)
+        public TranslationStringLocalizerFactory(ITwApplicationTranslationRepository repository)
         {
-            _localizer = new TranslationStringLocalizer(database);
+            _localizer = new TranslationStringLocalizer(repository);
         }
 
         public IStringLocalizer Create(Type resourceSource) => _localizer;

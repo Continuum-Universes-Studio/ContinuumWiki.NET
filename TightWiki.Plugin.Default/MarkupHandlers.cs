@@ -325,7 +325,7 @@ namespace TightWiki.Plugin.Default
             }
             state.OutgoingLinks.Add(new TwPageReference(pageName, pageNavigation.Canonical));
 
-            var page = await state.Engine.DatabaseManager.PageRepository.GetPageRevisionByNavigation(pageNavigation);
+            var page = await state.Engine.ApplicationPageRepository.GetPageByNavigationAsync(pageNavigation.Canonical);
             if (page == null)
             {
                 if (state.Session != null && await state.Session.HoldsPermission(pageNavigation.Canonical, TwPermission.Create))

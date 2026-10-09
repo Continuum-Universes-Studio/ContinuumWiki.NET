@@ -5,6 +5,8 @@ TightWiki/obj/
 
 *.user
 
+node_modules/
+
 TightWiki.Library/obj/
 
 .vs/

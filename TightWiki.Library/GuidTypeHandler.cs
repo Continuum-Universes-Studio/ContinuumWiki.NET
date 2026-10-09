@@ -13,7 +13,7 @@ namespace TightWiki.Library
 
         public override Guid Parse(object value)
         {
-            return Guid.Parse((string)value);
+            return value is Guid guid ? guid : Guid.Parse(value.ToString()!);
         }
     }
 }

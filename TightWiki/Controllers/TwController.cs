@@ -12,15 +12,13 @@ namespace TightWiki.Controllers
             SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
             ITwSharedLocalizationText localizer,
-            TwConfiguration wikiConfiguration,
-            ITwDatabaseManager databaseManager
+            TwConfiguration wikiConfiguration
         )
         : Controller
     {
         public TwConfiguration WikiConfiguration { get; private set; } = wikiConfiguration;
         public ILogger<ITwEngine> Logger { get; private set; } = logger;
         public ITwSharedLocalizationText Localizer { get; private set; } = localizer;
-        public ITwDatabaseManager DatabaseManager { get; private set; } = databaseManager;
         public TwSessionState SessionState { get; private set; } = new();
 
         public readonly SignInManager<IdentityUser> SignInManager = signInManager;
@@ -29,7 +27,7 @@ namespace TightWiki.Controllers
         [NonAction]
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var sessionState = await SessionState.Hydrate(Logger, SignInManager, this, WikiConfiguration, DatabaseManager);
+            var sessionState = await SessionState.Hydrate(Logger, SignInManager, this, WikiConfiguration);
             ViewData["SessionState"] = sessionState;
             await next();
         }

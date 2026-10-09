@@ -4,6 +4,7 @@ using NTDLS.SqliteDapperWrapper;
 using System.Data;
 using TightWiki.Library;
 using TightWiki.Library.Caching;
+using TightWiki.Library.Database;
 using TightWiki.Library.Extensions;
 using TightWiki.Library.Security;
 using TightWiki.Plugin.Interfaces.Repository;
@@ -16,10 +17,12 @@ namespace TightWiki.Repository
         : ITwConfigurationRepository
     {
         public SqliteManagedFactory ConfigFactory { get; private set; }
+        private readonly IDatabaseConnectionFactory _connectionFactory;
 
         public ConfigurationRepository(IConfiguration configuration)
         {
             ConfigFactory = new SqliteManagedFactory(configuration.GetDatabaseConnectionString("ConfigConnection", "config.db"));
+            _connectionFactory = new SqliteDatabaseConnectionFactory(ConfigFactory);
         }
 
         public async Task<TwConfigurationEntries> GetConfigurationEntryValuesByGroupName(string groupName)
@@ -28,8 +31,11 @@ namespace TightWiki.Repository
 
             return await MemCache.AddOrGet(cacheKey, async () =>
             {
-                var entries = await ConfigFactory.QueryAsync<TwConfigurationEntry>("GetConfigurationEntryValuesByGroupName.sql",
-                    new { GroupName = groupName });
+                await using var session = await _connectionFactory.OpenSessionAsync();
+                var entries = (await Dapper.SqlMapper.QueryAsync<TwConfigurationEntry>(
+                    session.Connection,
+                    EmbeddedResourceReader.LoadText("GetConfigurationEntryValuesByGroupName.sql"),
+                    new { GroupName = groupName })).ToList();
 
                 foreach (var entry in entries)
                 {

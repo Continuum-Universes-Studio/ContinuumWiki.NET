@@ -13,6 +13,7 @@ using TightWiki.Plugin.Interfaces;
 using TightWiki.Plugin.Interfaces.Module;
 using TightWiki.Plugin.Interfaces.Module.Function;
 using TightWiki.Plugin.Interfaces.Module.Handlers;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Models;
 
 namespace TightWiki.Engine
@@ -25,6 +26,7 @@ namespace TightWiki.Engine
         public ILogger<ITwEngine> Logger { get; set; }
         public List<ITwPlugin> Plugins { get; private set; } = new();
         public ITwDatabaseManager DatabaseManager { get; private set; }
+        public ITwApplicationPageRepository ApplicationPageRepository { get; private set; }
 
         public List<ITwCompletionDescriptor> CompletionHandlers { get; private set; } = new();
         public List<ITwExceptionDescriptor> ExceptionHandlers { get; private set; } = new();
@@ -37,10 +39,12 @@ namespace TightWiki.Engine
         public WikiEngine(
             TwConfiguration wikiConfiguration,
             ITwDatabaseManager databaseManager,
+            ITwApplicationPageRepository applicationPageRepository,
             ILogger<ITwEngine> logger)
         {
             WikiConfiguration = wikiConfiguration;
             DatabaseManager = databaseManager;
+            ApplicationPageRepository = applicationPageRepository;
             Logger = logger;
 
             var plugins = AppDomain.CurrentDomain.GetAssemblies()

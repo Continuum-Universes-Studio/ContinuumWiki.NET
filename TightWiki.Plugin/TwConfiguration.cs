@@ -8,6 +8,19 @@ namespace TightWiki.Plugin
     /// </summary>
     public class TwConfiguration
     {
+        /// <summary>The public product name.</summary>
+        public string ApplicationName { get; set; } = "ContinuumWiki.NET";
+        /// <summary>The organization responsible for the product.</summary>
+        public string OrganizationName { get; set; } = "Continuum Universes Studio";
+        /// <summary>The default product description used by public metadata.</summary>
+        public string ApplicationDescription { get; set; } = "A purpose-built wiki, lore database, and worldbuilding platform for Continuum Universes.";
+        /// <summary>The optional public product website.</summary>
+        public string ProductWebsite { get; set; } = string.Empty;
+        /// <summary>The configured or assembly-derived product version.</summary>
+        public string ApplicationVersion { get; set; } = string.Empty;
+        /// <summary>The public favicon path.</summary>
+        public string FaviconPath { get; set; } = "/favicon.ico";
+
         /// <summary>
         /// The set of MIME types that are permitted for image uploads.
         /// </summary>

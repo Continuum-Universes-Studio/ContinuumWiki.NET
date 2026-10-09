@@ -1,0 +1,15 @@
+.cw-branding {
+    text-decoration: none;
+    transition: color 150ms ease;
+
+    &:hover,
+    &:focus-visible {
+        color: var(--cw-accent-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--cw-focus);
+        outline-offset: 3px;
+        border-radius: var(--cw-radius-small);
+    }
+}
