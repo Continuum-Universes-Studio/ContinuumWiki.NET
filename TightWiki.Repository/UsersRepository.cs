@@ -88,7 +88,7 @@ namespace TightWiki.Repository
 
             return await UsersFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("pages.db", "pages_db");
                 return await o.QueryFirstOrDefaultAsync<TwInsertAccountPermissionResult>("InsertAccountPermission.sql", param);
             });
         }
@@ -149,7 +149,7 @@ namespace TightWiki.Repository
 
             return await UsersFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("pages.db", "pages_db");
                 return await o.QueryFirstOrDefaultAsync<TwInsertRolePermissionResult>("InsertRolePermission.sql", param);
             });
         }
@@ -212,7 +212,7 @@ namespace TightWiki.Repository
         {
             return await UsersFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("pages.db", "pages_db");
 
                 pageSize ??= await _configurationRepository.Get<int>(TwConfigGroup.Customization, "Pagination Size");
 
@@ -311,7 +311,7 @@ namespace TightWiki.Repository
         {
             return await UsersFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("pages.db", "pages_db");
 
                 pageSize ??= await _configurationRepository.Get<int>(TwConfigGroup.Customization, "Pagination Size");
 

@@ -1,9 +1,41 @@
 ﻿using NTDLS.EmbeddedResource;
+using Dapper;
+using NTDLS.SqliteDapperWrapper;
 
 namespace TightWiki.Repository.Helpers
 {
     public static class RepositoryHelpers
     {
+        private static readonly Lock AttachLock = new();
+
+        public static IDisposable AttachSiblingDatabase(
+            this SqliteManagedInstance connection, string databaseFileName, string databaseAlias)
+        {
+            var databaseDirectory = Path.GetDirectoryName(connection.NativeConnection.DataSource)
+                ?? throw new InvalidOperationException("Could not determine the directory of the active database.");
+
+            var databasePath = Path.GetFullPath(Path.Combine(databaseDirectory, databaseFileName));
+            lock (AttachLock)
+            {
+                connection.NativeConnection.Execute(
+                    $"ATTACH DATABASE @DatabasePath AS [{databaseAlias}]",
+                    new { DatabasePath = databasePath });
+            }
+
+            return new AttachedDatabase(connection.NativeConnection, databaseAlias);
+        }
+
+        private sealed class AttachedDatabase(Microsoft.Data.Sqlite.SqliteConnection connection, string alias) : IDisposable
+        {
+            public void Dispose()
+            {
+                lock (AttachLock)
+                {
+                    connection.Execute($"DETACH DATABASE [{alias}]");
+                }
+            }
+        }
+
         /// <summary>
         /// Fills in a custom orderby on a given sql script.
         /// </summary>

@@ -105,7 +105,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
 
                 var query = RepositoryHelpers.TransposeOrderby("GetPageRevisionsInfoByNavigationPaged.sql", orderBy, orderByDirection);
                 return await o.QueryAsync<TwPageRevision>(query, param);
@@ -142,7 +142,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var statistics_db = o.Attach("statistics.db", "statistics_db");
+                using var statistics_db = o.AttachSiblingDatabase("statistics.db", "statistics_db");
                 return await o.QueryAsync<TwPage>("GetTopViewedPagesInfo.sql", param);
             });
         }
@@ -268,7 +268,7 @@ namespace TightWiki.Repository
                     MaximumScore = meteredSearchTokens.Max(t => t.Score)
                 };
 
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 using var tempTable = o.CreateTempTableFrom("TempSearchTerms", meteredSearchTokens);
                 return await o.QueryAsync<TwPage>("PageSearch.sql", param);
             });
@@ -299,7 +299,7 @@ namespace TightWiki.Repository
                     MaximumScore = meteredSearchTokens.Max(t => t.Score)
                 };
 
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 using var tempTable = o.CreateTempTableFrom("TempSearchTerms", meteredSearchTokens);
                 var results = await o.QueryAsync<TwPage>("PageSearchPaged.sql", param);
                 return results;
@@ -418,7 +418,7 @@ namespace TightWiki.Repository
 
                 return await PagesFactory.EphemeralAsync(async o =>
                 {
-                    using var users_db = o.Attach("users.db", "users_db");
+                    using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                     return await o.QueryAsync<TwPageComment>("GetPageCommentsPaged.sql", param);
                 });
             })).EnsureNotNull();
@@ -480,7 +480,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 return await o.QueryAsync<TwPage>("GetAllPagesByInstructionPaged.sql", param);
             });
         }
@@ -537,7 +537,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 var query = RepositoryHelpers.TransposeOrderby("GetAllNamespacePagesPaged.sql", orderBy, orderByDirection);
                 return await o.QueryAsync<TwPage>(query, param);
             });
@@ -564,8 +564,8 @@ namespace TightWiki.Repository
 
                 return await PagesFactory.EphemeralAsync(async o =>
                 {
-                    using var users_db = o.Attach("users.db", "users_db");
-                    using var deletedpagerevisions_db = o.Attach("deletedpagerevisions.db", "deletedpagerevisions_db");
+                    using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
+                    using var deletedpagerevisions_db = o.AttachSiblingDatabase("deletedpagerevisions.db", "deletedpagerevisions_db");
                     using var tempTable = o.CreateTempTableFrom("TempPageIds", pageIds);
 
                     var query = RepositoryHelpers.TransposeOrderby("GetAllPagesByPageIdPaged.sql", orderBy, orderByDirection);
@@ -575,8 +575,8 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
-                using var deletedpagerevisions_db = o.Attach("deletedpagerevisions.db", "deletedpagerevisions_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
+                using var deletedpagerevisions_db = o.AttachSiblingDatabase("deletedpagerevisions.db", "deletedpagerevisions_db");
 
                 var query = RepositoryHelpers.TransposeOrderby("GetAllPagesPaged.sql", orderBy, orderByDirection);
                 return await o.QueryAsync<TwPage>(query, param);
@@ -603,7 +603,7 @@ namespace TightWiki.Repository
                 var pageIds = await GetDeletedPageIdsByTokens(searchTerms);
                 return await DeletedPagesFactory.EphemeralAsync(async o =>
                 {
-                    using var users_db = o.Attach("users.db", "users_db");
+                    using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                     using var tempTable = o.CreateTempTableFrom("TempPageIds", pageIds);
 
                     var query = RepositoryHelpers.TransposeOrderby("GetAllDeletedPagesByPageIdPaged.sql", orderBy, orderByDirection);
@@ -613,7 +613,7 @@ namespace TightWiki.Repository
 
             return await DeletedPagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 var query = RepositoryHelpers.TransposeOrderby("GetAllDeletedPagesPaged.sql", orderBy, orderByDirection);
                 return await o.QueryAsync<TwPage>(query, param);
             });
@@ -1032,7 +1032,7 @@ namespace TightWiki.Repository
                 var transaction = o.BeginTransaction();
                 try
                 {
-                    using var deletedpages_db = o.Attach("deletedpages.db", "deletedpages_db");
+                    using var deletedpages_db = o.AttachSiblingDatabase("deletedpages.db", "deletedpages_db");
                     await o.ExecuteAsync("RestoreDeletedPageByPageId.sql", param);
                     transaction.Commit();
                 }
@@ -1061,7 +1061,7 @@ namespace TightWiki.Repository
                 var transaction = o.BeginTransaction();
                 try
                 {
-                    using var deletedpagerevisions_db = o.Attach("deletedpagerevisions.db", "deletedpagerevisions_db");
+                    using var deletedpagerevisions_db = o.AttachSiblingDatabase("deletedpagerevisions.db", "deletedpagerevisions_db");
                     await o.ExecuteAsync("MovePageRevisionToDeletedById.sql", param);
                     transaction.Commit();
                 }
@@ -1089,7 +1089,7 @@ namespace TightWiki.Repository
                 var transaction = o.BeginTransaction();
                 try
                 {
-                    using var deletedpages_db = o.Attach("deletedpages.db", "deletedpages_db");
+                    using var deletedpages_db = o.AttachSiblingDatabase("deletedpages.db", "deletedpages_db");
 
                     await o.ExecuteAsync("MovePageToDeletedById.sql", param);
                     transaction.Commit();
@@ -1146,7 +1146,7 @@ namespace TightWiki.Repository
 
             return await DeletedPagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 return await o.QuerySingleOrDefaultAsync<TwPage>("GetDeletedPageById.sql", param);
             });
         }
@@ -1160,7 +1160,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 return await o.QuerySingleOrDefaultAsync<TwPage>("GetLatestPageRevisionById.sql", param);
             });
         }
@@ -1201,7 +1201,7 @@ namespace TightWiki.Repository
 
             return await DeletedPageRevisionsFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
 
                 var query = RepositoryHelpers.TransposeOrderby("GetDeletedPageRevisionsByIdPaged.sql", orderBy, orderByDirection);
                 return await o.QueryAsync<TwDeletedPageRevision>(query, param);
@@ -1248,7 +1248,7 @@ namespace TightWiki.Repository
 
             await DeletedPageRevisionsFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("pages.db", "pages_db");
+                using var users_db = o.AttachSiblingDatabase("pages.db", "pages_db");
                 await o.ExecuteAsync("RestoreDeletedPageRevisionByPageIdAndRevision.sql", param);
             });
 
@@ -1265,7 +1265,7 @@ namespace TightWiki.Repository
 
             return await DeletedPageRevisionsFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 return await o.QueryFirstOrDefaultAsync<TwDeletedPageRevision>("GetDeletedPageRevisionById.sql", param);
             });
         }
@@ -1280,7 +1280,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                 return await o.QuerySingleOrDefaultAsync<TwPage>("GetPageRevisionByNavigation.sql", param);
             });
         }
@@ -1306,7 +1306,7 @@ namespace TightWiki.Repository
             {
                 return await PagesFactory.EphemeralAsync(async o =>
                 {
-                    using var users_db = o.Attach("users.db", "users_db");
+                    using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
                     return await o.QuerySingleOrDefaultAsync<TwPage>("GetPageRevisionByNavigation.sql", param);
                 });
             });
@@ -1519,7 +1519,7 @@ namespace TightWiki.Repository
 
             return await PagesFactory.EphemeralAsync(async o =>
             {
-                using var users_db = o.Attach("users.db", "users_db");
+                using var users_db = o.AttachSiblingDatabase("users.db", "users_db");
 
                 var result = await o.QueryAsync<TwPageFileAttachmentInfo>(
                     "GetPageFileAttachmentRevisionsByPageAndFileNavigationPaged.sql", param);

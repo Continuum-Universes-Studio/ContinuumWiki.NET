@@ -94,6 +94,17 @@ namespace TightWiki.Test.Library
             UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             UserStore = serviceProvider.GetRequiredService<IUserStore<IdentityUser>>();
             Engine = host.Services.GetRequiredService<ITwEngine>();
+
+            // Match application startup: the isolated test databases need the authored
+            // defaults before markup tests resolve internal links or configuration.
+            DatabaseManager.ApplyAllSeedData(Localizer, UserManager, Engine,
+                [
+                    TwDefaultDataType.Themes,
+                    TwDefaultDataType.Configurations,
+                    TwDefaultDataType.FeatureTemplates,
+                    TwDefaultDataType.HelpPages
+                ]).GetAwaiter().GetResult();
+            WikiConfigurationManager.ReloadAll().GetAwaiter().GetResult();
         }
 
         public TwPage GetMockPage(string name, string body)
