@@ -33,6 +33,34 @@ public sealed class ExperimentalMediaWikiScribuntoRuntimeTests
     }
 
     [Fact]
+    public async Task DiagnosticCargoBundleRoundTripsTypedRowsWithoutDatabaseAccess()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() local rows = mw.ext.cargo.query('Variants', 'Name', {}); return rows[1].Name end }",
+            "main",
+            cargoResults: [new("Variants", "Name", [new Dictionary<string, string?> { ["Name"] = "Synthetic-Aurora" }])]);
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("Synthetic-Aurora", response.Text);
+    }
+
+    [Fact]
+    public async Task AuthenticVerifiedSnapshotValueCrossesTheWorkerBoundaryWhenEvidenceIsPresent()
+    {
+        var snapshot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "continuumwiki-validation/cargo-snapshot-authentic-20261011-1");
+        if (!Directory.Exists(snapshot)) return;
+        using var row = JsonDocument.Parse((await File.ReadAllLinesAsync(Path.Combine(snapshot, "Variants.jsonl")))[0]);
+        var expected = row.RootElement.GetProperty("Name").GetString()!;
+        var response = await RunWorkerAsync(
+            "return { main = function() local rows = mw.ext.cargo.query('Variants', 'Name', {}); return rows[1].Name end }",
+            "main",
+            cargoResults: [new("Variants", "Name", [new Dictionary<string, string?> { ["Name"] = expected }])]);
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal(expected, response.Text);
+    }
+
+    [Fact]
     public async Task NativeContinuumApiUsesOnlyTypedInvocationSnapshot()
     {
         var response = await RunWorkerAsync(
@@ -689,7 +717,8 @@ public sealed class ExperimentalMediaWikiScribuntoRuntimeTests
         IReadOnlyList<string>? invocationChain = null,
         string moduleTitle = "Module:Test",
         string sourceRevisionId = "fixture",
-        string sourceWikiIdentity = "test-wiki")
+        string sourceWikiIdentity = "test-wiki",
+        IReadOnlyList<MediaWikiScribuntoWorkerCargoResult>? cargoResults = null)
     {
         Assert.True(File.Exists(WorkerPath), $"Worker was not built at {WorkerPath}.");
         var startInfo = new ProcessStartInfo("dotnet")
@@ -720,7 +749,8 @@ public sealed class ExperimentalMediaWikiScribuntoRuntimeTests
             frameTitle,
             parentFrameTitle,
             parentFrameSourceRevisionId,
-            invocationChain ?? []);
+            invocationChain ?? [],
+            cargoResults);
         await process.StandardInput.WriteLineAsync(MediaWikiScribuntoWorkerProtocol.SerializeRequest(request));
         try { process.StandardInput.Close(); } catch (IOException) { }
         var output = await process.StandardOutput.ReadToEndAsync();

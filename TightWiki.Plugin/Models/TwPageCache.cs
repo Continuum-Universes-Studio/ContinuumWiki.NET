@@ -18,6 +18,13 @@
         public string Body { get; set; }
 
         /// <summary>
+        /// Renderer-approved stylesheet identities. CSS bytes are deliberately
+        /// not placed in the page cache; the MVC asset endpoint revalidates
+        /// authorization and source revision before delivery.
+        /// </summary>
+        public IReadOnlyList<TwMediaWikiStylesheet> Stylesheets { get; set; } = [];
+
+        /// <summary>
         /// Initializes a new page cache entry with the specified rendered body.
         /// </summary>
         /// <param name="body">The fully rendered HTML body of the wiki page.</param>

@@ -1,0 +1,133 @@
+{
+  "ReportVersion": "cw-m3-007f-mediawiki-compatibility-certification-v1",
+  "GeneratedAtUtc": "2026-10-11T15:45:00Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Status": "EVIDENCE_RECONCILIATION_VERIFIED_HOST_CERTIFICATION_BLOCKED_HISTORICAL_PARITY_PENDING",
+  "ExecutionEnvironment": {
+    "Framework": ".NET 10",
+    "Sdk": "10.0.401",
+    "OperatingSystem": "openSUSE Tumbleweed 20261007",
+    "InitialWorkingTree": "DIRTY; pre-existing implementation, validation, generated build, and documentation changes were preserved",
+    "ProductionMutation": "NONE"
+  },
+  "FreshVerification": {
+    "FocusedIntegratedTests": {"Command": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiWikitextRendererTests|FullyQualifiedName~MediaWikiCargoBoundaryTests|FullyQualifiedName~MediaWikiScribuntoBoundaryTests|FullyQualifiedName~ExperimentalMediaWikiScribuntoRuntimeTests|FullyQualifiedName~MediaWikiScribuntoDeploymentConfigurationTests'", "Passed": 115, "Failed": 0, "Skipped": 0},
+    "FullDebugTests": {"Command": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1", "Passed": 285, "Failed": 0, "Skipped": 22, "Total": 307},
+    "ReleaseBuild": {"Command": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1", "Warnings": 0, "Errors": 0},
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "IntegratedRegressionScope": ["bounded expansion and first-cause diagnostics", "native and legacy infoboxes", "Mermaid static fallback", "Cargo rejection and schema/relationship contracts", "Scribunto typed boundary and default rejection", "worker deployment hardening"]
+  },
+  "CompatibilityFeatureMatrix": [
+    {"Feature": "Bounded Wikitext expansion", "ImplementationStatus": "IMPLEMENTED_VERIFIED", "DatasetProvenance": "NONE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Focused and full Debug regression; finite/cycle/first-cause tests"},
+    {"Feature": "ContinuumInfobox and bounded legacy PortableInfobox", "ImplementationStatus": "IMPLEMENTED_VERIFIED", "DatasetProvenance": "SYNTHETIC", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Native schema and sanitization tests; PHP is not executed"},
+    {"Feature": "Mermaid", "ImplementationStatus": "IMPLEMENTED_PARTIAL", "DatasetProvenance": "NONE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Bounded encoded static fallback; ExternalRendererUnavailable remains explicit"},
+    {"Feature": "Cargo scalar provider", "ImplementationStatus": "IMPLEMENTED_VERIFIED", "DatasetProvenance": "AUTHENTIC_SOURCE_CURRENT_STATE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Authenticated current snapshot and typed provider tests; historical fallback rejected"},
+    {"Feature": "Cargo relationships", "ImplementationStatus": "IMPLEMENTED_PARTIAL", "DatasetProvenance": "AUTHENTIC_SOURCE_CURRENT_STATE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Schema-only relationship catalog; helper semantics and rows unavailable; positive activation disabled"},
+    {"Feature": "Scribunto socket execution", "ImplementationStatus": "IMPLEMENTED_VERIFIED", "DatasetProvenance": "NONE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "BLOCKED", "Evidence": "Prior authorized socket report reached the worker; current host certification lacks cgroup/identity evidence"},
+    {"Feature": "#cargo_store", "ImplementationStatus": "UNSUPPORTED", "DatasetProvenance": "NONE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Explicit write-boundary regression; no SQL or mutation path"},
+    {"Feature": "TemplateStyles", "ImplementationStatus": "UNSUPPORTED", "DatasetProvenance": "NONE", "RenderingComparison": "NOT_COMPARABLE", "CertificationStatus": "NOT_ATTEMPTED", "Evidence": "Reference-side missing styles pages remain separate from renderer implementation"}
+  ],
+  "FixtureEligibility": [
+    {"FixtureId": "mw-invoke-075b2608d7c07c57", "PageTitle": "Template:Mbox", "RequestedRevisionId": 6208, "ReferenceStatus": "REFERENCE_ERROR", "SourceDependencyStatus": "UNRESOLVED_REFERENCE_SIDE_MISSING_MODULE", "CargoStatus": "NOT_REACHED_IN_REFERENCE_ERROR", "ExtensionStatus": "NONE_ESTABLISHED", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "NOT_EXECUTED", "Blocker": "MediaWiki reference reports missing Module:Message box/configuration"},
+    {"FixtureId": "mw-invoke-72066581f5f001e8", "PageTitle": "Template:Extension", "RequestedRevisionId": 7245, "ReferenceStatus": "REFERENCE_ERROR", "SourceDependencyStatus": "UNRESOLVED_REFERENCE_SIDE_MISSING_TEMPLATE", "CargoStatus": "NOT_REACHED_IN_REFERENCE_ERROR", "ExtensionStatus": "TEMPLATESTYLES_REFERENCE_ERROR", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "NOT_EXECUTED", "Blocker": "MediaWiki reference reports missing Template translation, Template:Infobox/styles.css, and Template:Extension/status.css"},
+    {"FixtureId": "mw-invoke-0aacc6fd104a1bc6", "PageTitle": "Template:Species", "RequestedRevisionId": 9603, "ReferenceStatus": "REFERENCE_SUCCESS", "SourceDependencyStatus": "AVAILABLE_FOR_PRIOR_DIAGNOSTIC_IMPORT", "CargoStatus": "HISTORICAL_DATA_UNAVAILABLE", "ExtensionStatus": "BOUNDED_INFobox_SOURCE_BEHAVIOR_REMAINS_PARTIAL", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "FAILED_PRIOR_OUTPUT; FRESH_NOT_EXECUTED", "Blocker": "No revision-correlated Cargo dataset; prior output reached CargoProviderUnavailable and secondary timeout"},
+    {"FixtureId": "mw-invoke-5c66128828b0dd24", "PageTitle": "Jovan", "RequestedRevisionId": 9482, "ReferenceStatus": "REFERENCE_SUCCESS", "SourceDependencyStatus": "TEMPLATE_DIVINE_SELECTION_UNRESOLVED_AND_DIVINEMETA_MISSING", "CargoStatus": "HISTORICAL_DATA_UNAVAILABLE", "ExtensionStatus": "MERMAID_SAFE_STATIC_ONLY", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "FAILED_PRIOR_OUTPUT; FRESH_NOT_EXECUTED", "Blocker": "Template:Divine@9469 was omitted by prior disposable selection; no valid Module:DivineMeta revision at or before required context; no later revision substitution permitted"},
+    {"FixtureId": "mw-invoke-79af37a81a16b674", "PageTitle": "Template:Species", "RequestedRevisionId": 9907, "ReferenceStatus": "REFERENCE_SUCCESS", "SourceDependencyStatus": "AVAILABLE_FOR_PRIOR_DIAGNOSTIC_IMPORT", "CargoStatus": "HISTORICAL_DATA_UNAVAILABLE", "ExtensionStatus": "BOUNDED_LEGACY_INFOBOX_ONLY", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "FAILED_PRIOR_OUTPUT; FRESH_NOT_EXECUTED", "Blocker": "No revision-correlated Cargo dataset; prior output contained unsupported behavior before current bounded adapter"},
+    {"FixtureId": "mw-invoke-8d5e90707608a71b", "PageTitle": "Template:Divine", "RequestedRevisionId": 9469, "ReferenceStatus": "REFERENCE_SUCCESS", "SourceDependencyStatus": "MODULE_DIVINEMETA_MISSING_AT_HISTORICAL_CONTEXT", "CargoStatus": "HISTORICAL_DATA_UNAVAILABLE", "ExtensionStatus": "NONE_ESTABLISHED", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "FAILED_PRIOR_OUTPUT; FRESH_NOT_EXECUTED", "Blocker": "No valid Module:DivineMeta revision at or before 9469; revision 9470 is not an allowed substitute"},
+    {"FixtureId": "mw-invoke-e5edab96328f070f", "PageTitle": "Template:Divine", "RequestedRevisionId": 9468, "ReferenceStatus": "REFERENCE_SUCCESS", "SourceDependencyStatus": "MODULE_DEPENDENCY_CONTEXT_PARTIAL", "CargoStatus": "HISTORICAL_DATA_UNAVAILABLE", "ExtensionStatus": "NONE_ESTABLISHED", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "FAILED_PRIOR_OUTPUT; FRESH_NOT_EXECUTED", "Blocker": "Historical Cargo data unavailable; prior run reached CargoProviderUnavailable"},
+    {"FixtureId": "mw-invoke-f9451d8b2558c7b8", "PageTitle": "Template:Character2", "RequestedRevisionId": 9456, "ReferenceStatus": "REFERENCE_SUCCESS", "SourceDependencyStatus": "AVAILABLE_FOR_PRIOR_DIAGNOSTIC_IMPORT", "CargoStatus": "HISTORICAL_DATA_UNAVAILABLE", "ExtensionStatus": "CARGO_STORE_UNSUPPORTED_BY_POLICY", "WorkerExecutionEligibility": "BLOCKED_HOST_CERTIFICATION", "Comparison": "FAILED_PRIOR_OUTPUT; FRESH_NOT_EXECUTED", "Blocker": "No revision-correlated Cargo dataset; #cargo_store remains write-unsupported"}
+  ],
+  "OriginalArtifactIntegrity": {
+    "ReferenceCount": 8,
+    "ContinuumOutputCount": 6,
+    "ComparisonCount": 6,
+    "ReferenceCanonicalSha256": {
+      "mw-invoke-075b2608d7c07c57": "2fdb358131c7fe936bcd9b861eace71ce617accea8ca2ad8c566d43eb3703e96",
+      "mw-invoke-0aacc6fd104a1bc6": "e9d248fea61edbc015d4827db83f9282a6b431f1411f9358085fd5abba1070f0",
+      "mw-invoke-5c66128828b0dd24": "d533e091b55142ebb036dfc340160f726946b52cdd3d996a4546bff1b76ca011",
+      "mw-invoke-72066581f5f001e8": "def5799c7c0d59d97a6df6df2ccca2ba8d54eebad2c3168cc963f82951f59951",
+      "mw-invoke-79af37a81a16b674": "317ef738f1c5999dba55b26cc14dc99f8f79190cd1ff667aab90a670bde1520d",
+      "mw-invoke-8d5e90707608a71b": "14d48b62aa14616d22d6fa2977a6063213595283606a91ce063b8eaba791a4a0",
+      "mw-invoke-e5edab96328f070f": "12ceed591745b7c178899bf54df0e5fb2811719817453b2862149c923264ac63",
+      "mw-invoke-f9451d8b2558c7b8": "9a9e1826a6141d0c2c6530492092cee905ef70ff51c2eb9b79717f92f7e50933"
+    },
+    "ExistingComparisonEmbeddedHashes": "VERIFIED for all six existing output/comparison pairs using scripts/compare-mediawiki-reference.py canonical JSON hashing",
+    "ReferenceRawApiHashes": "Preserved inside each original reference capture and not modified",
+    "RepositoryReferenceManifest": "The repository manifest mediawiki-reference-capture-manifest-v1.json still records 0 captured fixtures and is stale/incomplete for this reconciliation; the eight private reference files under $HOME/continuumwiki-validation/references were verified directly and are the evidence used here",
+    "CargoSchemaHashes": {"Columns": "ade3431abf2cc321e333eac35c858d25f8c97a52e0379436aa52917cda1ebc4f", "Indexes": "952e50120fa88ed06bb163209afadfed99ec867a8d6dd69de5ea113c166beaeb"},
+    "CargoSnapshot": "All five JSONL content hashes match the authenticated current-state manifest; historical correlation remains false"
+  },
+  "FreshDiagnosticRuns": {
+    "Attempted": false,
+    "RenderedFixtureCount": 0,
+    "ComparedFixtureCount": 0,
+    "Status": "BLOCKED_NOT_ATTEMPTED_IN_CODEX_ENVIRONMENT",
+    "Reason": "The authorized Unix socket is not accessible in this environment (permission denied) and no disposable imported MariaDB context is available. Existing prior diagnostic execution evidence is retained but not relabeled as fresh.",
+    "OperatorEntryPoint": "CW_SCRIBUNTO_SOCKET_PATH=/run/continuumwiki/scribunto-worker.sock scripts/verify-m3-006c-diagnostic.sh"
+  },
+  "FirstCauseRegression": {
+    "SyntheticCoverage": "VERIFIED by full regression; terminal Cargo/module failures are tested not to be obscured by secondary expansion timeout",
+    "AuthenticFixtureRerun": "UNVERIFIED; fresh diagnostic execution was blocked",
+    "PriorTimeoutFixtures": ["mw-invoke-0aacc6fd104a1bc6", "mw-invoke-8d5e90707608a71b", "mw-invoke-e5edab96328f070f", "mw-invoke-f9451d8b2558c7b8"]
+  },
+  "JovanDependencyReconciliation": {
+    "PageRevision": "Jovan@9482",
+    "RootModule": "Module:DivineTree@9481",
+    "Template": "Template:Divine@9469; source page 520; timestamp 2026-03-13T05:24:23Z; present in authorized invocation inventory but omitted by prior disposable selection",
+    "AvailableModule": "Module:DivineFamily@9467",
+    "MissingModule": "Module:DivineMeta has no valid inventoried revision at or before the historical context",
+    "LaterRevisionPolicy": "Revision 9470 is not substituted",
+    "SourceBodyHash": "NOT_AVAILABLE in the authorized inventory report; no source body was fabricated",
+    "StrictPlanner": "UNCHANGED",
+    "Outcome": "PARTIALLY_RECONCILED; exact source-selection correction requires authorized export body/hash and a new disposable context"
+  },
+  "CargoProvenance": {
+    "SnapshotId": "cargo-authentic-current-20261011-1",
+    "Classification": "AUTHENTIC_SOURCE_CURRENT_STATE",
+    "BaseTables": 5,
+    "BaseRows": 249,
+    "HistoricalCorrelationVerified": false,
+    "HelperRowsAvailable": false,
+    "RelationshipCatalog": "SCHEMA_ONLY",
+    "PositiveProviderActivation": false,
+    "CurrentToHistoricalFallback": false
+  },
+  "HostSandboxCertification": {
+    "Status": "HOST_CERTIFICATION_BLOCKED",
+    "CurrentReportEvidence": "Existing moonsharp host report verdict is HOST_CERTIFICATION_UNAVAILABLE with no delegated cgroup path; required worker checks were not run",
+    "RunnerReportEvidence": "An older runner report says VERIFIED, but it is not current end-to-end dedicated-identity certification and cannot override the current unavailable report",
+    "SocketEvidence": "Socket path access from this environment returned permission denied; socket connectivity is not treated as certification",
+    "RequiredNextEvidence": ["dedicated worker identity execution", "delegated cgroup path and limits", "namespace/filesystem/network/process probes", "cancellation/recovery/adversarial suite", "current report and journal provenance"]
+  },
+  "SecurityPreservation": {
+    "ProductionLua": false,
+    "RejectingScribuntoDefault": true,
+    "RejectingCargoDefault": true,
+    "CargoWrites": false,
+    "RelationshipActivation": false,
+    "ArbitraryPhpOrJavaScript": false,
+    "RendererNetworkAccess": false,
+    "HistoricalRevisionSubstitution": false,
+    "StrictMigrationPlannerChanged": false,
+    "SystemdOrBubblewrapChanged": false,
+    "OriginalSourcesAndReferencesModified": false
+  },
+  "MigrationReadiness": {
+    "Status": "PARTIALLY_VERIFIED",
+    "Basis": "Implementation regression and current-state evidence are verified, but source dependency completeness, historical Cargo provenance, fresh real-module comparisons, and host certification remain incomplete",
+    "ProductionMigrationReady": false,
+    "RestrictedDiagnosticsReady": false
+  },
+  "RemainingBlockers": [
+    "Host certification is blocked by unavailable dedicated cgroup/identity evidence",
+    "Fresh six-fixture diagnostic execution and comparisons were not possible in this environment",
+    "Jovan requires exact Template:Divine@9469 source selection and remains blocked on historical Module:DivineMeta provenance",
+    "No revision-correlated historical Cargo snapshot or helper rows are authenticated",
+    "Two reference-error fixtures remain negative evidence, not compatibility successes",
+    "Mermaid has safe static fallback only; actual diagram rendering parity is not established",
+    "TemplateStyles and other missing reference dependencies remain unsupported"
+  ],
+  "Verdict": "Evidence reconciliation verified; host certification blocked; historical parity pending.",
+  "RecommendedNextMilestone": "Operator-run dedicated-identity host certification, followed by an authorized disposable diagnostic harness rerun with complete historical source dependencies and no current-state Cargo fallback"
+}

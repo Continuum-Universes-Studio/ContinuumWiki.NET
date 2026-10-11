@@ -1,0 +1,118 @@
+{
+  "ReportVersion": "mediawiki-templatestyles-host-authorization-m5-003b-v1",
+  "Milestone": "CW-M5-003B",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "FinalClassification": "HOST_AUTHORIZATION_BLOCKED",
+  "ExecutionScope": "Disposable MySQL lifecycle hardening, approval-gate validation, and guarded host-test preparation; no database provisioning or host certification",
+  "Authorization": {
+    "Status": "BLOCKED",
+    "ApprovalContract": "CW-M4-005 operator approval, Track B",
+    "RequiredMutationScope": [
+      "CreateDisposableDatabase",
+      "CreateSyntheticIdentityRecords",
+      "CreateSyntheticWikiContent",
+      "MutateSyntheticPermissions",
+      "DeleteDisposableDatabase",
+      "CreateAndRemoveContainer",
+      "RetainSanitizedEvidence"
+    ],
+    "ApprovalPathPresent": false,
+    "ExecutionMarkerPresent": false,
+    "ApplicationConnectionPresent": false,
+    "DatabaseWritesPerformed": false,
+    "ProductionConnectionAttempted": false,
+    "Reason": "No independently authorized exact disposable target or approval record was available; the execute path was not run."
+  },
+  "LifecycleDesign": {
+    "ContainerRuntime": "Rootless Podman",
+    "ImageRequirement": "Immutable docker.io/library/mysql@sha256:<64 hex> reference; runtime must report Oracle MySQL 8.4",
+    "ContainerNamePattern": "continuumwiki-m5-003b-*",
+    "DatabaseNamePattern": "cw_m5_003_*",
+    "DefaultExactDatabase": "cw_m5_003_certification",
+    "PublishedBinding": "127.0.0.1:13310:3306",
+    "HostSideRootConnection": false,
+    "ContainerLocalRootSetup": true,
+    "LifecycleAdministrator": "Not exposed over the host port; exact-schema creation/removal is owned by the current labelled container procedure because MySQL prefix grants cannot safely constrain arbitrary database DDL.",
+    "ApplicationDatabaseLifecycle": "Pre-created exact schema; test does not CREATE or DROP DATABASE",
+    "CleanupIdentity": "Run label and exact container name must match before removal"
+  },
+  "PrivilegeReview": {
+    "RootExposure": "Root is used only through the container Unix socket; MYSQL_ROOT_HOST is omitted and root host rows are checked before testing.",
+    "ApplicationIdentity": "continuumwiki_m5_003_app",
+    "ApplicationScope": "Exact approved cw_m5_003_* schema only",
+    "ApplicationPrivileges": [
+      "SELECT",
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "CREATE",
+      "ALTER",
+      "INDEX",
+      "REFERENCES"
+    ],
+    "GrantOption": false,
+    "GlobalPrivileges": false,
+    "PrefixWildcardGrant": false,
+    "Rationale": "The exact-schema DDL privileges are required by the existing schema initializer; arbitrary prefix-based CREATE/DROP privileges are not granted."
+  },
+  "Preflight": {
+    "ApprovalScope": "Implemented and statically exercised; no operator approval record fabricated",
+    "LoopbackBindingCheck": "Implemented; requires actual podman port output",
+    "DatabaseIdentityCheck": "Implemented; checks DATABASE() against the approved exact schema",
+    "ServerVersionCheck": "Implemented; requires VERSION() 8.4.* and @@version_comment containing MySQL, not MariaDB",
+    "RootHostCheck": "Implemented; rejects remotely reachable root host entries",
+    "ApplicationGrantCheck": "Implemented; rejects global privileges and GRANT OPTION",
+    "FallbackConnection": false
+  },
+  "Harness": {
+    "ProvisioningScript": "scripts/run-m5-003b-certification.sh",
+    "HostTest": "TightWiki.Tests/Integration/MediaWikiTemplateStylesMySqlHostTests.cs",
+    "AuthorizationGate": "TightWiki.Tests/Integration/MediaWikiTemplateStylesHostAuthorizationTests.cs",
+    "ExactSchemaLifecycle": true,
+    "CleanupSignals": [
+      "EXIT",
+      "INT",
+      "TERM"
+    ],
+    "CleanupLogRedaction": "Implemented for generated root and application passwords",
+    "RealHostTestExecuted": false,
+    "RealHostTestSkipped": true
+  },
+  "Tests": {
+    "ShellSyntax": "PASSED",
+    "DryRun": "PASSED; no container or database operation",
+    "ExecuteGuard": "PASSED; mutable image reference rejected before Podman lifecycle",
+    "FocusedResult": "PASSED: 3 authorization-gate tests, SKIPPED: 1 real-host test, FAILED: 0",
+    "FullDebugResult": "PASSED: 301 passed, 23 skipped, 0 failed, 324 total; real host test skipped due absent authorization",
+    "ReleaseBuildResult": "PASSED: 0 warnings, 0 errors",
+    "ReportValidation": "PASSED: python3 -m json.tool",
+    "DiffCheck": "PASSED: git diff --check"
+  },
+  "SecurityBoundaries": {
+    "ProductionMariaDbModified": false,
+    "ProductionLuaEnabled": false,
+    "CargoEnabled": false,
+    "SystemdModified": false,
+    "BubblewrapModified": false,
+    "IdentityBypassed": false,
+    "FailedSecurityAssertionsSuppressed": false
+  },
+  "Cleanup": {
+    "ContainerStarted": false,
+    "DatabaseCreated": false,
+    "CleanupRequired": false,
+    "CleanupStatus": "NOT_APPLICABLE"
+  },
+  "ProductionReadiness": {
+    "MariaDbReadinessGuard": "Unchanged; still requires MariaDB 11.8",
+    "MySql84ProviderCertification": "Not executed",
+    "ProductionApplicationReadiness": "Not certified by this milestone"
+  },
+  "RemainingOperatorAction": "Create an independently approved CW-M4-005 Track B record for the exact target and verified immutable MySQL 8.4 image, then run scripts/run-m5-003b-certification.sh --execute --approval <path> --image docker.io/library/mysql@sha256:<digest>.",
+  "Artifacts": {
+    "OperationsProcedure": "docs/operations/CW-M5-003A-DISPOSABLE-MYSQL-CERTIFICATION.md",
+    "ProvisioningScript": "scripts/run-m5-003b-certification.sh",
+    "HistoricalM5003Report": "artifacts/validation/mediawiki-templatestyles-host-authorization-v1.json",
+    "M5003AReport": "artifacts/validation/mediawiki-templatestyles-host-authorization-m5-003a-v1.json"
+  }
+}

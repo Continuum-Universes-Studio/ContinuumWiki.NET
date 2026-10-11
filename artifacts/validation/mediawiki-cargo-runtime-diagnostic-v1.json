@@ -1,0 +1,14 @@
+{
+  "ReportVersion": "cw-m3-006f5-runtime-diagnostic-v1",
+  "Status": "POSITIVE_CURRENT_STATE_CARGO_QUERY_AND_WORKER_BUNDLE_VERIFIED_HISTORICAL_PARITY_PENDING",
+  "SnapshotId": "cargo-authentic-current-20261011-1",
+  "SnapshotClassification": "AUTHENTIC_SOURCE_CURRENT_STATE",
+  "DiagnosticAuthorization": {"Explicit": true, "Provider": "MediaWikiCargoSnapshotQueryProvider", "ProductionDefault": "RejectingMediaWikiCargoQueryProvider"},
+  "QueryEvidence": [{"Table": "Variants", "Fields": ["Name"], "Predicate": "none", "Offset": 0, "Limit": 1, "ResultRows": 1, "ValueComparedToPrivateSnapshot": true, "RawValuesInReport": false}],
+  "WorkerBoundaryEvidence": [{"Capability": "mw.ext.cargo", "Transport": "existing one-shot worker request", "DataForm": "bounded pre-resolved typed rows", "HostHook": "IMediaWikiScribuntoCargoExecutionHost", "LuaDatabaseAccess": false, "SqlAccess": false, "ResultShape": "array of row tables", "AuthenticSnapshotValueCompared": true}],
+  "RejectedCases": ["historical revision identity", "unknown dataset identity", "unverified snapshot", "helper-backed fields without typed join contract", "Divines.Children", "arbitrary SQL"],
+  "ModuleEvaluation": "NOT_PERFORMED; current-state Cargo query evidence does not establish historical module parity",
+  "WikitextComparison": "NOT_PERFORMED",
+  "HistoricalParity": "UNVERIFIED",
+  "Security": {"WorkerIsolationChanged": false, "ProductionLuaEnabled": false, "ProductionDatabaseQueriedForRuntime": false, "CredentialsSentToWorker": false}
+}

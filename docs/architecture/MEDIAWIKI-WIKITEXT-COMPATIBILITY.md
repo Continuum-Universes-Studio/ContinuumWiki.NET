@@ -22,7 +22,8 @@ the imported subset.
 | namespaces, Unicode titles, language variants | REQUIRES_ADAPTER | Explicit namespace and normalization table |
 | page, namespace, revision, site, language, and clock magic words | SUPPORTED_SUBSET | Typed per-render context; encoded title forms where safe; unsupported behavior switches are diagnosed |
 | interlanguage links/localized variants | REQUIRES_ADAPTER | Preserve language code/title pairs and variant markup |
-| extension tags/hooks/custom Continuum templates | UNSUPPORTED | Keep original Wikitext and emit a blocking diagnostic until an adapter exists |
+| `<mermaid>` extension tag | SAFE_STATIC | Bounded typed source validation and encoded accessible static representation; actual diagram rendering remains unavailable |
+| extension tags/hooks/custom Continuum templates | UNSUPPORTED | Keep original Wikitext and emit a typed diagnostic until an adapter exists |
 
 The fixtures at `MediaWikiInventory/Fixtures/` cover Unicode titles, multiple revisions, named/positional-style template syntax, categories, file links, references, parser functions, Lua invocation, redirects, content-model variations, language links, missing fields, malformed XML, external entities, and extension markup. The importer preserves source Wikitext and reports unsupported constructs; rendering additionally diagnoses and safely marks unsupported syntax.
 
@@ -36,4 +37,65 @@ CW-M3-005A adds offline Scribunto inventory and a provider-neutral execution
 boundary. `#invoke` remains rejected at render time; module arguments and
 dependencies are typed and diagnosable, while literal loader dependencies,
 missing modules, dynamic references, unsupported module content models, and
-cycles are recorded by the planner. No Lua runtime is included.
+cycles are recorded by the planner. No in-process Lua runtime is included;
+authorized execution, when explicitly configured, remains outside the renderer
+through the isolated worker boundary.
+
+## CW-M3-007B bounded expansion characterization
+
+The imported Wikitext expander retains the existing finite limits: a 500 ms
+wall-clock budget, 10,000 expansion operations, depth 16, 1,500,000 expanded
+output characters, 1,000,000 input characters, and at most 100 diagnostics.
+The Scribunto boundary receives the same bounded invocation, source, argument,
+result, dependency, instruction, memory, and time limits; no limit was raised
+for this characterization.
+
+Synthetic characterization covers plain text, nested templates, positional and
+named parameters, lazy parser functions, repeated nonrecursive expansion,
+empty Lua output, and Lua-returned Wikitext. These finite cases complete within
+the unchanged budgets. Direct, mutual, longer, parser-function, and nested
+Scribunto cycles are stopped by their existing invocation-chain checks rather
+than being allowed to consume the wall-clock budget. Operation exhaustion is
+reported as `ExpansionBudgetExceeded`; wall-clock exhaustion remains reported as
+`ExpansionTimeLimitExceeded`.
+
+Typed Scribunto results with error-severity diagnostics are terminal for the
+current expansion context. The expander preserves the diagnostic and source
+following the failed invocation, but stops resolving later dependencies. This
+keeps errors such as `CargoProviderUnavailable`, `ScribuntoModuleMissing`, and
+worker/protocol failures from being obscured by a secondary timeout. The
+default rejecting executor emits a warning and remains recoverable, so an
+unsupported `#invoke` does not abort unrelated valid text. Empty text from an
+executed Lua result remains a valid successful result.
+
+The four authentic positive ContinuumWiki artifacts that contain
+`ExpansionTimeLimitExceeded` predate this diagnostic correction and were not
+rewritten. Their earliest independently established terminal evidence is an
+unavailable historical Cargo result; the DivineMeta fixture also has an
+independent missing-source condition. The separate Jovan artifact has a
+recoverable missing-template diagnostic and an unavailable Cargo result, but no
+timeout. Whether any timeout reproduces after the correction is not established
+until the disposable, revision-aware harness is rerun. These findings do not
+establish MediaWiki parity or historical Cargo parity.
+
+The characterization evidence is recorded in
+`artifacts/validation/mediawiki-expansion-characterization-v1.json`.
+
+## CW-M3-007E bounded extension compatibility
+
+The observed Jovan `<mermaid>` construct is handled by a narrow typed boundary
+in `MediaWikiMermaidCompatibility`. The adapter accepts only a bounded,
+nonempty source beginning with an observed Mermaid diagram type, accepts no tag
+attributes, rejects nested tags and executable or embedded markup, and emits
+HTML-encoded source in an accessible `<figure>`/`<pre>` static representation.
+URLs in the source remain inert text; no browser, JavaScript, network, SVG, or
+external process is used. The result always carries
+`ExternalRendererUnavailable`, so static source preservation is not reported as
+diagram compatibility. Shared renderer output limits apply to the fallback and
+can emit `ExtensionOutputLimitExceeded`.
+
+The independent Jovan reference contains a 121-line, 9,791-character
+`flowchart`-related `<pre>` block with generated `click` URL markup. That
+captured HTML does not independently authorize a Mermaid renderer or establish
+raw source parity. `#cargo_store` remains unsupported and write-free;
+TemplateStyles reference errors remain separate source/dependency evidence.

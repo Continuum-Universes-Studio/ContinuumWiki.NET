@@ -50,6 +50,9 @@ internal sealed class MediaWikiTemplateExpander(
         try
         {
             var prepared = ApplyInclusion(source.Length > options.MaxInputCharacters ? source[..options.MaxInputCharacters] : source, directTemplatePage, context);
+            if (options.EnableLegacyInfoboxAdapter && options.InfoboxRegistry is not null)
+                prepared = MediaWikiInfoboxLegacyAdapter.Adapt(prepared, options.InfoboxRegistry, options.MaxInputCharacters,
+                    (code, message) => context.AddDiagnostic(code, message, 0, prepared.Length));
             if (source.Length > options.MaxInputCharacters)
                 context.AddDiagnostic("InputLimitExceeded", "MediaWiki source exceeded the configured input limit and was truncated for rendering.", options.MaxInputCharacters, 0, MediaWikiDiagnosticSeverity.Error);
             var result = await ExpandTextAsync(prepared, context, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase), [], 0);
@@ -83,6 +86,15 @@ internal sealed class MediaWikiTemplateExpander(
         var output = new StringBuilder(Math.Min(text.Length, context.Options.MaxExpansionOutputCharacters));
         for (var index = 0; index < text.Length;)
         {
+            if (context.HasTerminalFailure)
+            {
+                // Preserve source that follows a typed execution failure, but
+                // do not continue resolving work that cannot produce valid
+                // Wikitext. This prevents secondary diagnostics from hiding
+                // the first established dependency/runtime failure.
+                AppendBounded(output, text[index..], context);
+                break;
+            }
             context.ThrowIfCancelledOrOverBudget();
             if (text.AsSpan(index).StartsWith("{{{", StringComparison.Ordinal))
             {
@@ -150,36 +162,64 @@ internal sealed class MediaWikiTemplateExpander(
             return await ExpandParserFunctionAsync(head, parts.Skip(1).ToArray(), original, context, parentParameters, templateStack, depth, offset);
 
         if (head.StartsWith("subst:", StringComparison.OrdinalIgnoreCase)
-            || head.StartsWith("safesubst:", StringComparison.OrdinalIgnoreCase)
-            || head.StartsWith(":", StringComparison.Ordinal))
+            || head.StartsWith("safesubst:", StringComparison.OrdinalIgnoreCase))
         {
             context.AddUnsupported("unsupported-template-syntax");
             context.AddDiagnostic("UnsupportedTemplateSyntax", "This MediaWiki template invocation form is not evaluated.", offset, original.Length);
             return original;
         }
 
-        var namespaceSeparator = head.IndexOf(':');
-        if (namespaceSeparator > 0 && !head.StartsWith("Template:", StringComparison.OrdinalIgnoreCase))
+        if (head.Contains("{{", StringComparison.Ordinal))
         {
-            context.AddUnsupported("unresolved-template-namespace");
-            context.AddDiagnostic("UnresolvedTemplateNamespace", $"Template namespace mapping for '{head[..namespaceSeparator]}' is not available.", offset, original.Length);
-            return original;
+            head = (await ExpandTextAsync(head, context, parentParameters, templateStack, depth + 1)).Trim();
         }
 
-        var title = NormalizeTemplateTitle(head);
-        if (title.Length == 0)
+        if (!MediaWikiTemplateTitle.TryParse(head, out var parsedTitle, out var titleReason))
         {
-            context.AddDiagnostic("InvalidTemplateName", "A MediaWiki template name was empty.", offset, original.Length);
+            if (titleReason == "unknown-namespace")
+            {
+                var separator = head.IndexOf(':');
+                var prefix = separator > 0 ? head[..separator].Trim() : head;
+                context.AddUnsupported("unresolved-template-namespace");
+                context.AddDiagnostic("UnresolvedTemplateNamespace", $"Template namespace mapping for '{prefix}' is not available.", offset, original.Length);
+            }
+            else
+            {
+                context.AddDiagnostic("InvalidTemplateName", "A MediaWiki template name was empty or invalid.", offset, original.Length);
+            }
             return original;
         }
 
         if (!context.TryConsume(1)) return "[MediaWiki expansion limit exceeded]";
-        var target = await context.Repository.ResolveTemplateAsync(
-            context.Provenance.ImportBatchId ?? 0,
-            title,
-            context.Provenance.SourceTimestampUtc,
-            context.CancellationToken);
+        TwMediaWikiTemplateTarget target;
+        try
+        {
+            target = await context.Repository.ResolveTransclusionAsync(
+                context.Provenance.ImportBatchId ?? 0,
+                parsedTitle.NamespaceId,
+                parsedTitle.Name,
+                context.Provenance.SourceTimestampUtc,
+                context.CancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            context.Dependencies.Add(new(parsedTitle.CanonicalTitle, null, null, null, "ResolutionFailed"));
+            context.AddUnsupported("template-resolution-failed");
+            context.AddDiagnostic("TemplateResolutionFailed", $"MediaWiki transclusion '{parsedTitle.CanonicalTitle}' could not be resolved.", offset, original.Length, MediaWikiDiagnosticSeverity.Error);
+            context.RecordTerminalFailure();
+            return original;
+        }
         context.Dependencies.Add(new(target.SourceTitle, target.SourcePageId, target.SourceRevisionId, target.TargetRevision, target.Status.ToString()));
+        if (target.Status == TwMediaWikiTemplateResolutionStatus.Resolved && !target.IsResolved)
+        {
+            context.AddUnsupported("template-source-unavailable");
+            context.AddDiagnostic("TemplateSourceUnavailable", $"MediaWiki transclusion '{parsedTitle.CanonicalTitle}' had no available source body for its resolved revision.", offset, original.Length);
+            return original;
+        }
         if (!target.IsResolved)
         {
             var code = target.Status switch
@@ -189,7 +229,7 @@ internal sealed class MediaWikiTemplateExpander(
                 _ => "MissingTemplate"
             };
             context.AddUnsupported(code.ToLowerInvariant());
-            context.AddDiagnostic(code, $"MediaWiki template '{title}' was not safely resolved for this imported source.", offset, original.Length);
+            context.AddDiagnostic(code, $"MediaWiki transclusion '{parsedTitle.CanonicalTitle}' was not safely resolved for this imported source.", offset, original.Length);
             return original;
         }
 
@@ -197,7 +237,7 @@ internal sealed class MediaWikiTemplateExpander(
         if (templateStack.Contains(templateKey, StringComparer.Ordinal))
         {
             context.AddUnsupported("recursive-template");
-            context.AddDiagnostic("RecursiveTemplate", $"Recursive MediaWiki template call '{title}' was stopped.", offset, original.Length, MediaWikiDiagnosticSeverity.Error);
+            context.AddDiagnostic("RecursiveTemplate", $"Recursive MediaWiki template call '{parsedTitle.CanonicalTitle}' was stopped.", offset, original.Length, MediaWikiDiagnosticSeverity.Error);
             return original;
         }
 
@@ -221,6 +261,8 @@ internal sealed class MediaWikiTemplateExpander(
         var first = colon < 0 ? string.Empty : head[(colon + 1)..];
         var args = new List<string> { first };
         args.AddRange(rawArguments);
+        if (function == "cuinfobox")
+            return await ExpandInfoboxInvocationAsync(first, rawArguments, context, parameters, templateStack, depth, offset);
         if (function is "invoke" or "len" or "replace" or "var" or "dpl" or "categorytree" or "string")
         {
             if (function == "invoke")
@@ -291,20 +333,69 @@ internal sealed class MediaWikiTemplateExpander(
         var switchValue = (await ExpandTextAsync(args[0], context, parameters, templateStack, depth + 1)).Trim();
         string? selected = null;
         string? fallback = null;
+        var fallThroughMatch = false;
         foreach (var argument in args.Skip(1))
         {
             var equals = FindTopLevelEquals(argument);
             if (equals < 0)
             {
                 if (fallback is null && string.Equals(argument.Trim(), "#default", StringComparison.OrdinalIgnoreCase)) fallback = string.Empty;
+                else if (string.Equals(argument.Trim(), switchValue, StringComparison.Ordinal)) fallThroughMatch = true;
                 continue;
             }
             var key = argument[..equals].Trim();
             var value = argument[(equals + 1)..];
             if (string.Equals(key, "#default", StringComparison.OrdinalIgnoreCase)) fallback = value;
-            else if (string.Equals(key, switchValue, StringComparison.Ordinal)) { selected = value; break; }
+            else if (fallThroughMatch || string.Equals(key, switchValue, StringComparison.Ordinal)) { selected = value; break; }
         }
         return await ExpandSelectedAsync(selected ?? fallback, context, parameters, templateStack, depth);
+    }
+
+    private async Task<string> ExpandInfoboxInvocationAsync(
+        string type,
+        IReadOnlyList<string> rawArguments,
+        ExpansionContext context,
+        IReadOnlyDictionary<string, string> parameters,
+        IReadOnlyList<string> templateStack,
+        int depth,
+        int offset)
+    {
+        var actualType = string.IsNullOrWhiteSpace(type) ? "generic" : type.Trim();
+        var values = new List<MediaWikiInfoboxArgument>();
+        var positional = 1;
+        foreach (var argument in rawArguments)
+        {
+            var equals = FindTopLevelEquals(argument);
+            if (equals >= 0)
+            {
+                var name = argument[..equals].Trim();
+                if (name.Length == 0) continue;
+                values.Add(new(name, await ExpandTextAsync(argument[(equals + 1)..].Trim(), context, parameters, templateStack, depth + 1)));
+            }
+            else
+            {
+                values.Add(new(positional.ToString(CultureInfo.InvariantCulture), await ExpandTextAsync(argument.Trim(), context, parameters, templateStack, depth + 1)));
+                positional++;
+            }
+        }
+
+        if (context.Options.InfoboxRegistry is null)
+        {
+            context.AddUnsupported("continuum-infobox");
+            context.AddDiagnostic("UnsupportedContinuumInfobox", "The ContinuumInfobox schema registry is not enabled.", offset, Math.Max(1, type.Length));
+            return "";
+        }
+        if (!context.Options.InfoboxRegistry.TryGet(actualType, out _))
+            context.AddDiagnostic("InfoboxSchemaFallback", $"Infobox schema '{actualType}' was not found; the bounded generic schema was used.", offset, Math.Max(1, type.Length));
+        if (!MediaWikiInfoboxCompatibility.TryBuildModel(actualType, values, context.Options.InfoboxRegistry,
+                context.Options.MaxInfoboxFields, context.Options.MaxInfoboxCharacters, out var model, out var error))
+        {
+            context.AddDiagnostic("InfoboxLimitExceeded", error, offset, Math.Max(1, type.Length), MediaWikiDiagnosticSeverity.Error);
+            return "";
+        }
+        if (string.IsNullOrWhiteSpace(model.Title))
+            model = model with { Title = string.IsNullOrWhiteSpace(context.Expansion.CurrentPageTitle) ? model.Label : context.Expansion.CurrentPageTitle };
+        return MediaWikiInfoboxCompatibility.Encode(model);
     }
 
     private async Task<string> ExpandScribuntoInvocationAsync(
@@ -339,6 +430,7 @@ internal sealed class MediaWikiTemplateExpander(
             templateStack));
         foreach (var diagnostic in execution.Diagnostics) context.AddDiagnostic(diagnostic.Code, diagnostic.Message, diagnostic.Offset, diagnostic.Length, diagnostic.Severity);
         foreach (var dependency in execution.Dependencies) context.ScribuntoDependencies.Add(dependency);
+        context.RecordExecutionFailure(execution);
         if (!execution.Executed) context.AddUnsupported("scribunto-execution-rejected");
         if (!execution.Executed || execution.Text is null) return original;
 
@@ -741,13 +833,6 @@ internal sealed class MediaWikiTemplateExpander(
         return openEnd >= 0 && closeStart >= 0;
     }
 
-    private static string NormalizeTemplateTitle(string value)
-    {
-        try { value = Uri.UnescapeDataString(value); } catch (UriFormatException) { }
-        if (value.StartsWith("Template:", StringComparison.OrdinalIgnoreCase)) value = value[9..];
-        return value.Trim().Replace('_', ' ');
-    }
-
     private static int FindNextConstruct(string text, int start)
     {
         var template = text.IndexOf("{{", start, StringComparison.Ordinal);
@@ -843,6 +928,7 @@ internal sealed class MediaWikiTemplateExpander(
         public MediaWikiExpansionContext Expansion { get; } = expansion;
         public bool DependsOnCurrentTime { get; set; }
         public List<MediaWikiScribuntoDependency> ScribuntoDependencies { get; } = [];
+        public bool HasTerminalFailure { get; private set; }
 
         public bool TryConsume(int count)
         {
@@ -934,6 +1020,20 @@ internal sealed class MediaWikiTemplateExpander(
                 new MediaWikiSourceWikiIdentity(Expansion.SourceWikiIdentity ?? string.Empty)));
 
         public void RegisterDependency(MediaWikiScribuntoDependency dependency) => ScribuntoDependencies.Add(dependency);
+
+        public void RecordExecutionFailure(MediaWikiScribuntoExecutionResult execution)
+        {
+            if (HasTerminalFailure || execution.Executed) return;
+
+            // The rejecting executor deliberately reports a warning and stays
+            // recoverable. An error-valued typed result has no valid Wikitext
+            // result, so later expansion can only create secondary evidence
+            // (for example, a misleading wall-clock timeout).
+            if (execution.Diagnostics.Any(value => value.Severity == MediaWikiDiagnosticSeverity.Error))
+                HasTerminalFailure = true;
+        }
+
+        public void RecordTerminalFailure() => HasTerminalFailure = true;
 
         private void AddBudgetDiagnostic(string code, string message)
         {

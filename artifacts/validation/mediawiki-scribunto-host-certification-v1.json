@@ -1,0 +1,75 @@
+{
+  "ReportVersion": "cw-m4-001-scribunto-host-certification-v1",
+  "GeneratedAtUtc": "2026-10-11T16:20:28Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "OverallVerdict": "HOST_CERTIFICATION_BLOCKED",
+  "MilestoneStatus": "INVESTIGATION_COMPLETE",
+  "HostEnvironment": {
+    "Kernel": "Linux 7.2.9-1-default x86_64",
+    "Distribution": "openSUSE Tumbleweed 20261007",
+    "Systemd": "systemd 261",
+    "DotnetSdk": "10.0.401",
+    "DotnetRuntime": "10.0.12",
+    "Selinux": {"Status": "enabled", "Mode": "enforcing", "Policy": "targeted", "ContextInspection": "BLOCKED; no live worker PID"}
+  },
+  "Authorization": {
+    "InspectionScope": "Read-only host and repository inspection only",
+    "DiagnosticExecutionAttempted": false,
+    "CurrentInspectorIdentity": "uid=1000(cdjensen94), gid=1000(cdjensen94), supplementary groups=1000(cdjensen94),65534(nobody)",
+    "DeclaredWorkerIdentity": "continuumwiki-scribunto, uid=427, gid=427",
+    "CurrentSessionWorkerGroupAccess": "Group database lists cdjensen94 in continuumwiki-scribunto, but the effective session group list did not contain gid 427; dedicated-identity access was not established.",
+    "PrivilegeEscalation": "None; no root worker, permission change, policy change, service restart, or deployment was performed."
+  },
+  "WorkerArtifacts": {
+    "Worker": {"Path": "/srv/continuumwiki/current/ScribuntoWorker/bin/Release/net10.0/ContinuumWiki.ScribuntoWorker.dll", "Owner": "root:root", "Mode": "0644", "Sha256": "f0301d935166bff81a8b9100ccbd122a1fc118e59d2d97486ba386e15c4ee37b"},
+    "Launcher": {"Path": "/usr/local/libexec/continuumwiki-scribunto-worker-launcher", "Owner": "root:root", "Mode": "0755", "Sha256": "4a2238ccd114c46456e78b433e8c6b3f2b23a63742a01c2b8f9ba309f14af714"},
+    "Provenance": "Observed; no binary was changed or redeployed."
+  },
+  "InstalledConfiguration": {
+    "Socket": {"Unit": "continuumwiki-scribunto-worker.socket", "Path": "/etc/systemd/system/continuumwiki-scribunto-worker.socket", "State": "active/listening", "Enabled": true, "Listen": "/run/continuumwiki/scribunto-worker.sock", "SocketUser": "continuumwiki-scribunto", "SocketGroup": "continuumwiki-scribunto", "SocketMode": "0660", "DirectoryMode": "0750", "Accept": true},
+    "Service": {"Unit": "continuumwiki-scribunto-worker@.service", "Path": "/etc/systemd/system/continuumwiki-scribunto-worker@.service", "User": "continuumwiki-scribunto", "Group": "continuumwiki-scribunto", "NoNewPrivileges": true, "PrivateTmp": true, "PrivateDevices": true, "ProtectSystem": "strict", "ProtectHome": true, "ProtectKernelTunables": false, "ProtectKernelModules": true, "RestrictSUIDSGID": true, "RestrictAddressFamilies": ["AF_UNIX", "AF_NETLINK"], "PrivateNetwork": true, "MemoryMaxBytes": 268435456, "TasksMax": 32, "CPUQuota": "100%", "LimitCPUSeconds": 2, "LimitNOFILE": 256, "KillMode": "control-group", "UMask": "0077", "ExplicitCapabilityBoundingSet": "NOT_DECLARED"},
+    "Launcher": {"ClearEnvironment": true, "BubblewrapUnshareAll": true, "BubblewrapNewSession": true, "ReadOnlyRuntimeAndWorkerMounts": true, "PrivateProcReadOnly": true, "PrivateDev": true, "PrivateTmpfs": true, "DynamicDotnetRoot": true, "PrlimitAddressSpaceBytes": 2147483648, "PrlimitCpuSeconds": 2, "PrlimitNofile": 256}
+  },
+  "ObservedRuntimeState": {
+    "SocketSystemdState": "active/listening; 219 accepted, 0 connected at inspection",
+    "SocketFilesystemStat": "PERMISSION_DENIED from current session",
+    "SocketParentDirectory": "mode=0750 uid=65534 gid=65534",
+    "AuthorizedPositiveRequest": "NOT_ATTEMPTED; current session was not the dedicated worker identity",
+    "WorkerInstances": [
+      {"Unit": "continuumwiki-scribunto-worker@54-29584-699891_699553-1000.service", "State": "failed", "Result": "exit-code", "MainPID": 0, "ControlGroup": "NOT_SET"},
+      {"Unit": "continuumwiki-scribunto-worker@55-16182-700863_706186-1000.service", "State": "failed", "Result": "exit-code", "MainPID": 0, "ControlGroup": "NOT_SET"},
+      {"Unit": "continuumwiki-scribunto-worker@56-58096-700969_717682-1000.service", "State": "failed", "Result": "exit-code", "MainPID": 0, "ControlGroup": "NOT_SET"}
+    ],
+    "LiveWorkerIdentity": "BLOCKED; no active worker PID",
+    "LiveWorkerCgroup": "BLOCKED; failed instances exposed no ControlGroup, MemoryCurrent, or TasksCurrent"
+  },
+  "CertificationMatrix": [
+    {"Control": "Dedicated process identity", "Classification": "BLOCKED", "Evidence": "Declared User/Group is continuumwiki-scribunto (427), but no live worker PID existed for UID/GID/capability inspection."},
+    {"Control": "Installed systemd configuration", "Classification": "PASS", "Evidence": "Installed socket/service units and effective properties were inspected read-only and matched the reviewed hardening contract."},
+    {"Control": "Unix-domain socket isolation", "Classification": "BLOCKED", "Evidence": "Listener and declared mode 0660 were observed; current session could not stat/connect and no authorized negative identity was available."},
+    {"Control": "bubblewrap isolation", "Classification": "BLOCKED", "Evidence": "Root-owned launcher and unshare/mount/proc configuration inspected; no authorized disposable probe executed."},
+    {"Control": "Network isolation", "Classification": "BLOCKED", "Evidence": "PrivateNetwork and address-family restrictions declared; effective denial probe not run."},
+    {"Control": "Filesystem and secret isolation", "Classification": "BLOCKED", "Evidence": "Read-only mounts, clearenv, ProtectSystem, and ProtectHome declared; effective sentinel denial probes not run."},
+    {"Control": "Resource enforcement", "Classification": "BLOCKED", "Evidence": "Finite service and launcher limits declared; no live cgroup or termination probe was available."},
+    {"Control": "Typed capability boundary", "Classification": "BLOCKED", "Evidence": "Typed protocol and rejecting/default tests exist, but no current authorized worker request tested malformed input, unauthorized Cargo, historical identity rejection, or output bounds."},
+    {"Control": "SELinux", "Classification": "BLOCKED", "Evidence": "SELinux enabled/enforcing under targeted policy; worker process/socket contexts were unavailable."},
+    {"Control": "Production activation", "Classification": "BLOCKED", "Evidence": "Repository configuration and prior reports preserve production-disabled Lua and rejecting defaults; effective application deployment state was not inspected in this host session."}
+  ],
+  "PositiveTests": [],
+  "NegativeTests": [],
+  "Verification": {
+    "FocusedTests": {"Command": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiScribuntoDeploymentConfigurationTests|FullyQualifiedName~MediaWikiScribuntoBoundaryTests|FullyQualifiedName~ExperimentalMediaWikiScribuntoRuntimeTests'", "Passed": 59, "Failed": 0, "Skipped": 0, "Result": "PASSED"},
+    "InitialTestAttempt": "Sandbox IPC denied VSTest socket creation; the identical command was rerun through the approved execution boundary and passed.",
+    "ArtifactValidation": {"Json": "PASSED", "ShellSyntax": "PASSED", "DiffCheck": "PASSED"},
+    "FullRegression": "NOT_RERUN; no source or test files changed for CW-M4-001"
+  },
+  "PriorEvidenceNotReusedAsCertification": ["The prior VERIFIED runner report is historical and not current dedicated-identity end-to-end certification.", "The prior authorized socket report proves an earlier response path but not current identity, cgroup, namespace, SELinux, or denial behavior."],
+  "SecurityFailures": [],
+  "UnresolvedObservations": ["The installed unit does not explicitly declare CapabilityBoundingSet; effective capabilities remain unobserved.", "The socket is listening while observed worker instances are failed; current worker availability and recovery require an authorized diagnostic run."],
+  "ProductionSafety": {"ProductionLuaActivated": false, "PositiveCargoActivated": false, "ProductionServiceRestarted": false, "ProductionDataChanged": false, "SocketPermissionsChanged": false, "SystemdUnitsChanged": false, "WorkerBinaryChanged": false, "SelinuxPolicyChanged": false, "SecretsRead": false},
+  "CommandsActuallyExecuted": ["id", "uname -srmo", "dotnet --info", "systemctl --version", "systemctl status/cat/show for installed worker socket and observed instances", "sha256sum deployed worker and launcher", "getent passwd/group continuumwiki-scribunto", "sestatus", "read-only repository and validation artifact inspection"],
+  "RequiredNextEvidence": ["Dedicated-identity terminal with effective socket-group access", "One malformed synthetic socket request and identification of its actual activated unit", "Observed ControlGroup with memory.max, pids.max, cpu.max, cgroup.procs, and worker/child identity", "scripts/verify-moonsharp-host-sandbox.sh run with the exact observed cgroup path", "Sanitized report, runner report, unit status, cgroup values, and journal provenance"],
+  "RequiredRemediation": "No conclusive security failure was established. Certification remains blocked until dedicated-identity runtime, cgroup, namespace, denial, capability, and SELinux-context checks are performed.",
+  "RecommendedNextMilestone": "Operator-run dedicated-identity host certification using the documented procedure, followed by separate compatibility and migration gates.",
+  "EvidenceReferences": ["deploy/systemd/continuumwiki-scribunto-worker.socket", "deploy/systemd/continuumwiki-scribunto-worker@.service", "deploy/systemd/continuumwiki-scribunto-worker-launcher", "scripts/verify-moonsharp-host-sandbox.sh", "scripts/diagnose-moonsharp-procfs.sh", "ScribuntoSandboxCertification/Program.cs", "ScribuntoSandboxProbe/Program.cs", "artifacts/validation/moonsharp-host-sandbox-report-v1.json", "artifacts/validation/moonsharp-host-sandbox-runner-report-v1.json", "artifacts/validation/mediawiki-real-socket-execution-v1.json"]
+}

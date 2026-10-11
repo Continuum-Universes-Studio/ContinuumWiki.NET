@@ -1,0 +1,286 @@
+{
+  "ReportVersion": "cw-m4-005-mediawiki-operator-evidence-handoff-v1",
+  "Milestone": "CW-M4-005",
+  "Status": "OPERATOR_HANDOFF_VERIFIED_AUTHORIZATIONS_PENDING",
+  "FinalClassification": "Operator handoff verified; authorizations pending.",
+  "GeneratedBy": "Codex",
+  "ExecutionPerformed": false,
+  "ProductionMutationPerformed": false,
+  "Baseline": {
+    "PriorReadinessReport": "artifacts/validation/mediawiki-migration-readiness-v1.json",
+    "PriorReadinessStatus": "READINESS_PLAN_VERIFIED",
+    "SourceOnlyDecision": "GO",
+    "ControlledDisposableDecision": "CONDITIONAL_NOT_AUTHORIZED",
+    "ProductionDecision": "NO_GO",
+    "StrictImportPlannerChanged": false,
+    "RejectingScribuntoExecutorDefault": true,
+    "ProductionLuaEnabled": false,
+    "ProductionCargoEnabled": false,
+    "WorkerIsolationChanged": false,
+    "ReferenceArtifactsChanged": false,
+    "CargoRowsAcquired": false
+  },
+  "Tracks": [
+    {
+      "TrackId": "A",
+      "Name": "HISTORICAL_SOURCE_RECOVERY",
+      "Status": "ACQUISITION_BLOCKED",
+      "AuthorizationState": "AUTHORIZATION_UNVERIFIED",
+      "Evidence": [
+        "artifacts/validation/mediawiki-historical-source-acquisition-v1.json",
+        "docs/operations/CW-M4-004-HISTORICAL-SOURCE-ACQUISITION.md"
+      ],
+      "AvailableEvidence": [
+        "Target revision metadata for Jovan@9482, Module:DivineTree@9481, Template:Divine@9469, and Module:DivineFamily@9467",
+        "No authenticated raw source bodies or complete private source package"
+      ],
+      "RequiredEvidence": [
+        "Operator-approved read-only source scope",
+        "Complete source-preserving export or equivalent package",
+        "Per-file and package SHA-256 manifest",
+        "Exact historical revision identities and timestamps"
+      ],
+      "ExecutionCommandReady": true
+    },
+    {
+      "TrackId": "B",
+      "Name": "DISPOSABLE_MIGRATION_AUTHORIZATION",
+      "Status": "CONDITIONAL_NOT_AUTHORIZED",
+      "AuthorizationState": "NOT_REQUESTED",
+      "Evidence": [
+        "artifacts/validation/mediawiki-migration-readiness-v1.json",
+        "docs/operations/CW-M4-002-DISPOSABLE-MIGRATION-DIAGNOSTICS.md",
+        "scripts/verify-m3-006c-diagnostic.sh"
+      ],
+      "AvailableEvidence": [
+        "Diagnostic entry point exists",
+        "Six-fixture diagnostic allowlist and strict planner boundary are documented"
+      ],
+      "RequiredEvidence": [
+        "Explicit disposable MariaDB target authorization",
+        "Source package completeness and hash",
+        "Retention and cleanup approval",
+        "Worker socket authorization and host certification"
+      ],
+      "ExecutionCommandReady": true
+    },
+    {
+      "TrackId": "C",
+      "Name": "SCRIBUNTO_HOST_CERTIFICATION",
+      "Status": "HOST_CERTIFICATION_BLOCKED",
+      "AuthorizationState": "NOT_REQUESTED",
+      "Evidence": [
+        "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md",
+        "artifacts/validation/mediawiki-scribunto-host-certification-v1.json",
+        "artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json"
+      ],
+      "AvailableEvidence": [
+        "Installed Unix-domain worker and sandbox procedure are documented",
+        "Dedicated-identity certification is not authenticated in this handoff"
+      ],
+      "RequiredEvidence": [
+        "Deployed worker and launcher provenance hashes",
+        "Dedicated identity, socket, cgroup, systemd, and bubblewrap evidence",
+        "CoreCLR startup and bounded protocol result",
+        "No permission or hardening changes"
+      ],
+      "ExecutionCommandReady": true
+    },
+    {
+      "TrackId": "D",
+      "Name": "HISTORICAL_CARGO_PROVENANCE",
+      "Status": "HISTORICAL_PARITY_UNAVAILABLE",
+      "AuthorizationState": "AUTHORIZATION_UNVERIFIED",
+      "Evidence": [
+        "artifacts/validation/mediawiki-cargo-historical-provenance-v1.json",
+        "artifacts/validation/mediawiki-cargo-snapshot-authentic-v1.json",
+        "artifacts/validation/mediawiki-cargo-provider-readiness-v1.json"
+      ],
+      "AvailableEvidence": [
+        "Current-state snapshot cargo-authentic-current-20261011-1",
+        "Current schema and current row counts only"
+      ],
+      "RequiredEvidence": [
+        "Independent read-only authorization",
+        "Revision-correlated or time-bounded Cargo rows/snapshot",
+        "Integrity manifest and provenance mapping",
+        "No private rows beyond approved table/field scope"
+      ],
+      "ExecutionCommandReady": false
+    }
+  ],
+  "ReadinessGateIndex": [
+    {
+      "GateId": "IMPORTER_CORRECTNESS",
+      "Status": "VERIFIED",
+      "Evidence": "artifacts/validation/mediawiki-migration-readiness-v1.json",
+      "RequiredEvidence": "Preserve strict structural, source-integrity, size, and transaction checks",
+      "Authorization": "NOT_REQUIRED_FOR_SOURCE_ONLY",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": false
+    },
+    {
+      "GateId": "HISTORICAL_SOURCE_BODIES",
+      "Status": "BLOCKED",
+      "Evidence": "artifacts/validation/mediawiki-historical-source-acquisition-v1.json",
+      "RequiredEvidence": "Authenticated raw historical source bodies and hashes",
+      "Authorization": "TRACK_A_PENDING",
+      "BlocksControlledImport": true,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "DEPENDENCY_CLOSURE",
+      "Status": "PARTIAL",
+      "Evidence": "artifacts/validation/mediawiki-migration-readiness-v1.json",
+      "RequiredEvidence": "Source-complete exact-revision dependency closure",
+      "Authorization": "TRACK_A_PENDING",
+      "BlocksControlledImport": true,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "DISPOSABLE_TARGET_AUTHORIZATION",
+      "Status": "PENDING",
+      "Evidence": "artifacts/validation/mediawiki-migration-readiness-v1.json",
+      "RequiredEvidence": "Explicit disposable target owner, scope, retention, and cleanup approval",
+      "Authorization": "TRACK_B_NOT_REQUESTED",
+      "BlocksControlledImport": true,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "DISPOSABLE_IMPORT_EXECUTION",
+      "Status": "NOT_EXECUTED",
+      "Evidence": "No execution in CW-M4-005",
+      "RequiredEvidence": "Verified import report against authorized disposable target",
+      "Authorization": "TRACK_B_NOT_REQUESTED",
+      "BlocksControlledImport": true,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "WIKITEXT_INFOBOX",
+      "Status": "IMPLEMENTATION_VERIFIED_SOURCE_BLOCKED",
+      "Evidence": "artifacts/validation/mediawiki-continuuminfobox-compatibility-v1.json",
+      "RequiredEvidence": "Complete source and real output comparison for historical fixtures",
+      "Authorization": "TRACK_A_PENDING",
+      "BlocksControlledImport": true,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "LUA_WORKER_HOST_CERTIFICATION",
+      "Status": "BLOCKED",
+      "Evidence": "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md",
+      "RequiredEvidence": "Dedicated-identity host certification and worker provenance",
+      "Authorization": "TRACK_C_NOT_REQUESTED",
+      "BlocksControlledImport": true,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "CORECLR_STARTUP_CHARACTERIZATION",
+      "Status": "CHARACTERIZED_NOT_HOST_CERTIFIED",
+      "Evidence": "artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json",
+      "RequiredEvidence": "Current deployed artifact startup under certified host identity",
+      "Authorization": "TRACK_C_NOT_REQUESTED",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "CURRENT_CARGO_SCALAR",
+      "Status": "CURRENT_STATE_ONLY",
+      "Evidence": "artifacts/validation/mediawiki-cargo-snapshot-authentic-v1.json",
+      "RequiredEvidence": "Use only with explicit current-state label",
+      "Authorization": "NOT_REQUIRED_FOR_SCHEMA_ONLY",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "CARGO_HELPER_RELATIONSHIPS",
+      "Status": "INACTIVE",
+      "Evidence": "artifacts/validation/mediawiki-cargo-provider-readiness-v1.json",
+      "RequiredEvidence": "Authorized typed helper rows and bounded relationship provenance",
+      "Authorization": "TRACK_D_PENDING",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "HISTORICAL_CARGO_PARITY",
+      "Status": "BLOCKED",
+      "Evidence": "artifacts/validation/mediawiki-cargo-historical-provenance-v1.json",
+      "RequiredEvidence": "Revision-correlated historical Cargo dataset",
+      "Authorization": "TRACK_D_NOT_REQUESTED",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "MERMAID_VISUAL_PARITY",
+      "Status": "UNVERIFIED",
+      "Evidence": "artifacts/validation/mediawiki-compatibility-certification-v1.json",
+      "RequiredEvidence": "Independent reference and approved renderer comparison",
+      "Authorization": "NOT_REQUESTED",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "TEMPLATESTYLES_COMPATIBILITY",
+      "Status": "UNVERIFIED",
+      "Evidence": "artifacts/validation/mediawiki-reference-aware-evaluation-v1.json",
+      "RequiredEvidence": "Reference-side and ContinuumWiki output comparison with source provenance",
+      "Authorization": "TRACK_A_PENDING",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    },
+    {
+      "GateId": "PRODUCTION_ACTIVATION",
+      "Status": "NO_GO",
+      "Evidence": "artifacts/validation/mediawiki-migration-readiness-v1.json",
+      "RequiredEvidence": "Separate production authorization after all required gates",
+      "Authorization": "NEVER_GRANTED_BY_THIS_HANDOFF",
+      "BlocksControlledImport": false,
+      "BlocksProductionMigration": true
+    }
+  ],
+  "ApprovalManifest": {
+    "AuthenticApprovalsPresent": false,
+    "Template": "docs/operations/templates/CW-M4-005-OPERATOR-APPROVAL-TEMPLATE.json",
+    "Entries": [
+      {"TrackId": "A", "ApprovalState": "NOT_REQUESTED", "VerificationState": "UNVERIFIED"},
+      {"TrackId": "B", "ApprovalState": "NOT_REQUESTED", "VerificationState": "UNVERIFIED"},
+      {"TrackId": "C", "ApprovalState": "NOT_REQUESTED", "VerificationState": "UNVERIFIED"},
+      {"TrackId": "D", "ApprovalState": "NOT_REQUESTED", "VerificationState": "UNVERIFIED"}
+    ]
+  },
+  "EvidenceAcceptanceMatrix": [
+    {"Evidence": "Historical source package", "Accepts": ["Track A", "DEPENDENCY_CLOSURE"], "DoesNotAccept": ["Track C", "HISTORICAL_CARGO_PARITY"]},
+    {"Evidence": "Disposable import report", "Accepts": ["Track B execution"], "DoesNotAccept": ["PRODUCTION_ACTIVATION", "HISTORICAL_CARGO_PARITY"]},
+    {"Evidence": "Dedicated worker certification", "Accepts": ["Track C"], "DoesNotAccept": ["Track B authorization", "PRODUCTION_ACTIVATION"]},
+    {"Evidence": "Historical Cargo snapshot", "Accepts": ["Track D", "HISTORICAL_CARGO_PARITY"], "DoesNotAccept": ["Track A", "Track C"]}
+  ],
+  "DependencyGraph": {
+    "Source": ["Track A authorization", "source package", "exact revision closure", "strict planner"],
+    "DisposableExecution": ["Track B authorization", "source package", "Track C host certification", "diagnostic allowlist"],
+    "Worker": ["deployed provenance", "dedicated identity", "socket and cgroup evidence", "sandbox certification"],
+    "Cargo": ["Track D authorization", "historical rows or snapshot", "integrity manifest", "typed bounded provider"]
+  },
+  "SecurityPreservation": {
+    "StrictPlannerRemainsRejecting": true,
+    "RejectingExecutorRemainsDefault": true,
+    "ProductionLuaRemainsDisabled": true,
+    "ProductionCargoRemainsDisabled": true,
+    "NoInProcessLuaIntroduced": true,
+    "NoWorkerPermissionChanges": true,
+    "NoSystemdOrBubblewrapChanges": true,
+    "NoProductionDatabaseMutation": true,
+    "NoProductionMediaWikiMutation": true,
+    "NoCredentialsStored": true,
+    "NoPrivateCargoRowsAcquired": true
+  },
+  "Verification": {
+    "DocumentationOnly": true,
+    "FreshBuildPerformed": false,
+    "FreshTestsPerformed": false,
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "ReferenceHashesRewritten": false,
+    "CargoEvidenceRewritten": false,
+    "ExecutionCommandsIssued": false
+  },
+  "NextMilestone": "CW-M4-006 — execute only the first explicitly approved evidence track and record its independent result."
+}

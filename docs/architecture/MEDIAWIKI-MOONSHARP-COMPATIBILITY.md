@@ -179,3 +179,62 @@ The focused 005B.3 suite passes `31/31`; the full repository regression passes
 Any future expansion must add typed capability and provenance contracts first,
 then differential tests against a real Scribunto/MediaWiki reference. Passing
 the MoonSharp tests alone must never be promoted to production approval.
+
+## CW-M4-001 host certification status
+
+The dedicated-identity host certification investigation is recorded in
+`artifacts/validation/mediawiki-scribunto-host-certification-v1.json`; the
+repeatable operator procedure is
+`docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md`.
+
+Read-only inspection found the installed socket active and listening, the
+reviewed root-owned worker and launcher hashes, the declared dedicated systemd
+identity, finite service resource limits, bubblewrap namespace/mount
+configuration, and SELinux enabled in enforcing mode. The observed worker
+instances were failed with no live MainPID or exposed ControlGroup, and the
+current inspection session was not established as the dedicated worker
+identity. Effective UID/capability state, socket authorization, cgroup
+enforcement, namespace denials, filesystem/network denial probes, worker
+recovery, and relevant SELinux contexts therefore remain `BLOCKED` rather than
+being inferred from configuration.
+
+CW-M4-001 is investigation-complete with verdict
+`HOST_CERTIFICATION_BLOCKED`; it is not `HOST_CERTIFIED`. Production Lua
+remains disabled, rejecting Scribunto and Cargo defaults remain in place, and
+no service, permission, policy, binary, or production data was changed.
+
+## CW-M4-001A runtime activation status
+
+The CW-M4-001A report is
+`artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json`.
+Its authorization gate was evaluated but not satisfied: the inspection session
+was not the dedicated worker identity and did not have effective socket-group
+access, so no diagnostic socket request was sent. The installed socket remains
+active/listening, while the observed worker instances are failed with no live
+PID or usable cgroup.
+
+One historical exit-137 instance has operator-supplied CoreCLR/GC allocation
+failure evidence under the configured 256 MiB service ceiling. Exit-134 and
+exit-1 instances remain cause-unclassified because current journal access was
+unavailable. No startup status is treated as a security failure without direct
+evidence. Runtime identity, cgroup, bubblewrap, filesystem, network, SELinux
+context, resource, capability, and production-activation controls remain
+`BLOCKED`; no hardening or production state was changed.
+
+## CW-M4-001B memory characterization status
+
+The memory characterization report is
+`artifacts/validation/mediawiki-scribunto-memory-characterization-v1.json`.
+Static inspection verified the deployed bundle manifest, .NET 10 runtimeconfig,
+empty service environment, launcher `--clearenv` behavior, fixed runtime paths,
+and the separate systemd `MemoryMax=256M` and launcher address-space limit.
+No GC heap-hard-limit override or missing declared framework was found in the
+static artifacts.
+
+Runtime memory characterization remains blocked because the authorization gate
+did not permit worker activation or disposable resource experiments. The
+operator-supplied exit-137 CoreCLR/GC message is evidence of startup failure
+under the configured ceiling, but not proof of a cgroup OOM kill. Exit-134 and
+exit-1 causes, cgroup counters, resident/committed memory, cancellation
+cleanup, and a minimum viable resource policy remain unverified. No production
+limit, worker, launcher, SELinux policy, or security default changed.

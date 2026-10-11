@@ -62,3 +62,76 @@ or `CargoHistoricalProvenanceUnavailable` results, not fabricated empty rows.
 
 No production database, worker deployment, Lua authorization, or strict import
 planner behavior was changed by this audit.
+
+## CW-M3-006F.4B snapshot entry point
+
+`CargoSnapshotTool` consumes the private MariaDB option file and verified
+schema metadata without printing credentials. Capture uses the existing host
+database abstraction, a repeatable-read transaction, allowlisted base-table
+columns, stable `_ID` ordering, bounded output, and atomic private
+finalization. Verification runs after the database session closes and checks
+manifest identity, schema hashes, exact row counts, content hashes, row
+integrity, and completeness.
+
+The resulting dataset is current-state evidence only. It is not historical
+Cargo data, does not authorize runtime registration, and does not establish
+MediaWiki parity. Authentic rows remain outside Git under the operator-owned
+validation directory.
+
+## CW-M3-006G historical provenance boundary
+
+The eight private MediaWiki reference captures are preserved independently of
+the Cargo evidence. Each capture records a page revision, rendered revision,
+capture timestamp, and raw API response hash. The source/module inventory also
+preserves historical Wikitext and Lua revision identities. Neither artifact
+contains the Cargo rows that MediaWiki read while rendering the fixture.
+
+The authenticated dataset `cargo-authentic-current-20261011-1` was captured on
+2026-10-11 in a repeatable-read transaction and contains the current rows for
+Characters, Divines, Species, Subvariants, and Variants. Its manifest explicitly
+sets `HistoricalCorrelationVerified` to false. It is therefore
+`CURRENT_STATE_ONLY`, never a fallback for a historical fixture.
+
+The fixture-to-dataset evidence matrix is recorded in
+`artifacts/validation/mediawiki-cargo-historical-provenance-v1.json`. No
+revision-correlated or time-bounded historical Cargo dataset was identified in
+the inspected authorized metadata. Two source-context limitations are recorded
+there: no inventoried `Module:DivineMeta` revision is at or before fixture page
+revision 9469, and no inventoried `Module:Message box` revision is at or before
+fixture page revision 6208. A later module revision is not silently substituted.
+
+Cargo compatibility results must remain in three separate categories:
+
+1. **Historical parity** requires a Cargo dataset correlated to the fixture's
+   source revision and matching source dependencies. No current fixture is
+   eligible until that evidence exists.
+2. **Current-state compatibility** may use the authenticated current snapshot
+   only with an explicit current-state dataset identity. It cannot establish
+   historical parity.
+3. **Synthetic implementation testing** may use synthetic bounded rows to test
+   the provider, worker boundary, and renderer. It establishes implementation
+   behavior only, not equivalence to MediaWiki source data.
+
+Historical reconstruction from Wikitext, Lua, schema, and current rows is not
+treated as authentic Cargo history. Cargo is derived data and may depend on
+rebuild timing, extension configuration, helper-table storage, and parser
+behavior that page revision IDs do not capture. Missing or uncorrelated data
+must remain an explicit `CargoHistoricalProvenanceUnavailable` condition; it
+must not become fabricated empty rows or an unversioned current-data fallback.
+
+## CW-M3-007D typed relationship boundary
+
+`MediaWikiCargoRelationships.cs` defines immutable relationship descriptors,
+schema identities, bounded queries, dataset provenance, and deterministic
+result projection. The catalog records helper tables established by the
+authenticated index inventory, including `_rowID`, `_value`, and `_position`
+index columns. Because helper-table column rows and helper values were not
+captured, these definitions remain `SchemaOnly`; the live provider rejects them
+before opening a database connection. `Divines.Children` has no corresponding
+verified base or helper table and remains explicitly unsupported.
+
+Synthetic rows can exercise stable ordering, pagination, null handling, output
+limits, and the existing typed `cargoResults` boundary. Synthetic results are
+never labelled authentic. No worker protocol, authenticated snapshot, Lua
+authorization, production provider default, or historical provenance rule was
+changed.

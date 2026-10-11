@@ -1,0 +1,86 @@
+{
+  "ReportVersion": "mediawiki-templatestyles-host-authorization-m5-003a-v1",
+  "Milestone": "CW-M5-003A",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "FinalClassification": "HOST_AUTHORIZATION_BLOCKED",
+  "ExecutionScope": "Provider and test-infrastructure audit, guarded-test hardening, and operator-procedure preparation; no database provisioning or host execution",
+  "HostAuthorization": {
+    "Status": "BLOCKED",
+    "Marker": "CONTINUUMWIKI_M5_003_HOST_AUTHORIZED",
+    "MarkerPresent": false,
+    "ApplicationConnectionPresent": false,
+    "LifecycleAdminConnectionPresent": false,
+    "DatabaseWritesPerformed": false,
+    "ProductionConnectionAttempted": false,
+    "Reason": "No explicit disposable target, authorization marker, or separate lifecycle-admin connection was present."
+  },
+  "EngineAssessment": {
+    "RepositoryDapperProvider": "MySqlConnector 2.6.2",
+    "IdentityProvider": "MySql.EntityFrameworkCore 10.0.9",
+    "CurrentRuntimeReadinessGuard": "MariaDB 11.8 only",
+    "DefaultLifecycleImage": "docker.io/library/mariadb:11.8",
+    "HistoricalDisposableOracleMySqlEvidence": "Repository documentation records Oracle MySQL 8.4 persistence and Identity rehearsals; not current M5-003A execution evidence.",
+    "SelectedM5003AImage": "docker.io/library/mysql:8.4",
+    "SelectedM5003AImageStarted": false,
+    "MariaDbLabelsAreProviderProof": false,
+    "HostTestRuntimePreflight": "Requires VERSION() 8.4.* and @@version_comment containing MySQL before database creation"
+  },
+  "ConnectionSafety": {
+    "ApplicationConnection": "Must be loopback, port > 1024, non-root, and name cw_m5_003_*",
+    "LifecycleAdminConnection": "Separate loopback, port > 1024, disposable bootstrap target; used only for child CREATE/DROP",
+    "PublicDatabasePort": false,
+    "ProductionFallback": false,
+    "MountedProductionData": false
+  },
+  "TestHarness": {
+    "ExistingHostTest": "TightWiki.Tests/Integration/MediaWikiTemplateStylesMySqlHostTests.cs",
+    "AuthorizationGate": "TightWiki.Tests/Integration/MediaWikiTemplateStylesHostAuthorizationTests.cs",
+    "RealHostTestExecuted": false,
+    "RealHostTestSkipped": true,
+    "GuardedCoverage": [
+      "ASP.NET Core Identity cookie issuance and validation",
+      "persisted MySQL identities and page/source permissions",
+      "logout invalidation",
+      "same-session permission revocation and old URL",
+      "conditional requests before and after revocation",
+      "deleted and suppressed source revisions",
+      "bounded concurrent identity isolation",
+      "sanitized scoped CSS and response headers"
+    ]
+  },
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiTemplateStylesHostAuthorizationTests|FullyQualifiedName~MediaWikiTemplateStylesMySqlHostTests'",
+    "FocusedResult": "PASSED: 2 gate tests, SKIPPED: 1 real-host test, FAILED: 0",
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "PASSED: 300 passed, 23 skipped, 0 failed, 323 total; real host test skipped due absent authorization",
+    "ReleaseBuildCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseBuildResult": "PASSED: 0 warnings, 0 errors",
+    "ReportValidation": "PASSED: python3 -m json.tool",
+    "DiffCheck": "PASSED: git diff --check"
+  },
+  "Cleanup": {
+    "ContainerStarted": false,
+    "ChildDatabaseCreated": false,
+    "CleanupRequired": false,
+    "CleanupStatus": "NOT_APPLICABLE"
+  },
+  "Defects": {
+    "Confirmed": [],
+    "InfrastructureCorrections": [
+      "Separated lifecycle-admin database credentials from least-privilege application credentials.",
+      "Rejected public hosts, privileged port 3306, root application identities, and non-disposable database names.",
+      "Added MySQL 8.4 engine preflight before child database creation."
+    ],
+    "ProductionCodeChanged": false
+  },
+  "RemainingGaps": [
+    "Authorized disposable Oracle MySQL 8.4 provisioning",
+    "Real host execution and authentication-cookie evidence",
+    "Persisted permission and revocation results",
+    "Actual cache, deletion, suppression, concurrency, and CSP-host evidence"
+  ],
+  "Artifacts": {
+    "OperationsProcedure": "docs/operations/CW-M5-003A-DISPOSABLE-MYSQL-CERTIFICATION.md",
+    "HistoricalReport": "artifacts/validation/mediawiki-templatestyles-host-authorization-v1.json"
+  }
+}

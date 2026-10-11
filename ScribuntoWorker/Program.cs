@@ -158,8 +158,7 @@ internal static class Program
             {
                 var ext = new Table(script);
                 var cargo = new Table(script);
-                cargo.Set("query", DynValue.NewCallback((_, _) =>
-                    throw new ScriptRuntimeException("CargoProviderUnavailable: no authorized historical Cargo dataset is configured.")));
+                cargo.Set("query", DynValue.NewCallback((_, args) => QueryCargoSnapshot(state, args)));
                 ext.Set("cargo", DynValue.NewTable(cargo));
                 mw.Set("ext", DynValue.NewTable(ext));
             }
@@ -368,6 +367,29 @@ internal static class Program
         var result = ExecuteLuaModule(canonical, dependency.Source, dependency.ContentModel, state, immutable: false);
         if (!result.Success) throw new ScriptRuntimeException(result.ErrorMessage!);
         return result.Value!;
+    }
+
+    private static DynValue QueryCargoSnapshot(ExecutionState state, CallbackArguments args)
+    {
+        if (args.Count < 2)
+            throw new ScriptRuntimeException("CargoQueryInvalid: table and field arguments are required.");
+        var table = args.AsType(0, "mw.ext.cargo.query", DataType.String).String;
+        var fields = args.AsType(1, "mw.ext.cargo.query", DataType.String).String;
+        var result = state.Request.CargoResults?.SingleOrDefault(value =>
+            string.Equals(value.Table, table, StringComparison.Ordinal)
+            && string.Equals(value.Fields, fields, StringComparison.Ordinal));
+        if (result is null)
+            throw new ScriptRuntimeException("CargoDataUnavailable: no authorized pre-resolved Cargo result matched the query.");
+        var rows = new Table(state.Script);
+        var rowIndex = 1;
+        foreach (var sourceRow in result.Rows)
+        {
+            var row = new Table(state.Script);
+            foreach (var cell in sourceRow)
+                row.Set(cell.Key, cell.Value is null ? DynValue.Nil : DynValue.NewString(cell.Value));
+            rows.Set(rowIndex++, DynValue.NewTable(row));
+        }
+        return DynValue.NewTable(rows);
     }
 
     private static DynValue LoadData(ExecutionState state, CallbackArguments args)

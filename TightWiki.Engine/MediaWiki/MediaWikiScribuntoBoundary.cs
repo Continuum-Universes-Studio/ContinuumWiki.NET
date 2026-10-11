@@ -205,6 +205,20 @@ public interface IMediaWikiScribuntoExecutionHost
     void RegisterDependency(MediaWikiScribuntoDependency dependency);
 }
 
+/// <summary>
+/// Optional diagnostic-only pre-resolution boundary. Implementations return
+/// bounded, typed Cargo rows from an explicitly authorized dataset; they never
+/// expose a connection or SQL to the worker. The default host does not
+/// implement this interface, so no Cargo data is sent by normal execution.
+/// </summary>
+public interface IMediaWikiScribuntoCargoExecutionHost
+{
+    Task<IReadOnlyList<MediaWikiScribuntoWorkerCargoResult>?> ResolveCargoResultsAsync(
+        MediaWikiScribuntoInvocation invocation,
+        MediaWikiScribuntoExecutionContext context,
+        CancellationToken cancellationToken = default);
+}
+
 /// <summary>Execution provider contract. The default implementation always rejects.</summary>
 public interface IMediaWikiScribuntoExecutor
 {

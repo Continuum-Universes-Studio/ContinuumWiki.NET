@@ -12,6 +12,13 @@
     var sessionState = ViewData["SessionState"] as TightWiki.TwSessionState ?? throw new Exception("Wiki State Context cannot be null.");
 }
 
+@section Styles {
+    @foreach (var stylesheetUrl in Model.StylesheetUrls)
+    {
+        <link rel="stylesheet" href="@stylesheetUrl" type="text/css" />
+    }
+}
+
 <!-- Syntax Highlighter:Begin -->
 <script src="@Url.Content("~/syntax/highlight.min.js")"></script>
 <script>

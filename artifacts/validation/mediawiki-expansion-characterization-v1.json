@@ -1,0 +1,279 @@
+{
+  "ReportVersion": "cw-m3-007b-expansion-characterization-v1",
+  "GeneratedAtUtc": "2026-10-11T14:32:40Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Outcome": "IMPLEMENTATION_VERIFIED_DIAGNOSTIC_IMPROVEMENT_CONFIRMED",
+  "Scope": "Bounded imported MediaWiki Wikitext expansion and failure attribution; not historical MediaWiki parity.",
+  "Baseline": {
+    "WorkingTreeWasDirty": true,
+    "UnrelatedChangesPreserved": true,
+    "FocusedRendererTestsBeforeChange": "21 passed, 0 failed",
+    "FullDebugTestsBeforeChange": "259 passed, 22 skipped, 0 failed",
+    "ReleaseBuildBeforeChange": "0 warnings, 0 errors",
+    "DefaultExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "DefaultCargoProvider": "REJECTING"
+  },
+  "ExpansionBudgets": {
+    "MaxInputCharacters": 1000000,
+    "MaxOutputCharacters": 1500000,
+    "MaxTemplateExpansionDepth": 16,
+    "MaxExpansionOperations": 10000,
+    "MaxExpansionOutputCharacters": 1500000,
+    "MaxExpansionTimeMilliseconds": 500,
+    "MaxDiagnostics": 100,
+    "ScribuntoMaxInstructionCount": 10000,
+    "ScribuntoMaxExecutionTimeMilliseconds": 500,
+    "Changed": false
+  },
+  "SyntheticScenarios": [
+    {
+      "Scenario": "plain-text-and-simple-template",
+      "Test": "RendersBasicMediaWikiMarkupAndUsesImportedNavigation; ExpandsNamedPositionalDefaultAndNestedTemplatesThroughTheSafeRenderer",
+      "Result": "PASS",
+      "Classification": "FINITE_COMPLETE"
+    },
+    {
+      "Scenario": "nested-templates-and-arguments",
+      "Test": "ExpandsNamedPositionalDefaultAndNestedTemplatesThroughTheSafeRenderer; PreservesEmptyParametersAndBalancedLinksAndAppliesInclusionRules",
+      "Result": "PASS",
+      "Classification": "FINITE_COMPLETE"
+    },
+    {
+      "Scenario": "nested-core-parser-functions",
+      "Test": "EvaluatesLazyCoreParserFunctionsAndRestrictedArithmetic",
+      "Result": "PASS",
+      "Classification": "FINITE_COMPLETE"
+    },
+    {
+      "Scenario": "repeated-nonrecursive-template",
+      "Test": "RepeatedNonrecursiveTemplatesAndOperationBudgetRemainDistinct",
+      "Result": "PASS",
+      "Classification": "FINITE_COMPLETE"
+    },
+    {
+      "Scenario": "empty-lua-result",
+      "Test": "EmptyLuaResultIsSuccessfulAndNestedLuaRecursionIsBounded",
+      "Result": "PASS",
+      "Classification": "FINITE_COMPLETE_EMPTY_RESULT"
+    },
+    {
+      "Scenario": "lua-returned-wikitext",
+      "Test": "ReexpandsLuaReturnedWikitextThroughTheBoundedRenderer",
+      "Result": "PASS",
+      "Classification": "FINITE_COMPLETE_SHARED_BUDGET"
+    },
+    {
+      "Scenario": "direct-mutual-and-longer-template-cycles",
+      "Test": "StopsCyclesAndRejectsUnsafeTemplateOutputWithinBudgets; StopsDirectLongAndParserFunctionTemplateCyclesWithoutTimeouts",
+      "Result": "PASS",
+      "Classification": "RECURSIVE_TEMPLATE_STOPPED"
+    },
+    {
+      "Scenario": "parser-function-template-cycle",
+      "Test": "StopsDirectLongAndParserFunctionTemplateCyclesWithoutTimeouts",
+      "Result": "PASS",
+      "Classification": "RECURSIVE_TEMPLATE_STOPPED"
+    },
+    {
+      "Scenario": "nested-lua-recursion",
+      "Test": "EmptyLuaResultIsSuccessfulAndNestedLuaRecursionIsBounded",
+      "Result": "PASS",
+      "Classification": "RECURSIVE_SCRIBUNTO_STOPPED"
+    },
+    {
+      "Scenario": "operation-budget",
+      "Test": "RepeatedNonrecursiveTemplatesAndOperationBudgetRemainDistinct",
+      "Result": "PASS",
+      "Diagnostic": "ExpansionBudgetExceeded",
+      "Classification": "BOUNDED_OPERATION_FAILURE"
+    },
+    {
+      "Scenario": "wall-clock-budget",
+      "Test": "WallClockCancellationIsReportedSeparatelyFromOperationBudget",
+      "Result": "PASS",
+      "Diagnostic": "ExpansionTimeLimitExceeded",
+      "Classification": "BOUNDED_TIME_FAILURE"
+    },
+    {
+      "Scenario": "missing-required-template",
+      "Test": "MissingRequiredTemplateIsPreservedAsARecoverableDependencyFailure",
+      "Result": "PASS",
+      "Diagnostic": "MissingTemplate",
+      "Classification": "RECOVERABLE_SOURCE_DEPENDENCY_FAILURE"
+    },
+    {
+      "Scenario": "typed-scribunto-failures",
+      "Test": "TypedScribuntoFailuresRemainFailClosedAcrossRuntimeCategories",
+      "Result": "PASS",
+      "Diagnostics": ["ScribuntoModuleMissing", "LuaRuntimeError", "UnsupportedApi", "ScribuntoWorkerProtocolError"],
+      "Classification": "TERMINAL_TYPED_FAILURE_PRESERVED"
+    },
+    {
+      "Scenario": "primary-failure-stops-secondary-work",
+      "Test": "TerminalTypedScribuntoFailureStopsLaterExpansionAndKeepsPrimaryEvidence",
+      "Result": "PASS",
+      "Diagnostic": "LuaRuntimeError retained; later MissingTemplate and ExpansionTimeLimitExceeded absent",
+      "Classification": "PRIMARY_FAILURE_ATTRIBUTED"
+    }
+  ],
+  "ImplementationChange": {
+    "ChangedComponent": "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs",
+    "Behavior": "A non-executed typed Scribunto result carrying an error-severity diagnostic marks the private expansion context terminal. The current invocation remains source text and the remaining source is preserved without further dependency resolution.",
+    "RecoverableException": "The default rejecting executor emits a warning, so unsupported #invoke remains recoverable.",
+    "PublicApiChanged": false,
+    "BudgetsChanged": false,
+    "StrictPlannerChanged": false,
+    "WorkerChanged": false,
+    "CargoProviderChanged": false
+  },
+  "RealComparisonSummary": {
+    "ExistingPositiveComparisons": 6,
+    "ExactMatches": 0,
+    "NormalizedMatches": 0,
+    "FailedComparisons": 6,
+    "ReferenceErrorFixtures": 2,
+    "ReexecutedForThisMilestone": false,
+    "ParityClaim": false
+  },
+  "RealFixtureAnalysis": [
+    {
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "PageTitle": "Template:Species",
+      "OriginalInvocation": "{{#invoke:SpeciesVariants|infobox|species={{PAGENAME}}}}",
+      "RequestedRevisionId": 9603,
+      "RenderedRevisionId": 9603,
+      "FailingModuleAndRevision": "Module:SpeciesVariants@9602",
+      "FailingExpression": "#invoke:SpeciesVariants|infobox followed by unsupported #cargo_store/CargoProviderUnavailable",
+      "ExistingDiagnostics": ["UnsupportedParserFunction:#cargo_store", "LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "EarliestTerminalEvidence": "LuaRuntimeError: CargoProviderUnavailable",
+      "RecoverableEvidenceBeforeTerminal": ["UnsupportedParserFunction:#cargo_store"],
+      "LaterEvidence": ["ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "ResourceLimitReached": "Wall-clock expansion limit reported in the pre-correction artifact; configured limit 500 ms.",
+      "DependencyEvidence": ["Module:SpeciesVariants@9602 status=ExecutionFailed"],
+      "TimeoutReproducedAfterCorrection": "NOT_RETESTED",
+      "Classification": "HISTORICAL_CARGO_UNAVAILABLE_WITH_SECONDARY_TIMEOUT"
+    },
+    {
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "PageTitle": "Template:Species",
+      "OriginalInvocation": "{{#invoke:CargoSanitizer|cleanList|{{{eye_colors|}}}}",
+      "RequestedRevisionId": 9907,
+      "RenderedRevisionId": 9907,
+      "FailingModuleAndRevision": "Module:SpeciesVariants@9658",
+      "FailingExpression": "Template:Species expansion reaches unsupported #cargo_store and CargoProviderUnavailable",
+      "ExistingDiagnostics": ["UnsupportedParserFunction:#cargo_store", "LuaRuntimeError:CargoProviderUnavailable", "UnsupportedExtensionTag:infobox", "UnsupportedParserFunction", "UnsupportedExtensionTag:infobox"],
+      "EarliestTerminalEvidence": "LuaRuntimeError: CargoProviderUnavailable",
+      "RecoverableEvidenceBeforeTerminal": ["UnsupportedParserFunction:#cargo_store"],
+      "LaterEvidence": ["UnsupportedExtensionTag:infobox", "UnsupportedParserFunction"],
+      "ResourceLimitReached": "None recorded in the existing artifact.",
+      "DependencyEvidence": ["Module:SpeciesVariants@9658 status=ExecutionFailed"],
+      "TimeoutReproducedAfterCorrection": "NOT_APPLICABLE_IN_EXISTING_ARTIFACT",
+      "Classification": "HISTORICAL_CARGO_UNAVAILABLE_AND_UNSUPPORTED_EXTENSION"
+    },
+    {
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "PageTitle": "Template:Character2",
+      "OriginalInvocation": "{{#invoke:CharacterFamily|children}}",
+      "RequestedRevisionId": 9456,
+      "RenderedRevisionId": 9456,
+      "FailingModuleAndRevision": "Module:CharacterFamily@9455",
+      "FailingExpression": "#invoke:CharacterFamily|children followed by CargoProviderUnavailable",
+      "ExistingDiagnostics": ["UnsupportedParserFunction:#cargo_store", "LuaRuntimeError:CargoProviderUnavailable", "LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "EarliestTerminalEvidence": "LuaRuntimeError: CargoProviderUnavailable",
+      "RecoverableEvidenceBeforeTerminal": ["UnsupportedParserFunction:#cargo_store"],
+      "LaterEvidence": ["LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "ResourceLimitReached": "Wall-clock expansion limit reported in the pre-correction artifact; configured limit 500 ms.",
+      "DependencyEvidence": ["Module:CharacterFamily@9455 status=ExecutionFailed"],
+      "TimeoutReproducedAfterCorrection": "NOT_RETESTED",
+      "Classification": "HISTORICAL_CARGO_UNAVAILABLE_WITH_SECONDARY_TIMEOUT"
+    },
+    {
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "PageTitle": "Template:Divine",
+      "OriginalInvocation": "{{#invoke:DivineFamily|siblings}}",
+      "RequestedRevisionId": 9468,
+      "RenderedRevisionId": 9468,
+      "FailingModuleAndRevision": "Module:DivineFamily@9467",
+      "FailingExpression": "#invoke:DivineFamily|siblings followed by CargoProviderUnavailable",
+      "ExistingDiagnostics": ["LuaRuntimeError:CargoProviderUnavailable", "LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "EarliestTerminalEvidence": "LuaRuntimeError: CargoProviderUnavailable",
+      "RecoverableEvidenceBeforeTerminal": [],
+      "LaterEvidence": ["LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "ResourceLimitReached": "Wall-clock expansion limit reported in the pre-correction artifact; configured limit 500 ms.",
+      "DependencyEvidence": ["Module:DivineFamily@9467 status=ExecutionFailed"],
+      "TimeoutReproducedAfterCorrection": "NOT_RETESTED",
+      "Classification": "HISTORICAL_CARGO_UNAVAILABLE_WITH_SECONDARY_TIMEOUT"
+    },
+    {
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "PageTitle": "Template:Divine",
+      "OriginalInvocation": "{{#invoke:DivineMeta|universes}}",
+      "RequestedRevisionId": 9469,
+      "RenderedRevisionId": 9469,
+      "FailingModuleAndRevision": "Module:DivineMeta is missing at the requested revision; Module:DivineFamily@9467 also reports CargoProviderUnavailable",
+      "FailingExpression": "#invoke:DivineMeta|universes; later Cargo-dependent expansion also fails",
+      "ExistingDiagnostics": ["LuaRuntimeError:CargoProviderUnavailable", "ScribuntoModuleMissing", "LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "EarliestTerminalEvidence": "LuaRuntimeError: CargoProviderUnavailable",
+      "RecoverableEvidenceBeforeTerminal": [],
+      "LaterEvidence": ["ScribuntoModuleMissing:Module:DivineMeta", "LuaRuntimeError:CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"],
+      "ResourceLimitReached": "Wall-clock expansion limit reported in the pre-correction artifact; configured limit 500 ms.",
+      "DependencyEvidence": ["Module:DivineFamily@9467 status=ExecutionFailed", "Module:DivineMeta status=ExecutionFailed"],
+      "TimeoutReproducedAfterCorrection": "NOT_RETESTED",
+      "Classification": "HISTORICAL_CARGO_UNAVAILABLE_PLUS_SOURCE_DEPENDENCY_CONFLICT"
+    },
+    {
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "PageTitle": "Jovan",
+      "OriginalInvocation": "{{#invoke:DivineTree|renderLocal}}",
+      "RequestedRevisionId": 9482,
+      "RenderedRevisionId": 9482,
+      "FailingModuleAndRevision": "Module:DivineTree@9481; Template:Divine is missing at runtime",
+      "FailingExpression": "#invoke:DivineTree|renderLocal reaches missing Template:Divine and CargoProviderUnavailable",
+      "ExistingDiagnostics": ["MissingTemplate:Divine", "LuaRuntimeError:CargoProviderUnavailable", "UnsupportedExtensionTag:mermaid", "UnsupportedTemplate", "UnresolvedInternalLink"],
+      "EarliestTerminalEvidence": "LuaRuntimeError: CargoProviderUnavailable",
+      "RecoverableEvidenceBeforeTerminal": ["MissingTemplate:Divine"],
+      "LaterEvidence": ["UnsupportedExtensionTag:mermaid", "UnsupportedTemplate", "UnresolvedInternalLink"],
+      "ResourceLimitReached": "None recorded in the existing artifact.",
+      "DependencyEvidence": ["Module:DivineTree@9481 status=ExecutionFailed", "Template:Divine missing at runtime"],
+      "TimeoutReproducedAfterCorrection": "NOT_APPLICABLE_IN_EXISTING_ARTIFACT",
+      "Classification": "SOURCE_DEPENDENCY_MISSING_AND_HISTORICAL_CARGO_UNAVAILABLE"
+    }
+  ],
+  "EvidenceIntegrity": {
+    "OriginalMediaWikiReferencesModified": false,
+    "ExistingContinuumOutputsModified": false,
+    "ExistingComparisonsModified": false,
+    "PrivateReferenceDirectory": "/home/cdjensen94/continuumwiki-validation/references/",
+    "PrivateContinuumOutputDirectory": "/home/cdjensen94/continuumwiki-validation/continuum-outputs/",
+    "PrivateComparisonDirectory": "/home/cdjensen94/continuumwiki-validation/comparisons/",
+    "TimeoutStatus": "The four pre-existing timeout artifacts are evidence only; no post-correction real-fixture rerun was performed."
+  },
+  "SecurityPreservation": {
+    "ProductionLuaEnabled": false,
+    "DefaultExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "DefaultCargoProvider": "REJECTING",
+    "LuaDatabaseAccess": false,
+    "LuaFilesystemAccess": false,
+    "LuaNetworkAccess": false,
+    "WorkerSandboxChanged": false,
+    "UnixSocketProtocolChanged": false,
+    "ResourceBudgetsRelaxed": false,
+    "StrictMigrationPlannerChanged": false,
+    "HistoricalCargoSubstituted": false,
+    "SourceOrReferenceArtifactsChanged": false
+  },
+  "Verification": {
+    "FocusedRendererTestsAfterChange": "28 passed, 0 failed",
+    "FullDebugTests": "266 passed, 22 skipped, 0 failed",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED"
+  },
+  "KnownLimitations": [
+    "Historical Cargo rows remain unavailable; current-state Cargo is not substituted.",
+    "Source dependency gaps and unsupported extension behavior remain independent compatibility blockers.",
+    "The four existing real-fixture timeout artifacts were not regenerated after the diagnostic correction.",
+    "No compatibility parity or host certification is claimed."
+  ],
+  "RecommendedNextMilestone": "CW-M3-007C"
+}

@@ -1,0 +1,128 @@
+{
+  "ReportVersion": "cw-m5-004-native-parser-compatibility-v1",
+  "GeneratedAtUtc": "2026-10-11T19:39:09Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Outcome": "NATIVE_PARSER_COMPATIBILITY_PARTIALLY_VERIFIED",
+  "Scope": "Bounded synthetic imported-Wikitext parser compatibility; not full MediaWiki parity or historical reference parity.",
+  "Baseline": {
+    "FocusedRendererTestsBeforeChange": "44 passed, 0 failed",
+    "ConfirmedDefect": "#switch label-only fall-through selected the default instead of the following keyed result",
+    "WorkingTreeWasDirty": true,
+    "UnrelatedChangesPreserved": true
+  },
+  "ParserMatrix": [
+    {
+      "Area": "#if",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Empty and whitespace-only conditions, nested template conditions, selected results, and lazy unselected branches."
+    },
+    {
+      "Area": "#ifeq",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Ordinal string comparison after trimming, including template-expanded operands and lazy result selection. Numeric normalization and case folding are outside the declared subset."
+    },
+    {
+      "Area": "#switch",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Direct keyed cases, first matching duplicate case, empty result, #default, and unselected-case laziness."
+    },
+    {
+      "Area": "#switch label fall-through",
+      "Classification": "CONFIRMED_DEFECT_FIXED",
+      "Evidence": "Bare matching label now selects the following keyed result; regression test passes and missing unselected case is not resolved."
+    },
+    {
+      "Area": "#expr and #ifexpr",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Restricted decimal arithmetic, precedence, parentheses, unary signs, modulo, comparisons, expression token/length limits, overflow, and typed rejection of invalid input. Decimal evaluation has no NaN/Infinity representation; division by zero is rejected."
+    },
+    {
+      "Area": "Nested template arguments",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Nested parser-function value containing a separator and equals sign is preserved as one argument."
+    },
+    {
+      "Area": "Expansion ordering and lazy evaluation",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Only conditions/operands and selected results are expanded; terminal typed failures prevent secondary dependency work."
+    },
+    {
+      "Area": "Malformed input, recursion, and budgets",
+      "Classification": "VERIFIED_COMPATIBLE_SUBSET",
+      "Evidence": "Existing bounded tests cover delimiter/parser failures, direct and mutual cycles, operation budget, wall-clock budget, depth, and output limits."
+    },
+    {
+      "Area": "Unsupported extension parser functions",
+      "Classification": "UNSUPPORTED_BEHAVIOR",
+      "Evidence": "#cargo_store and other non-allow-listed extension functions remain diagnosed and unevaluated."
+    }
+  ],
+  "ImplementationChange": {
+    "File": "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs",
+    "Change": "Track a matching label-only #switch argument and allow the following keyed value to fall through.",
+    "SourcePreserved": true,
+    "HistoricalRevisionSelectionChanged": false,
+    "StrictPlannerChanged": false,
+    "BudgetsChanged": false,
+    "LuaWorkerChanged": false,
+    "CargoChanged": false,
+    "ProductionLuaChanged": false
+  },
+  "RegressionCoverage": [
+    "EvaluatesLazyCoreParserFunctionsAndRestrictedArithmetic",
+    "SwitchSupportsFallThroughLabelsAndKeepsUnselectedResultsLazy",
+    "EvaluatesIfAndIfEqWithWhitespaceNestedConditionsAndLazyBranches",
+    "SwitchUsesFirstMatchingCaseEmptyResultAndDefaultWithoutExpandingOtherCases",
+    "EvaluatesRestrictedExpressionPrecedenceDecimalsUnaryOperatorsAndRejectsInvalidInput",
+    "PreservesNestedParserArgumentsWhenSeparatorsAndEqualsAreNested",
+    "ParserFunctionOperandsUseTheEligibleHistoricalTemplateRevision",
+    "EnforcesDiagnosticCountAndCancellationBounds",
+    "StopsDirectLongAndParserFunctionTemplateCyclesWithoutTimeouts",
+    "RepeatedNonrecursiveTemplatesAndOperationBudgetRemainDistinct",
+    "WallClockCancellationIsReportedSeparatelyFromOperationBudget",
+    "MalformedAndOversizedInputFailsSafelyWithLocations"
+  ],
+  "Budgets": {
+    "MaxInputCharacters": 1000000,
+    "MaxOutputCharacters": 1500000,
+    "MaxTemplateExpansionDepth": 16,
+    "MaxExpansionOperations": 10000,
+    "MaxExpansionOutputCharacters": 1500000,
+    "MaxExpansionTimeMilliseconds": 500,
+    "MaxDiagnostics": 100,
+    "MaxExpressionLengthCharacters": 512,
+    "Changed": false
+  },
+  "Verification": {
+    "FocusedRendererTests": "51 passed, 0 failed",
+    "FullDebugTests": "308 passed, 23 skipped, 0 failed",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASS",
+    "GitDiffCheck": "PASS",
+    "Commands": [
+      "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiWikitextRendererTests'",
+      "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+      "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+      "python3 -m json.tool artifacts/validation/mediawiki-native-parser-compatibility-v1.json",
+      "git diff --check"
+    ]
+  },
+  "SecurityAndParityGates": {
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "ProductionLua": "DISABLED",
+    "InProcessLua": "NOT_INTRODUCED",
+    "WorkerSandbox": "UNCHANGED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "CargoProvider": "UNCHANGED_REJECTING_DEFAULT",
+    "HistoricalMediaWikiParity": "NOT_CLAIMED",
+    "WorkerHostCertification": "SEPARATE_GATE",
+    "ProductionMigrationReadiness": "SEPARATE_GATE"
+  },
+  "ChangedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-004-NATIVE-PARSER-COMPATIBILITY.md",
+    "artifacts/validation/mediawiki-native-parser-compatibility-v1.json",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "ReportVersion": "cw-m5-006-template-title-semantics-v1",
+  "GeneratedAtUtc": "2026-10-11T20:06:58Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Outcome": "TEMPLATE_TITLE_SEMANTICS_PARTIALLY_VERIFIED",
+  "Scope": "Bounded MediaWiki imported-Wikitext transclusion title and namespace semantics; no full MediaWiki title-parity claim.",
+  "Implementation": {
+    "TitleParser": "TightWiki.Engine/MediaWiki/MediaWikiTemplateTitleSemantics.cs",
+    "Expander": "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs",
+    "RepositoryContract": "TightWiki.Plugin/Interfaces/Persistence/ITwMediaWikiImportRepository.cs",
+    "MySqlResolver": "TightWiki.Repository/Helpers/MySqlMediaWikiImportRepository.cs",
+    "TargetModel": "TightWiki.Plugin/Models/TwMediaWikiRenderSource.cs",
+    "NamespaceSource": "MediaWikiInventory/ImportPlanning.cs NamespaceMappingConfiguration.Defaults"
+  },
+  "Findings": [
+    { "Area": "Leading-colon main-namespace transclusion", "Classification": "VERIFIED_CORRECT", "Evidence": "The parser maps :Title to source namespace 0 and resolves it through the typed transclusion boundary." },
+    { "Area": "Explicit namespaces and aliases", "Classification": "VERIFIED_CORRECT", "Evidence": "The parser recognizes the planner-aligned namespace IDs and aliases, including Main, Template, and Image; unknown prefixes remain diagnosed." },
+    { "Area": "Spaces, underscores, and repeated whitespace", "Classification": "VERIFIED_CORRECT", "Evidence": "Underscores become spaces and whitespace runs collapse before lookup." },
+    { "Area": "Unicode", "Classification": "PARTIALLY_VERIFIED", "Evidence": "Unicode names are preserved and tested without introducing speculative normalization or collation behavior." },
+    { "Area": "Dynamic names", "Classification": "VERIFIED_CORRECT", "Evidence": "Dynamic heads are expanded through the existing bounded expander before title parsing." },
+    { "Area": "Historical selection", "Classification": "VERIFIED_CORRECT", "Evidence": "The normalized title is resolved before the existing timestamp-bound revision selector; a synthetic main-namespace historical test verifies the boundary." },
+    { "Area": "Invalid and ambiguous titles", "Classification": "VERIFIED_CORRECT", "Evidence": "Invalid forms are rejected and the existing typed ambiguous status remains fail-closed." },
+    { "Area": "Recursion, cancellation, and budgets", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing active-chain, cancellation, diagnostic, depth, operation, output, and time limits remain in force." },
+    { "Area": "MySQL persistence execution", "Classification": "PARTIALLY_VERIFIED", "Evidence": "The namespace-aware SQL resolver is compiled and source-reviewed; disposable MariaDB execution remains pending." },
+    { "Area": "Security boundaries", "Classification": "VERIFIED_CORRECT", "Evidence": "No production database, MediaWiki, Lua activation, worker setting, or strict planner behavior changed." }
+  ],
+  "AddedRegressionTests": [
+    "ResolvesMainNamespaceColonAliasesWhitespaceUnicodeAndDynamicTitles",
+    "DynamicMainTitleUsesEligibleHistoricalRevisionAfterNormalization",
+    "HistoricalSelectionUsesTimestampBoundaryRatherThanRevisionIdOrder",
+    "EnforcesDiagnosticCountAndCancellationBounds",
+    "StopsCyclesAndRejectsUnsafeTemplateOutputWithinBudgets"
+  ],
+  "Verification": {
+    "FocusedRendererTests": "56 passed, 0 failed",
+    "FullDebugTests": "313 passed, 23 skipped, 0 failed, total 336",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASS",
+    "GitDiffCheck": "PASS",
+    "MariaDbExecution": "PENDING"
+  },
+  "SecurityAndEvidence": {
+    "ProductionLua": "DISABLED",
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "InProcessLua": "NOT_INTRODUCED",
+    "WorkerAndHostSettings": "UNCHANGED",
+    "ProductionMediaWikiAccess": "NONE",
+    "ProductionDatabaseAccess": "NONE",
+    "HistoricalMediaWikiParity": "NOT_CLAIMED",
+    "FullNamespaceParity": "NOT_CLAIMED"
+  },
+  "RemainingGates": [
+    "Run full Debug tests and Release build.",
+    "Run JSON validation and git diff --check.",
+    "Exercise the MySQL resolver in disposable MariaDB with authentic imported source/revision data.",
+    "Compare actual rendered results separately from Lua worker host certification and strict migration readiness."
+  ]
+}

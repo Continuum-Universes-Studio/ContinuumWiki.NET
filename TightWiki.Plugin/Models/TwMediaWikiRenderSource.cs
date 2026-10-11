@@ -61,7 +61,9 @@ public sealed record TwMediaWikiTemplateTarget(
     string? SourceRevisionId = null,
     int? TargetRevision = null,
     string? Body = null,
-    DateTime? SourceTimestampUtc = null)
+    DateTime? SourceTimestampUtc = null,
+    string? ContentModel = null,
+    string SourceNamespaceId = "10")
 {
     public bool IsResolved => Status == TwMediaWikiTemplateResolutionStatus.Resolved
         && SourcePageId is not null

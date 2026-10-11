@@ -28,7 +28,22 @@ public sealed class MediaWikiWikitextRenderOptions
     public int MaxGalleryItems { get; init; } = 100;
     public int MaxMediaDimension { get; init; } = 4_096;
     public int MaxFunctionOutputCharacters { get; init; } = 100_000;
+    public int MaxMermaidInputCharacters { get; init; } = MediaWikiMermaidCompatibility.DefaultMaxInputCharacters;
+    public int MaxMermaidNestingDepth { get; init; } = MediaWikiMermaidCompatibility.DefaultMaxNestingDepth;
+    public int MaxInfoboxFields { get; init; } = 512;
+    public int MaxInfoboxCharacters { get; init; } = 200_000;
+    public int MaxTemplateStylesSourceCharacters { get; init; } = 100_000;
+    public int MaxTemplateStylesReferences { get; init; } = 32;
+    public int MaxTemplateStylesRules { get; init; } = 256;
+    public int MaxTemplateStylesSelectors { get; init; } = 512;
+    public int MaxTemplateStylesDeclarations { get; init; } = 2_048;
+    public int MaxTemplateStylesSelectorComplexity { get; init; } = 16;
+    public int MaxTemplateStylesOutputCharacters { get; init; } = 200_000;
+    public int MaxTemplateStylesDependencyDepth { get; init; } = 1;
     public IMediaWikiScribuntoExecutor ScribuntoExecutor { get; init; } = new RejectingMediaWikiScribuntoExecutor();
+    /// <summary>Optional typed ContinuumInfobox schema support. No PHP or provider is invoked.</summary>
+    public MediaWikiInfoboxRegistry? InfoboxRegistry { get; init; } = MediaWikiInfoboxRegistry.Default;
+    public bool EnableLegacyInfoboxAdapter { get; init; } = true;
     public TimeProvider TimeProvider { get; init; } = TimeProvider.System;
 }
 
@@ -82,7 +97,8 @@ public sealed record MediaWikiWikitextRenderResult(
     IReadOnlyList<MediaWikiTemplateDependency> TemplateDependencies,
     IReadOnlyList<MediaWikiTableRenderModel> Tables,
     bool DependsOnCurrentTime = false,
-    IReadOnlyList<MediaWikiScribuntoDependency>? ScribuntoDependencies = null);
+    IReadOnlyList<MediaWikiScribuntoDependency>? ScribuntoDependencies = null,
+    IReadOnlyList<MediaWikiStylesheet>? Stylesheets = null);
 
 /// <summary>
 /// Bounded, allow-list MediaWiki renderer. Template expansion returns Wikitext
@@ -94,6 +110,12 @@ public sealed class MediaWikiWikitextRenderer(
     MediaWikiWikitextRenderOptions? options = null)
 {
     private readonly MediaWikiWikitextRenderOptions _options = options ?? new();
+
+    /// <summary>
+    /// The immutable-by-convention render policy shared by MVC re-resolution
+    /// of typed assets. Callers must not mutate it after renderer construction.
+    /// </summary>
+    public MediaWikiWikitextRenderOptions Options => _options;
 
     public async Task<MediaWikiWikitextRenderResult> RenderAsync(
         string source,
@@ -108,7 +130,7 @@ public sealed class MediaWikiWikitextRenderer(
         expansionContext ??= CreateExpansionContext(provenance);
         var expansion = await new MediaWikiTemplateExpander(importRepository, _options)
             .ExpandAsync(source, provenance, string.Equals(provenance.SourceNamespaceId, "10", StringComparison.Ordinal), cancellationToken, expansionContext);
-        var parser = new Parser(expansion.Text, _options);
+        var parser = new Parser(expansion.Text, _options, provenance, cancellationToken);
         var document = parser.Parse();
         var context = new RenderContext(_options, [.. expansion.Diagnostics, .. document.Diagnostics]);
 
@@ -163,7 +185,8 @@ public sealed class MediaWikiWikitextRenderer(
             expansion.Dependencies,
             document.Tables,
             expansion.DependsOnCurrentTime,
-            expansion.ScribuntoDependencies);
+            expansion.ScribuntoDependencies,
+            context.Stylesheets);
     }
 
     public MediaWikiExpansionContext CreateExpansionContext(
@@ -207,6 +230,9 @@ public sealed class MediaWikiWikitextRenderer(
                 break;
             case GalleryBlock gallery:
                 await RenderGalleryAsync(context, document, provenance, gallery, cancellationToken);
+                break;
+            case InfoboxBlock infobox:
+                await RenderInfoboxAsync(context, document, provenance, infobox.Node, cancellationToken);
                 break;
         }
     }
@@ -363,13 +389,157 @@ public sealed class MediaWikiWikitextRenderer(
                 case ReferencesNode:
                     await RenderReferencesAsync(context, cancellationToken);
                     break;
+                case InfoboxNode infobox:
+                    await RenderInfoboxAsync(context, document, provenance, infobox, cancellationToken);
+                    break;
+                case TemplateStylesNode templateStyles:
+                    await RenderTemplateStylesAsync(context, provenance, templateStyles, cancellationToken);
+                    break;
+                case StaticExtensionNode extension:
+                    AddDiagnostic(context.Diagnostics, _options, extension.DiagnosticCode, extension.DiagnosticMessage, extension.Offset, extension.Length, extension.Severity);
+                    context.AppendExtension(extension.Html, extension.Offset, extension.Length);
+                    break;
                 case UnsupportedNode unsupported:
-                    AddDiagnostic(context.Diagnostics, _options, unsupported.Code, unsupported.Message, unsupported.Offset, unsupported.Length);
+                    AddDiagnostic(context.Diagnostics, _options, unsupported.Code, unsupported.Message, unsupported.Offset, unsupported.Length, unsupported.Severity);
                     context.Append($"<span class=\"cw-mediawiki-unsupported\" data-cw-kind=\"{WebUtility.HtmlEncode(unsupported.Kind)}\">Unsupported MediaWiki construct</span>");
                     break;
             }
         }
     }
+
+    private async Task RenderTemplateStylesAsync(
+        RenderContext context,
+        TwMediaWikiRenderSource provenance,
+        TemplateStylesNode templateStyles,
+        CancellationToken cancellationToken)
+    {
+        if (templateStyles.ParseError is not null)
+        {
+            AddDiagnostic(context.Diagnostics, _options, "TemplateStylesInvalidSource", templateStyles.ParseError, templateStyles.Offset, templateStyles.Length, MediaWikiDiagnosticSeverity.Error);
+            return;
+        }
+
+        var resolution = await MediaWikiTemplateStylesCompatibility.ResolveAsync(
+            importRepository,
+            provenance,
+            templateStyles.SourceReference,
+            _options,
+            cancellationToken);
+        if (resolution.DiagnosticCode is not null)
+            AddDiagnostic(context.Diagnostics, _options, resolution.DiagnosticCode, resolution.Message, templateStyles.Offset, templateStyles.Length, resolution.Severity);
+        if (resolution.Stylesheet is null) return;
+
+        if (!context.StylesheetRegistry.TryRegister(resolution.Stylesheet, out var registrationDiagnostic))
+        {
+            AddDiagnostic(context.Diagnostics, _options, registrationDiagnostic!, "TemplateStyles references exceeded the configured per-render stylesheet budget.", templateStyles.Offset, templateStyles.Length, MediaWikiDiagnosticSeverity.Error);
+        }
+    }
+
+    private async Task RenderInfoboxAsync(
+        RenderContext context,
+        Document document,
+        TwMediaWikiRenderSource provenance,
+        InfoboxNode infobox,
+        CancellationToken cancellationToken)
+    {
+        var model = infobox.Model;
+        var type = MediaWikiInfoboxRegistry.NormalizeToken(model.Type);
+        var title = string.IsNullOrWhiteSpace(model.Title) ? provenance.SourceTitle ?? model.Label : model.Title;
+        context.Append("<aside class=\"cu-infobox cu-infobox--" + WebUtility.HtmlEncode(type) + "\" role=\"complementary\" aria-label=\"" + WebUtility.HtmlEncode(model.Label) + "\">");
+        if (!string.IsNullOrWhiteSpace(title) || !string.IsNullOrWhiteSpace(model.Subtitle))
+        {
+            context.Append("<header class=\"cu-infobox__header\">");
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                context.Append("<h2 class=\"cu-infobox__title\"><span class=\"cu-infobox__title-main\">");
+                await RenderInfoboxInlineAsync(context, document, provenance, title!, cancellationToken);
+                context.Append("</span>");
+                if (!string.IsNullOrWhiteSpace(model.Subtitle))
+                {
+                    context.Append(" <span class=\"cu-infobox__subtitle\">");
+                    await RenderInfoboxInlineAsync(context, document, provenance, model.Subtitle!, cancellationToken);
+                    context.Append("</span>");
+                }
+                context.Append("</h2>");
+            }
+            else
+            {
+                context.Append("<h2 class=\"cu-infobox__title\">");
+                await RenderInfoboxInlineAsync(context, document, provenance, model.Subtitle!, cancellationToken);
+                context.Append("</h2>");
+            }
+            context.Append("</header>");
+        }
+        if (!string.IsNullOrWhiteSpace(model.Image))
+        {
+            context.Append("<figure class=\"cu-infobox__figure\">");
+            var image = model.Image!.StartsWith("File:", StringComparison.OrdinalIgnoreCase) || model.Image.StartsWith("Image:", StringComparison.OrdinalIgnoreCase)
+                ? "[[" + model.Image + "]]" : model.Image;
+            await RenderInfoboxInlineAsync(context, document, provenance, image, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(model.Caption))
+            {
+                context.Append("<figcaption class=\"cu-infobox__caption\">");
+                await RenderInfoboxInlineAsync(context, document, provenance, model.Caption!, cancellationToken);
+                context.Append("</figcaption>");
+            }
+            context.Append("</figure>");
+        }
+
+        var groupedFields = model.Fields.GroupBy(field => field.Group ?? "additional", StringComparer.OrdinalIgnoreCase).ToDictionary(group => group.Key, group => group.ToList(), StringComparer.OrdinalIgnoreCase);
+        var groupOrder = (model.Groups ?? []).Select(group => group.Name)
+            .Concat(groupedFields.Keys)
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+        foreach (var groupName in groupOrder)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!groupedFields.TryGetValue(groupName, out var fields) || fields.Count == 0) continue;
+            var groupDefinition = (model.Groups ?? []).FirstOrDefault(group => string.Equals(group.Name, groupName, StringComparison.OrdinalIgnoreCase));
+            context.Append("<section class=\"cu-infobox__section");
+            if (fields.Any(field => field.Horizontal) || groupDefinition?.Horizontal == true) context.Append(" cu-infobox__section--horizontal");
+            context.Append("\">");
+            context.Append("<h3 class=\"cu-infobox__section-title\">");
+            context.Append(WebUtility.HtmlEncode(groupDefinition?.Label ?? fields.FirstOrDefault()?.GroupLabel ?? HumanizeInfoboxGroup(groupName)));
+            context.Append("</h3>");
+            if (fields.Any(field => field.Horizontal) || groupDefinition?.Horizontal == true)
+            {
+                context.Append("<div class=\"cu-infobox__horizontal-group\">");
+                foreach (var field in fields)
+                {
+                    context.Append("<span class=\"cu-infobox__horizontal-label\">");
+                    context.Append(WebUtility.HtmlEncode(field.Label));
+                    context.Append("</span><span class=\"cu-infobox__horizontal-value\">");
+                    await RenderInfoboxInlineAsync(context, document, provenance, field.Value, cancellationToken);
+                    context.Append("</span>");
+                }
+                context.Append("</div>");
+            }
+            else
+            {
+                context.Append("<dl class=\"cu-infobox__rows\">");
+                foreach (var field in fields)
+                {
+                    context.Append("<div class=\"cu-infobox__row\"><dt class=\"cu-infobox__label\">");
+                    context.Append(WebUtility.HtmlEncode(field.Label));
+                    context.Append("</dt><dd class=\"cu-infobox__value\">");
+                    await RenderInfoboxInlineAsync(context, document, provenance, field.Value, cancellationToken);
+                    context.Append("</dd></div>");
+                }
+                context.Append("</dl>");
+            }
+            context.Append("</section>");
+        }
+        context.Append("</aside>");
+    }
+
+    private async Task RenderInfoboxInlineAsync(RenderContext context, Document document, TwMediaWikiRenderSource provenance, string value, CancellationToken cancellationToken)
+    {
+        var fragment = new Parser(value, _options, provenance, cancellationToken).ParseInlineFragment();
+        foreach (var diagnostic in fragment.Diagnostics) context.Diagnostics.Add(diagnostic);
+        await RenderInlineAsync(context, document, provenance, fragment.Nodes, cancellationToken);
+    }
+
+    private static string HumanizeInfoboxGroup(string value)
+        => value.Equals("additional", StringComparison.OrdinalIgnoreCase) ? "Additional" : string.Join(' ', value.Split(['_', '-'], StringSplitOptions.RemoveEmptyEntries).Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..]));
 
     private async Task AppendInternalLinkAsync(RenderContext context, TwMediaWikiRenderSource provenance, InternalLinkNode link, CancellationToken cancellationToken)
     {
@@ -566,6 +736,8 @@ public sealed class MediaWikiWikitextRenderer(
         public StringBuilder Html { get; } = new();
         public List<MediaWikiCompatibilityDiagnostic> Diagnostics { get; } = diagnostics;
         public List<ReferenceState> References { get; } = new();
+        public MediaWikiStylesheetRegistry StylesheetRegistry { get; } = new(options.MaxTemplateStylesReferences);
+        public IReadOnlyList<MediaWikiStylesheet> Stylesheets => StylesheetRegistry.Stylesheets;
         public bool ReferenceListRendered { get; set; }
         public void Append(string value)
         {
@@ -581,6 +753,17 @@ public sealed class MediaWikiWikitextRenderer(
             if (Diagnostics.All(diagnostic => diagnostic.Code != "OutputLimitExceeded"))
                 Diagnostics.Add(new("OutputLimitExceeded", "MediaWiki output exceeded the configured size limit.", 0, 0, 0, 0, MediaWikiDiagnosticSeverity.Error));
         }
+
+        public void AppendExtension(string value, int offset, int length)
+        {
+            if (Html.Length >= options.MaxOutputCharacters || value.Length > options.MaxOutputCharacters - Html.Length)
+            {
+                if (Diagnostics.All(diagnostic => diagnostic.Code != "ExtensionOutputLimitExceeded"))
+                    Diagnostics.Add(new("ExtensionOutputLimitExceeded", "The extension output exceeded the shared MediaWiki output limit.", offset, length, 0, 0, MediaWikiDiagnosticSeverity.Error));
+                return;
+            }
+            Html.Append(value);
+        }
     }
 
     private sealed record ReferenceState(string? Name, string Body, int Index, int Offset);
@@ -593,6 +776,7 @@ public sealed class MediaWikiWikitextRenderer(
     private sealed record ListBlock(IReadOnlyList<ListItem> Items, int Offset) : Block(Offset);
     private sealed record TableBlock(TableAttributeSet Attributes, TableCaption? Caption, IReadOnlyList<TableRow> Rows, int Offset) : Block(Offset);
     private sealed record GalleryBlock(GalleryOptions Options, IReadOnlyList<GalleryItem> Items, int Offset) : Block(Offset);
+    private sealed record InfoboxBlock(InfoboxNode Node) : Block(Node.Offset);
     private sealed record ListItem(int Depth, bool Ordered, IReadOnlyList<InlineNode> Inlines, int Offset);
     private sealed class TreeListItem(ListItem item)
     {
@@ -610,7 +794,10 @@ public sealed class MediaWikiWikitextRenderer(
     private sealed record ExternalLinkNode(string Url, string? Label, int Offset, int Length) : InlineNode(Offset, Length);
     private sealed record ReferenceNode(string? Name, IReadOnlyList<InlineNode> Body, int Offset, int Length) : InlineNode(Offset, Length);
     private sealed record ReferencesNode(int Offset, int Length) : InlineNode(Offset, Length);
-    private sealed record UnsupportedNode(string Kind, string Code, string Message, int Offset, int Length) : InlineNode(Offset, Length);
+    private sealed record InfoboxNode(MediaWikiInfoboxRenderModel Model, int Offset, int Length) : InlineNode(Offset, Length);
+    private sealed record TemplateStylesNode(string? SourceReference, string? ParseError, int Offset, int Length) : InlineNode(Offset, Length);
+    private sealed record StaticExtensionNode(string Html, string DiagnosticCode, string DiagnosticMessage, int Offset, int Length, MediaWikiDiagnosticSeverity Severity = MediaWikiDiagnosticSeverity.Warning) : InlineNode(Offset, Length);
+    private sealed record UnsupportedNode(string Kind, string Code, string Message, int Offset, int Length, MediaWikiDiagnosticSeverity Severity = MediaWikiDiagnosticSeverity.Warning) : InlineNode(Offset, Length);
 
     private enum MediaDisplayStyle { Default, Thumb, Frame, Frameless, Border }
     private enum MediaAlignment { None, Left, Right, Center }
@@ -650,7 +837,7 @@ public sealed class MediaWikiWikitextRenderer(
         public List<MediaWikiTableRenderModel> Tables { get; } = new();
     }
 
-    private sealed class Parser(string source, MediaWikiWikitextRenderOptions options)
+    private sealed class Parser(string source, MediaWikiWikitextRenderOptions options, TwMediaWikiRenderSource provenance, CancellationToken cancellationToken)
     {
         private readonly string _source = source.Length > options.MaxInputCharacters ? source[..options.MaxInputCharacters] : source;
         private readonly Document _document = new();
@@ -713,6 +900,15 @@ public sealed class MediaWikiWikitextRenderer(
                     FlushList(listItems, lineOffset);
                     listOrdered = null;
                     AddBlock(gallery);
+                    continue;
+                }
+
+                if (MediaWikiInfoboxCompatibility.TryDecode(trimmed, out var infobox) && trimmed.StartsWith(MediaWikiInfoboxCompatibility.TokenPrefix, StringComparison.Ordinal))
+                {
+                    FlushParagraph(paragraph, paragraphOffset);
+                    FlushList(listItems, lineOffset);
+                    listOrdered = null;
+                    AddBlock(new InfoboxBlock(new InfoboxNode(infobox, lineOffset + line.IndexOf(trimmed, StringComparison.Ordinal), trimmed.Length)));
                     continue;
                 }
 
@@ -1221,6 +1417,18 @@ public sealed class MediaWikiWikitextRenderer(
 
             for (var index = 0; index < text.Length; index++)
             {
+                if (text.AsSpan(index).StartsWith(MediaWikiInfoboxCompatibility.TokenPrefix, StringComparison.Ordinal))
+                {
+                    var tokenEnd = text.IndexOf(MediaWikiInfoboxCompatibility.TokenSuffix, index + MediaWikiInfoboxCompatibility.TokenPrefix.Length);
+                    if (tokenEnd >= 0 && MediaWikiInfoboxCompatibility.TryDecode(text[index..(tokenEnd + 1)], out var infobox))
+                    {
+                        FlushText(index);
+                        nodes.Add(new InfoboxNode(infobox, sourceOffset + index, tokenEnd + 1 - index));
+                        index = tokenEnd;
+                        textStart = index + 1;
+                        continue;
+                    }
+                }
                 if (text[index] == '[' && index + 1 < text.Length && text[index + 1] == '[' && TryFindBalanced(text, index, "[[", "]]", out var linkEnd))
                 {
                     FlushText(index);
@@ -1320,6 +1528,12 @@ public sealed class MediaWikiWikitextRenderer(
             return nodes;
         }
 
+        internal (IReadOnlyList<InlineNode> Nodes, IReadOnlyList<MediaWikiCompatibilityDiagnostic> Diagnostics) ParseInlineFragment()
+        {
+            var nodes = ParseInline(_source, 0, 0);
+            return (nodes, _document.Diagnostics);
+        }
+
         private bool TryParseTag(string text, int index, int sourceOffset, int depth, out InlineNode? node, out int end)
         {
             node = null;
@@ -1328,7 +1542,13 @@ public sealed class MediaWikiWikitextRenderer(
             if (close < 0) return false;
             var tagText = text[(index + 1)..close].Trim();
             var selfClosing = tagText.EndsWith('/');
-            var tagName = tagText.TrimStart('/').TrimEnd('/').Split([' ', '\t'], 2)[0];
+            var normalizedTagText = tagText.TrimStart('/').TrimEnd('/');
+            var tagNameEnd = normalizedTagText.IndexOfAny([' ', '\t', '\r', '\n']);
+            var tagName = tagNameEnd < 0 ? normalizedTagText : normalizedTagText[..tagNameEnd];
+            if (tagName.Equals(MediaWikiMermaidCompatibility.ExtensionName, StringComparison.OrdinalIgnoreCase))
+                return TryParseMermaidTag(text, index, close, sourceOffset, tagText, selfClosing, out node, out end);
+            if (tagName.Equals(MediaWikiTemplateStylesCompatibility.ExtensionName, StringComparison.OrdinalIgnoreCase))
+                return TryParseTemplateStylesTag(text, index, close, sourceOffset, tagText, selfClosing, out node, out end);
             if (tagName.Equals("references", StringComparison.OrdinalIgnoreCase) && selfClosing)
             {
                 node = new ReferencesNode(sourceOffset + index, close + 1 - index);
@@ -1376,6 +1596,122 @@ public sealed class MediaWikiWikitextRenderer(
             var body = text[(close + 1)..closingRef];
             node = new ReferenceNode(name, ParseInline(body, sourceOffset + close + 1, depth + 1), sourceOffset + index, closingRef + 6 - index);
             end = closingRef + 5;
+            return true;
+        }
+
+        private bool TryParseTemplateStylesTag(
+            string text,
+            int index,
+            int close,
+            int sourceOffset,
+            string tagText,
+            bool selfClosing,
+            out InlineNode? node,
+            out int end)
+        {
+            node = null;
+            end = close;
+            var offset = sourceOffset + index;
+            if (tagText.StartsWith("/", StringComparison.Ordinal))
+            {
+                node = new TemplateStylesNode(null, "A closing TemplateStyles tag did not have a matching opening tag.", offset, close + 1 - index);
+                return true;
+            }
+
+            if (!MediaWikiTemplateStylesCompatibility.TryParseAttributes(tagText, out var attributes, out var parsedSelfClosing, out var attributeError))
+            {
+                node = new TemplateStylesNode(null, attributeError ?? "TemplateStyles attributes were invalid.", offset, close + 1 - index);
+                return true;
+            }
+
+            selfClosing |= parsedSelfClosing;
+            if (!selfClosing)
+            {
+                var closing = text.IndexOf("</templatestyles>", close + 1, StringComparison.OrdinalIgnoreCase);
+                if (closing < 0)
+                {
+                    node = new TemplateStylesNode(null, "The TemplateStyles tag must be self-closing or explicitly closed.", offset, close + 1 - index);
+                    return true;
+                }
+
+                if (!string.IsNullOrWhiteSpace(text[(close + 1)..closing]))
+                {
+                    node = new TemplateStylesNode(null, "TemplateStyles does not accept a body; use a self-closing tag.", offset, closing + "</templatestyles>".Length - index);
+                }
+                else
+                {
+                    node = new TemplateStylesNode(attributes.GetValueOrDefault("src"), null, offset, closing + "</templatestyles>".Length - index);
+                }
+                end = closing + "</templatestyles>".Length - 1;
+                return true;
+            }
+
+            node = new TemplateStylesNode(attributes.GetValueOrDefault("src"), null, offset, close + 1 - index);
+            end = close;
+            return true;
+        }
+
+        private bool TryParseMermaidTag(
+            string text,
+            int index,
+            int close,
+            int sourceOffset,
+            string tagText,
+            bool selfClosing,
+            out InlineNode? node,
+            out int end)
+        {
+            node = null;
+            end = close;
+            var offset = sourceOffset + index;
+            if (tagText.StartsWith("/", StringComparison.Ordinal))
+            {
+                AddDiagnostic(_document.Diagnostics, options, "InvalidExtensionInput", "A closing Mermaid tag did not have a matching opening tag.", offset, close + 1 - index);
+                node = new UnsupportedNode("extension-tag", "InvalidExtensionInput", "A closing Mermaid tag did not have a matching opening tag.", offset, close + 1 - index);
+                return true;
+            }
+
+            if (!MediaWikiMermaidCompatibility.TryParseAttributes(tagText, out var attributes, out var parsedSelfClosing, out var attributeError))
+            {
+                AddDiagnostic(_document.Diagnostics, options, "InvalidExtensionInput", attributeError ?? "Mermaid tag attributes were invalid.", offset, close + 1 - index);
+                node = new UnsupportedNode("extension-tag", "InvalidExtensionInput", attributeError ?? "Mermaid tag attributes were invalid.", offset, close + 1 - index);
+                return true;
+            }
+
+            selfClosing |= parsedSelfClosing;
+            var closing = selfClosing ? -1 : text.IndexOf("</mermaid>", close + 1, StringComparison.OrdinalIgnoreCase);
+            if (closing < 0)
+            {
+                var message = selfClosing
+                    ? "A Mermaid extension tag must contain a bounded source body."
+                    : "The Mermaid extension tag was not closed.";
+                AddDiagnostic(_document.Diagnostics, options, "InvalidExtensionInput", message, offset, close + 1 - index);
+                node = new UnsupportedNode("extension-tag", "InvalidExtensionInput", message, offset, close + 1 - index);
+                return true;
+            }
+
+            var body = text[(close + 1)..closing];
+            var length = closing + "</mermaid>".Length - index;
+            var result = MediaWikiMermaidCompatibility.CreateStaticResult(new(
+                MediaWikiMermaidCompatibility.ExtensionName,
+                body,
+                attributes,
+                provenance,
+                options.MaxMermaidInputCharacters,
+                options.MaxMermaidNestingDepth,
+                1,
+                cancellationToken));
+            if (result.Html is not null && result.DiagnosticCode is not null)
+            {
+                _document.UnsupportedConstructs.Add("mermaid-diagram-rendering");
+                node = new StaticExtensionNode(result.Html, result.DiagnosticCode, result.Message, offset, length, result.Severity);
+            }
+            else
+            {
+                _document.UnsupportedConstructs.Add("mermaid");
+                node = new UnsupportedNode("extension-tag", result.DiagnosticCode ?? "UnsupportedExtension", result.Message, offset, length, result.Severity);
+            }
+            end = closing + "</mermaid>".Length - 1;
             return true;
         }
 

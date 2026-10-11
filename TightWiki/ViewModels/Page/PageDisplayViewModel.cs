@@ -6,6 +6,7 @@ namespace TightWiki.ViewModels.Page
         : TwViewModel
     {
         public string Body { get; set; } = string.Empty;
+        public List<string> StylesheetUrls { get; set; } = new();
         public string ModifiedByUserName { get; set; } = string.Empty;
         public DateTime ModifiedDate { get; set; }
         public List<TwPageComment> Comments { get; set; } = new();

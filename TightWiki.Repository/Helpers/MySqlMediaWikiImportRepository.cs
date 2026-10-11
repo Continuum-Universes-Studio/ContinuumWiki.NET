@@ -91,14 +91,14 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
 
     public async Task<TwMediaWikiTemplateTarget> ResolveTemplateAsync(long importBatchId, string sourceTitle, DateTime? asOfUtc = null, CancellationToken cancellationToken = default)
     {
-        var normalized = NormalizeTitle(sourceTitle);
+        var normalized = NormalizeTemplateTitle(sourceTitle);
         if (string.IsNullOrWhiteSpace(normalized))
             return new(TwMediaWikiTemplateResolutionStatus.Missing, sourceTitle);
 
         await using var session = await connectionFactory.OpenSessionAsync(cancellationToken);
         var rows = (await session.Connection.QueryAsync<TemplateTargetRow>(new CommandDefinition("""
             SELECT P.OriginalTitle AS SourceTitle, P.SourcePageId, R.SourceRevisionId,
-                   R.TargetRevision, PR.Body, R.SourceTimestamp
+                   R.TargetRevision, PR.Body, R.SourceTimestamp, R.ContentModel
             FROM MediaWikiImportPage P
             INNER JOIN MediaWikiImportRevision R
                 ON R.ImportBatchId = P.ImportBatchId AND R.SourcePageId = P.SourcePageId
@@ -107,11 +107,13 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
             INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
             WHERE P.ImportBatchId = @ImportBatchId
               AND P.SourceNamespaceId = '10'
-              AND REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
+              AND (REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
+                   OR REPLACE(P.OriginalTitle, '_', ' ') = CONCAT('Template:', @SourceTitle))
               AND P.IsRedirect = FALSE
               AND R.IsDeleted = FALSE
               AND B.Status = 'Completed'
               AND (@AsOfUtc IS NULL OR R.SourceTimestamp IS NULL OR R.SourceTimestamp <= @AsOfUtc)
+              AND R.IsSuppressed = FALSE
             ORDER BY R.SourceTimestamp DESC, R.TargetRevision DESC;
             """, new { ImportBatchId = importBatchId, SourceTitle = normalized, AsOfUtc = asOfUtc }, cancellationToken: cancellationToken))).AsList();
 
@@ -121,7 +123,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         var row = rows.FirstOrDefault();
         if (row is not null)
             return new(TwMediaWikiTemplateResolutionStatus.Resolved, row.SourceTitle, row.SourcePageId,
-                row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp);
+                row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel);
 
         var exists = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition("""
             SELECT COUNT(*)
@@ -129,12 +131,96 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
             INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
             WHERE P.ImportBatchId = @ImportBatchId
               AND P.SourceNamespaceId = '10'
-              AND REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
+              AND (REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
+                   OR REPLACE(P.OriginalTitle, '_', ' ') = CONCAT('Template:', @SourceTitle))
               AND B.Status = 'Completed';
             """, new { ImportBatchId = importBatchId, SourceTitle = normalized }, cancellationToken: cancellationToken));
         return exists > 0
             ? new(TwMediaWikiTemplateResolutionStatus.Restricted, normalized)
             : new(TwMediaWikiTemplateResolutionStatus.Missing, normalized);
+    }
+
+    public async Task<TwMediaWikiTemplateTarget> ResolveTransclusionAsync(
+        long importBatchId,
+        int sourceNamespaceId,
+        string sourceTitle,
+        DateTime? asOfUtc = null,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = NormalizeTitle(sourceTitle);
+        if (string.IsNullOrWhiteSpace(normalized))
+            return new(TwMediaWikiTemplateResolutionStatus.Missing, sourceTitle,
+                SourceNamespaceId: sourceNamespaceId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+
+        await using var session = await connectionFactory.OpenSessionAsync(cancellationToken);
+        var rows = (await session.Connection.QueryAsync<TemplateTargetRow>(new CommandDefinition("""
+            SELECT P.OriginalTitle AS SourceTitle, P.SourcePageId, R.SourceRevisionId,
+                   R.TargetRevision, PR.Body, R.SourceTimestamp, R.ContentModel
+            FROM MediaWikiImportPage P
+            INNER JOIN MediaWikiImportRevision R
+                ON R.ImportBatchId = P.ImportBatchId AND R.SourcePageId = P.SourcePageId
+            INNER JOIN Page TP ON TP.Id = R.TargetPageId AND TP.IsDeleted = FALSE
+            INNER JOIN PageRevision PR ON PR.PageId = R.TargetPageId AND PR.Revision = R.TargetRevision
+            INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
+            WHERE P.ImportBatchId = @ImportBatchId
+              AND P.SourceNamespaceId = @SourceNamespaceId
+              AND (
+                    (@SourceNamespaceId = '0' AND REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle)
+                    OR (@SourceNamespaceId <> '0' AND (
+                        REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
+                        OR REPLACE(P.OriginalTitle, '_', ' ') = CONCAT(@SourceNamespaceName, ':', @SourceTitle)
+                        OR TRIM(SUBSTRING_INDEX(REPLACE(P.OriginalTitle, '_', ' '), ':', -1)) = @SourceTitle
+                    ))
+                  )
+              AND P.IsRedirect = FALSE
+              AND R.IsDeleted = FALSE
+              AND B.Status = 'Completed'
+              AND (@AsOfUtc IS NULL OR R.SourceTimestamp IS NULL OR R.SourceTimestamp <= @AsOfUtc)
+              AND R.IsSuppressed = FALSE
+            ORDER BY R.SourceTimestamp DESC, R.TargetRevision DESC;
+            """, new
+        {
+            ImportBatchId = importBatchId,
+            SourceNamespaceId = sourceNamespaceId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            SourceNamespaceName = sourceNamespaceId == 10 ? "Template" : sourceNamespaceId == 0 ? "" : string.Empty,
+            SourceTitle = normalized,
+            AsOfUtc = asOfUtc
+        }, cancellationToken: cancellationToken))).AsList();
+
+        var byPage = rows.GroupBy(row => row.SourcePageId, StringComparer.Ordinal).ToArray();
+        var namespaceId = sourceNamespaceId.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        if (byPage.Length > 1)
+            return new(TwMediaWikiTemplateResolutionStatus.Ambiguous, normalized, SourceNamespaceId: namespaceId);
+        var row = rows.FirstOrDefault();
+        if (row is not null)
+            return new(TwMediaWikiTemplateResolutionStatus.Resolved, row.SourceTitle, row.SourcePageId,
+                row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel, namespaceId);
+
+        var exists = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition("""
+            SELECT COUNT(*)
+            FROM MediaWikiImportPage P
+            INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
+            WHERE P.ImportBatchId = @ImportBatchId
+              AND P.SourceNamespaceId = @SourceNamespaceId
+              AND (
+                    (@SourceNamespaceId = '0' AND REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle)
+                    OR (@SourceNamespaceId <> '0' AND (
+                        REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
+                        OR REPLACE(P.OriginalTitle, '_', ' ') = CONCAT(@SourceNamespaceName, ':', @SourceTitle)
+                        OR TRIM(SUBSTRING_INDEX(REPLACE(P.OriginalTitle, '_', ' '), ':', -1)) = @SourceTitle
+                    ))
+                  )
+              AND B.Status = 'Completed';
+            """, new
+        {
+            ImportBatchId = importBatchId,
+            SourceNamespaceId = namespaceId,
+            SourceNamespaceName = sourceNamespaceId == 10 ? "Template" : string.Empty,
+            SourceTitle = normalized
+        }, cancellationToken: cancellationToken));
+        return exists > 0
+            ? new(TwMediaWikiTemplateResolutionStatus.Restricted, normalized, SourceNamespaceId: namespaceId)
+            : new(TwMediaWikiTemplateResolutionStatus.Missing, normalized, SourceNamespaceId: namespaceId);
     }
 
     public async Task<string> GetTemplateCacheVersionAsync(long importBatchId, DateTime? asOfUtc = null, CancellationToken cancellationToken = default)
@@ -226,6 +312,14 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
             : normalized;
     }
 
+    private static string NormalizeTemplateTitle(string value)
+    {
+        var normalized = NormalizeTitle(value);
+        return normalized.StartsWith("Template:", StringComparison.OrdinalIgnoreCase)
+            ? normalized["Template:".Length..].Trim()
+            : normalized;
+    }
+
     private static bool HasUnsafeMediaPath(string value)
         => value.Contains('\0') || value.Contains('\\') || value.Split('/').Any(part => part is "." or "..") || value.Contains("../", StringComparison.Ordinal);
 
@@ -238,11 +332,11 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         public string SourceNamespaceId { get; set; } = string.Empty;
         public string? SourceNamespaceName { get; set; }
         public DateTime? SourceTimestamp { get; set; }
+        public string? ContentModel { get; set; }
         public bool IsRedirect { get; set; }
         public string? RedirectTargetSourceTitle { get; set; }
         public string? RedirectTargetNavigation { get; set; }
         public string? SourceWikiIdentity { get; set; }
-        public string? ContentModel { get; set; }
         public int? TargetPageId { get; set; }
         public int? TargetRevision { get; set; }
     }
@@ -272,6 +366,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         public uint TargetRevision { get; set; }
         public string Body { get; set; } = string.Empty;
         public DateTime? SourceTimestamp { get; set; }
+        public string? ContentModel { get; set; }
     }
 
     private sealed class TemplateVersionRow

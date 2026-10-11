@@ -1,0 +1,133 @@
+{
+  "ReportVersion": "mediawiki-templatestyles-delivery-v1",
+  "Milestone": "CW-M5-002",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "FinalClassification": "TemplateStyles delivery implemented; authorization verification partial.",
+  "ExecutionScope": "Repository implementation and disposable-free regression tests; no production or live MediaWiki execution",
+  "IntegrationDesign": {
+    "RendererResult": "MediaWikiWikitextRenderResult.Stylesheets",
+    "PageAdapter": "PageController maps renderer assets to TwMediaWikiStylesheet identities",
+    "PageCache": "TwPageCache stores identity/provenance only; sanitized CSS bytes are not cached",
+    "ViewModel": "PageDisplayViewModel.StylesheetUrls",
+    "RazorDelivery": "Encoded same-origin link elements through the existing layout Styles section",
+    "Endpoint": "GET /Page/TemplateStyles?t=<one-hour Data Protection token>",
+    "Ordering": "Existing per-render first-accepted order and deduplication are preserved"
+  },
+  "AssetIdentity": {
+    "Fields": [
+      "ImportBatchId",
+      "SourceTitle",
+      "SourcePageId",
+      "SourceRevisionId",
+      "TargetRevision",
+      "SourceTimestampUtc",
+      "SourceSha256",
+      "SanitizerPolicyVersion",
+      "SanitizedCssSha256"
+    ],
+    "SanitizerPolicyVersion": "cw-templatestyles-v1",
+    "AuthorizationIndependentOfHash": true,
+    "OpaqueUrlPayload": true,
+    "RawCssInUrl": false,
+    "FilesystemResolution": false
+  },
+  "Authorization": {
+    "Model": "Authorized source-page lookup using the existing TwSessionState Read permission evaluator",
+    "ChecksPerRequest": [
+      "Signed token validity and bounded identity fields",
+      "Imported source page mapping",
+      "Live non-deleted target page",
+      "Current viewer Read permission on the mapped source navigation",
+      "Historical source timestamp eligibility",
+      "Exact source page/revision/target revision and source hash",
+      "Exact sanitizer policy and sanitized CSS hash"
+    ],
+    "UnauthorizedResponse": "404 without source details",
+    "DeletedOrSuppressedResponse": "404 without source details",
+    "CrossContextReuse": "Rejected unless exact imported source identity and current authorization both match",
+    "Verification": "Partial: controller boundary tests cover fail-closed invalid/oversized identifiers; live authorized/private/revoked HTTP scenarios require the existing application permission/database harness"
+  },
+  "SourceRevisionBehavior": {
+    "Resolver": "ITwMediaWikiImportRepository.ResolveTemplateAsync",
+    "HistoricalSelection": "Recorded SourceTimestampUtc; later revisions are not substituted",
+    "SuppressedRevisions": "Excluded by the MySQL imported-revision resolver",
+    "StaleIdentity": "404 when any exact provenance, source, policy, or sanitized-output hash differs",
+    "TokenLifetime": "1 hour"
+  },
+  "Delivery": {
+    "ContentType": "text/css; charset=utf-8",
+    "XContentTypeOptions": "nosniff",
+    "CacheControl": "private, no-store",
+    "Pragma": "no-cache",
+    "InlineCss": false,
+    "CspUnsafeInlineAdded": false,
+    "SelectorScope": ".wiki-page-body",
+    "RawSourceCssServed": false,
+    "RemoteStylesheetFetch": false,
+    "ArbitraryFileRead": false
+  },
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiTemplateStylesDeliveryTests|FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedResult": "PASSED: 52 passed, 0 failed, 0 skipped",
+    "Coverage": [
+      "Historical TemplateStyles resolution and exact revision provenance",
+      "Sanitizer policy and sanitized CSS hash metadata",
+      "Per-render deduplication and deterministic order",
+      "Unsafe CSS and resource-limit rejection",
+      "Invalid and oversized asset identifiers fail closed",
+      "nosniff and private no-store response headers on the delivery boundary",
+      "signed historical asset re-resolution through the actual PageController action",
+      "disposable loopback MVC routing through the actual TemplateStyles action",
+      "HTTP content type, cache-control, nosniff, sanitized-only body, and permission denial",
+      "actual PageController.Display imported-page model propagation of signed stylesheet URLs",
+      "sanitized CSS-only ContentResult with no raw source CSS",
+      "unauthorized source denial",
+      "deleted source denial",
+      "stale source-revision identity denial"
+    ],
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "PASSED: 298 passed, 0 failed, 22 skipped, 320 total",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "PASSED: 0 warnings, 0 errors",
+    "ApplicationDebugBuild": "PASSED: TightWiki/TightWiki.csproj, 0 warnings, 0 errors",
+    "ApplicationReleaseBuild": "PASSED: TightWiki/TightWiki.csproj, 0 warnings, 0 errors",
+    "JsonValidation": "PASSED: python3 -m json.tool",
+    "DiffCheck": "PASSED: git diff --check"
+  },
+  "SecurityPreservation": {
+    "ProductionMediaWikiModified": false,
+    "ProductionDatabaseModified": false,
+    "HistoricalSourceModified": false,
+    "LuaActivated": false,
+    "CargoActivated": false,
+    "WorkerConfigurationModified": false,
+    "SystemdOrBubblewrapModified": false,
+    "StrictMigrationPlannerModified": false,
+    "ExistingRendererBudgetsIncreased": false,
+    "RejectingProviderDefaultsPreserved": true
+  },
+  "KnownLimitations": [
+    "The focused suite includes a disposable loopback MVC host for the actual TemplateStyles action and permission boundary; broader cookie-authenticated page-render and permission-revocation scenarios remain application-host verification.",
+    "The delivery path uses the existing TightWiki page permission model; it does not invent MediaWiki-specific cross-tenant ACL or suppression policy.",
+    "The supported CSS subset remains the bounded CW-M5-001 subset, not full MediaWiki TemplateStyles parity.",
+    "This milestone does not certify historical MediaWiki parity, production migration readiness, Lua, Cargo, or the host worker."
+  ],
+  "ChangedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiTemplateStylesCompatibility.cs",
+    "TightWiki.Plugin/Models/TwMediaWikiStylesheet.cs",
+    "TightWiki.Plugin/Models/TwPageCache.cs",
+    "TightWiki.Repository/Helpers/MySqlMediaWikiImportRepository.cs",
+    "TightWiki/Controllers/PageController.cs",
+    "TightWiki/MediaWikiStylesheetAssetPayload.cs",
+    "TightWiki/ViewModels/Page/PageDisplayViewModel.cs",
+    "TightWiki/Views/Page/Display.cshtml",
+    "TightWiki/Views/Shared/_Layout.cshtml",
+    "TightWiki.Tests/TightWiki.Tests.csproj",
+    "TightWiki.Tests/Unit/MediaWikiTemplateStylesDeliveryTests.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-002-TEMPLATESTYLES-ASSET-DELIVERY.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-templatestyles-delivery-v1.json"
+  ],
+  "RecommendedNextMilestone": "Add an application-level HTTP test host with disposable authorization fixtures, then verify authorized/private/revoked source cases without changing production permission architecture."
+}

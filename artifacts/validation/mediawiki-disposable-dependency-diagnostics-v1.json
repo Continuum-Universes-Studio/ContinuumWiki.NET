@@ -1,0 +1,371 @@
+{
+  "ReportVersion": "cw-m4-002-mediawiki-disposable-dependency-diagnostics-v1",
+  "GeneratedAtUtc": "2026-10-11",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Status": "SOURCE_ONLY_DIAGNOSTICS_VERIFIED",
+  "Verdict": "SOURCE_ONLY_DIAGNOSTICS_VERIFIED; IMPORT_BLOCKED; DEPENDENCY_CLOSURE_PARTIAL; HISTORICAL_PARITY_UNAVAILABLE",
+  "Scope": {
+    "Objective": "Reconcile revision-aware dependency evidence before any disposable migration diagnostic.",
+    "ProductionMediaWikiModified": false,
+    "ProductionMariaDbModified": false,
+    "WorkerActivated": false,
+    "WorkerOrSandboxModified": false,
+    "SourceContentModified": false,
+    "ReferenceArtifactsModified": false,
+    "CargoRowsExported": false,
+    "CurrentStateCargoSubstitutedForHistoricalData": false
+  },
+  "SourceEvidence": {
+    "AuthorizedSourceIdentity": {
+      "SourceExportSha256": "5a6d6ad13e9b0f3315053db8168bbbfbf6bc3d0983cd9bd835d4c9a956a38afd",
+      "SourceExportPath": "Not present in the current workspace; identity retained from the authorized inventory reports",
+      "RawExportAvailableForReverification": false,
+      "IdentityStatus": "METADATA_RECORDED_SOURCE_BODY_UNAVAILABLE"
+    },
+    "AuthorizedMetadataInventories": [
+      {
+        "Path": "artifacts/validation/mediawiki-module-inventory-v1.json",
+        "Sha256": "c1db52237a8ce91a85ef65dd972ccbf42dea3b92df4c5d4c237a1d1e10626b07"
+      },
+      {
+        "Path": "artifacts/validation/mediawiki-full-invocation-inventory-v1.json",
+        "Sha256": "87e950cbaae49849ecd023332718638eeaca5f46196074080161deae71d9ebe4"
+      },
+      {
+        "Path": "artifacts/validation/mediawiki-compatibility-corpus-v1.json",
+        "Sha256": "85239bbccbfd0b4f6c9007cae2363670570910f972f512b05847bb7c3e372bb5"
+      },
+      {
+        "Path": "artifacts/validation/mediawiki-reference-aware-evaluation-v1.json",
+        "Sha256": "3cb326a399e178a8d1f6becf398c7d5ee1098a50429569998ed7e523abef8acc"
+      }
+    ],
+    "ExpectedRawExport": {
+      "RepositoryPath": "artifacts/imports/mediawiki/continuumwiki-full-with-files.xml",
+      "Status": "ABSENT"
+    },
+    "PrivateValidationRawExport": {
+      "Path": "/home/cdjensen94/continuumwiki-validation/mediawiki-full-with-files.xml",
+      "Status": "ABSENT"
+    },
+    "RawSourceBodies": "UNAVAILABLE",
+    "MetadataInterpretation": "The inventories prove page/revision identities and selected content hashes where recorded; they do not provide importable Wikitext or Lua bodies. No source body was reconstructed from a hash or replaced with a later revision.",
+    "ReferenceIntegrity": {
+      "Directory": "/home/cdjensen94/continuumwiki-validation/references",
+      "FixtureCount": 8,
+      "AllRequestedAndRenderedRevisionIdsMatch": true,
+      "AllRenderedHtmlNonempty": true,
+      "RawApiResponseHashesRecorded": true,
+      "OriginalReferencesPreserved": true,
+      "FileSha256": {
+        "mw-invoke-075b2608d7c07c57": "2bc1afa08c54b4eefbc95da1ad4cbd2c6c9b0e00d18a7391e9a1396fb54c188f",
+        "mw-invoke-0aacc6fd104a1bc6": "d41145d0729f05b5c083f23edaf1a8df5d4af1416dddd5aa8b0392926b68b224",
+        "mw-invoke-5c66128828b0dd24": "570c118d1a8781d48b89b06bec3f346d7c24a4cbef333d11bc09b6082cfe9f11",
+        "mw-invoke-72066581f5f001e8": "3c4af03b178b532b212b508aa5960cb11c928ded884a6e5861af12d72ba062b8",
+        "mw-invoke-79af37a81a16b674": "17d4d146c49b36b2298437b3cd427720fef294f8df2cf6a19d6ea27ca5c9c873",
+        "mw-invoke-8d5e90707608a71b": "c87d53a11139a9d0f217087347e1c3d7db475a6a5eb23e119ce91be0322c26a6",
+        "mw-invoke-e5edab96328f070f": "10fb8f69a96ed9e1e12acce9109c8451114a64d51778de49d183d88cd86480d5",
+        "mw-invoke-f9451d8b2558c7b8": "61bb6821ca5921955fc6c5c9556cfb4188327a4483eeb31e83d2d12121c57134"
+      }
+    }
+  },
+  "PlannerAndImportContext": {
+    "StrictEntryPoint": "scripts/verify-m3-006c.sh",
+    "DiagnosticEntryPoint": "scripts/verify-m3-006c-diagnostic.sh",
+    "DiagnosticEntryPointBehavior": "Performs socket preflight, sets CW_M3_006C_DIAGNOSTIC=1, and delegates to the existing strict harness.",
+    "StrictPlannerUnchanged": true,
+    "DiagnosticPolicy": "MediaWikiImportPolicy.DisposableDiagnosticRendering",
+    "DiagnosticAllowlist": [
+      "UnsupportedExtensionTag only for <templatedata>, <mermaid>, or <templatestyles>"
+    ],
+    "DisposableTargetAuthorization": "Requires target Purpose disposable-mariadb and a database name beginning cw_m3_; no target authorization was established in this execution environment.",
+    "PlanStatus": "IMPORT_BLOCKED",
+    "PlanReason": "The real XML export is absent, so no complete source-preserving plan could be generated or verified in this run.",
+    "ImportWritesPerformed": false
+  },
+  "Baseline": {
+    "HistoricalEvidenceOnly": true,
+    "PriorVerifiedImport": {
+      "ReportPath": "artifacts/validation/mediawiki-real-module-import-v1.json",
+      "ImportBatchId": 1,
+      "TargetDatabase": "cw_m3_003a",
+      "SourcePageCount": 19,
+      "ImportedPageCount": 19,
+      "SourceRevisionCount": 123,
+      "ImportedRevisionCount": 123,
+      "Verdict": "VERIFIED"
+    },
+    "CurrentDatabaseInspection": "NOT_PERFORMED; no disposable target authorization or connection was available",
+    "Interpretation": "The prior batch-1 reconciliation is retained as a historical baseline only. It does not prove that the current disposable database exists, is empty, or contains the same records."
+  },
+  "RevisionCorrectDependencyGraph": {
+    "Status": "DEPENDENCY_CLOSURE_PARTIAL",
+    "SelectionRule": "Select the greatest source revision at or before the invocation/template historical context. Never substitute a later revision by numeric proximity.",
+    "Nodes": [
+      {
+        "Title": "Jovan",
+        "SourcePageId": "534",
+        "SourceRevisionId": "9482",
+        "Timestamp": "2026-03-13T08:16:42+00:00",
+        "BodyStatus": "UNAVAILABLE",
+        "Role": "Captured root page"
+      },
+      {
+        "Title": "Module:DivineTree",
+        "SourcePageId": "2035",
+        "SourceRevisionId": "9481",
+        "Timestamp": "2026-03-13T08:15:26+00:00",
+        "ContentHash": "81358d3664fb7e6a1e53c4ffe6925882e855651871fe406cc55cdcdbc5caac9d",
+        "BodyStatus": "UNAVAILABLE",
+        "Role": "Jovan root module"
+      },
+      {
+        "Title": "Template:Divine",
+        "SourcePageId": "520",
+        "SourceRevisionId": "9469",
+        "Timestamp": "2026-03-13T05:24:23+00:00",
+        "BodyStatus": "UNAVAILABLE",
+        "Role": "Historical template required by Jovan context and direct fixture mw-invoke-8d5e90707608a71b"
+      },
+      {
+        "Title": "Module:DivineFamily",
+        "SourcePageId": "2033",
+        "SourceRevisionId": "9467",
+        "Timestamp": "2026-03-13T05:19:46+00:00",
+        "ContentHash": "421947c475c5921143f428180e3eaa2b89dfce88a615bfeea7cd97a5c9a5f0da",
+        "BodyStatus": "UNAVAILABLE",
+        "Role": "Temporally eligible module identity; source body still required"
+      },
+      {
+        "Title": "Module:DivineMeta",
+        "SourcePageId": "2034",
+        "SourceRevisionId": "9470",
+        "Timestamp": "2026-03-13T05:24:46+00:00",
+        "ContentHash": "23b089a8c17654b9388e5d71749f812a6d2c05654254087b1f96e1e9daa137a8",
+        "BodyStatus": "METADATA_ONLY_AND_TOO_LATE",
+        "Role": "Direct dependency of fixture mw-invoke-8d5e90707608a71b"
+      }
+    ],
+    "Edges": [
+      {
+        "From": "Jovan@9482",
+        "To": "Module:DivineTree@9481",
+        "Kind": "#invoke root",
+        "Reachability": "REACHED_BY_CAPTURED_INVOCATION",
+        "Evidence": "full invocation inventory and module inventory"
+      },
+      {
+        "From": "Module:DivineTree@9481",
+        "To": "Template:Divine@9469",
+        "Kind": "template expansion dependency",
+        "Reachability": "REPORTED_REACHABLE",
+        "Evidence": "prior Jovan dependency reconciliation and reference-aware fixture evidence; raw body unavailable for re-scan"
+      },
+      {
+        "From": "Template:Divine@9469",
+        "To": "Module:DivineMeta",
+        "Kind": "direct #invoke dependency",
+        "Reachability": "REACHED_BY_FIXTURE mw-invoke-8d5e90707608a71b",
+        "Evidence": "corpus invocation {{#invoke:DivineMeta|universes}}"
+      },
+      {
+        "From": "Template:Divine@9469",
+        "To": "Module:DivineFamily@9467",
+        "Kind": "historical module dependency context",
+        "Reachability": "REACHED_BY_FIXTURE mw-invoke-e5edab96328f070f",
+        "Evidence": "corpus invocation and authorized module inventory"
+      },
+      {
+        "From": "Module:DivineTree@9481",
+        "To": "Cargo:Divines",
+        "Kind": "data dependency",
+        "Reachability": "STATIC_CALL_SITE_REPORTED; HISTORICAL_ROWS_UNAVAILABLE",
+        "Evidence": "prior ContinuumInfobox dependency audit"
+      }
+    ],
+    "JovanReconciliation": {
+      "TemplateDivine": "Metadata identity exists at page 520 revision 9469, but the raw source body/hash required for import selection is absent.",
+      "DivineFamily": "Revision 9467 is temporally eligible and has an inventory hash, but its raw source body is absent.",
+      "DivineMeta": "No inventoried revision exists at or before Template:Divine@9469 timestamp. Revision 9470 at 2026-03-13T05:24:46+00:00 is later and is not an allowed substitute.",
+      "Outcome": "PARTIALLY_RECONCILED; no safe source-preserving import plan can be completed from metadata alone."
+    }
+  },
+  "FixtureReassessment": [
+    {
+      "FixtureId": "mw-invoke-075b2608d7c07c57",
+      "PageTitle": "Template:Mbox",
+      "RequestedRevisionId": "6208",
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "ReferenceEvidence": "Scribunto reported missing Module:Message box/configuration.",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_SOURCE_EXPORT_ABSENT_AND_REFERENCE_DEPENDENCY_UNAVAILABLE",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "REFERENCE_NEGATIVE_TEST; NOT_COMPATIBILITY_PARITY"
+    },
+    {
+      "FixtureId": "mw-invoke-72066581f5f001e8",
+      "PageTitle": "Template:Extension",
+      "RequestedRevisionId": "7245",
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "ReferenceEvidence": "Reference captured missing Template translation and TemplateStyles resources.",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_SOURCE_EXPORT_ABSENT_AND_REFERENCE_DEPENDENCY_UNAVAILABLE",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison not applicable",
+      "Classification": "REFERENCE_NEGATIVE_TEST; NOT_COMPATIBILITY_PARITY"
+    },
+    {
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "PageTitle": "Template:Species",
+      "RequestedRevisionId": "9907",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_THIS_RUN_SOURCE_EXPORT_ABSENT",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "POSITIVE_REFERENCE_REQUIRES_SOURCE_COMPLETE_IMPORT"
+    },
+    {
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "PageTitle": "Template:Character2",
+      "RequestedRevisionId": "9456",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_THIS_RUN_SOURCE_EXPORT_ABSENT",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "POSITIVE_REFERENCE_REQUIRES_SOURCE_COMPLETE_IMPORT"
+    },
+    {
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "PageTitle": "Template:Divine",
+      "RequestedRevisionId": "9468",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_THIS_RUN_SOURCE_EXPORT_ABSENT; HISTORICAL_DEPENDENCY_BODIES_UNAVAILABLE",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "POSITIVE_REFERENCE_WITH_PARTIAL_DEPENDENCY_PROVENANCE"
+    },
+    {
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "PageTitle": "Template:Divine",
+      "RequestedRevisionId": "9469",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_NO_VALID_DIVINEMETA_REVISION_AT_HISTORICAL_CONTEXT",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "POSITIVE_REFERENCE_WITH_UNRESOLVED_HISTORICAL_DEPENDENCY"
+    },
+    {
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "PageTitle": "Jovan",
+      "RequestedRevisionId": "9482",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_TEMPLATE_DIVINE_BODY_UNAVAILABLE_AND_DIVINEMETA_UNRESOLVED",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "POSITIVE_REFERENCE_WITH_PARTIAL_TRANSITIVE_CLOSURE"
+    },
+    {
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "PageTitle": "Template:Species",
+      "RequestedRevisionId": "9603",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceBodyStatus": "METADATA_ONLY_IN_CURRENT_WORKSPACE",
+      "ImportEligibility": "BLOCKED_THIS_RUN_SOURCE_EXPORT_ABSENT",
+      "RuntimeEligibility": "NOT_EVALUATED",
+      "Comparison": "NOT_RUN_IN_CW-M4-002; prior comparison FAILED",
+      "Classification": "POSITIVE_REFERENCE_REQUIRES_SOURCE_COMPLETE_IMPORT"
+    }
+  ],
+  "ExistingComparisonArtifacts": {
+    "OutputDirectory": "/home/cdjensen94/continuumwiki-validation/continuum-outputs",
+    "OutputCount": 6,
+    "ComparisonDirectory": "/home/cdjensen94/continuumwiki-validation/comparisons",
+    "ComparisonCount": 6,
+    "ExistingClassification": "FAILED",
+    "ChangedByThisRun": false,
+    "Interpretation": "Prior outputs and comparisons are retained as historical diagnostic evidence. They are not reclassified or treated as fresh execution."
+  },
+  "SourceOnlyDiagnostics": {
+    "Status": "SOURCE_ONLY_DIAGNOSTICS_VERIFIED",
+    "CurrentRunExecuted": false,
+    "CurrentRunReason": "The requested real-source bodies and import context are absent; no Jovan or real-fixture renderer invocation was attempted.",
+    "WorkerActivated": false,
+    "ExistingEvidence": [
+      {
+        "Path": "artifacts/validation/mediawiki-expansion-characterization-v1.json",
+        "Result": "Existing bounded source-only scenarios passed, including finite template expansion, missing-template diagnostics, typed failure preservation, recursive-template termination, operation/time budgets, and safe static behavior.",
+        "WorkerRequired": false
+      },
+      {
+        "Path": "artifacts/validation/mediawiki-continuuminfobox-compatibility-v1.json",
+        "Result": "Bounded native/legacy infobox adapter implementation evidence; PHP extension execution was not introduced.",
+        "WorkerRequired": false
+      },
+      {
+        "Path": "artifacts/validation/mediawiki-extension-compatibility-v1.json",
+        "Result": "Safe static Mermaid fallback and explicit unsupported extension boundary; no external renderer or extension execution.",
+        "WorkerRequired": false
+      },
+      {
+        "Path": "artifacts/validation/mediawiki-diagnostic-execution-v1.json",
+        "Result": "Not source-only: prior real-fixture attempts reached a verified historical import but worker execution was unavailable and no comparisons were performed.",
+        "WorkerRequired": true
+      }
+    ],
+    "RealJovanRendering": "NOT_EVALUATED; missing source bodies, historical Cargo, and worker authorization remain independent blockers"
+  },
+  "ImportAndPostImport": {
+    "ImportStatus": "IMPORT_BLOCKED",
+    "ImportAttempted": false,
+    "DatabaseWrites": false,
+    "Reason": "No complete source export is available; independent disposable-target authorization was also not established in this environment.",
+    "PostImportReconciliation": "NOT_APPLICABLE",
+    "StorageBackedRendering": "NOT_RUN",
+    "SocketBackedRendering": "NOT_RUN",
+    "WorkerProvenance": "HOST_CERTIFICATION_REMAINS_BLOCKED; no activation attempted"
+  },
+  "HistoricalCargo": {
+    "Status": "HISTORICAL_PARITY_UNAVAILABLE",
+    "CurrentSchemaEvidence": "Available in separate Cargo reports",
+    "HistoricalRowsAvailable": false,
+    "CurrentStateFallbackUsed": false,
+    "EffectOnJovan": "Cargo-backed relationship/data expansion cannot be certified from the available evidence."
+  },
+  "SecurityPreservation": {
+    "StrictPlannerBlockingFindingsPreserved": true,
+    "DiagnosticPolicyDisposableOnly": true,
+    "RejectingExecutorDefaultPreserved": true,
+    "ProductionLuaDisabled": true,
+    "NoInProcessLuaIntroduced": true,
+    "NoSourceMutation": true,
+    "NoLaterRevisionSubstitution": true,
+    "NoCurrentCargoFallback": true,
+    "WorkerSandboxUnchanged": true,
+    "NoCredentialsInReport": true
+  },
+  "Verification": {
+    "SourceInventoryReviewed": true,
+    "PlannerAndDiagnosticEntryPointsReviewed": true,
+    "ReferenceIntegrityReviewed": true,
+    "JsonValidation": "PASSED",
+    "GitDiffCheck": "PASSED",
+    "TestsAdded": false,
+    "TestsReason": "No importer or source behavior was changed; the current blocker is missing authorized source evidence and target authorization."
+  },
+  "RequiredNextEvidence": [
+    "Provide an authorized, source-preserving XML export containing the complete fixture closure, including Template:Divine@9469 and Module:DivineFamily@9467 bodies with their recorded identities.",
+    "Provide an eligible Module:DivineMeta revision at or before 2026-03-13T05:24:23+00:00 if one exists; do not substitute revision 9470 or any later revision.",
+    "Verify the export hash and source-body hashes before planning.",
+    "Authorize the named disposable cw_m3_* MariaDB target independently before any import write.",
+    "Run the existing diagnostic entry point only after source and target gates are satisfied: CW_SCRIBUNTO_SOCKET_PATH=/run/continuumwiki/scribunto-worker.sock scripts/verify-m3-006c-diagnostic.sh.",
+    "Keep host worker provenance/certification and historical Cargo parity as independent gates."
+  ],
+  "RecommendedNextMilestone": "Obtain the complete historical source export and any valid pre-context Module:DivineMeta revision, then perform an independently authorized disposable diagnostic import followed by separate worker certification and real-fixture comparison.",
+  "ShortestDefensibleRoute": "Obtain the complete historical source export and any valid pre-context DivineMeta revision, verify identities and hashes, run the unchanged strict plan first, then use the existing disposable-only diagnostic policy for explicitly authorized rendering-limitation findings, and compare only newly produced worker outputs against the unchanged references."
+}

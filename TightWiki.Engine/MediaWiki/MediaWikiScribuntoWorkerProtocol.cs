@@ -161,6 +161,8 @@ public static class MediaWikiScribuntoWorkerProtocol
                 return Invalid(out request, out code, out message, dependencyError!.Value.Code, dependencyError.Value.Message);
             if (!ReadNullableStringArray(properties, "rootDependencies", out var rootDependencies))
                 return Invalid(out request, out code, out message, "InvalidDependencyBundle", "The root dependency list was invalid.");
+            if (!ReadCargoResults(properties, "cargoResults", out var cargoResults, out var cargoError))
+                return Invalid(out request, out code, out message, "InvalidCargoResultBundle", cargoError!);
 
             var capabilitySet = new HashSet<string>(StringComparer.Ordinal);
             foreach (var capability in capabilities)
@@ -191,7 +193,7 @@ public static class MediaWikiScribuntoWorkerProtocol
             request = new MediaWikiScribuntoWorkerRequest(
                 protocolVersion, correlationId, moduleTitle, moduleSourceIdentity, sourceWikiIdentity,
                 sourceRevisionId, source, function, positionalArguments, namedArguments, budget, capabilities,
-                dependencies, rootDependencies, frameTitle, parentFrameTitle, parentFrameSourceRevisionId, invocationChain);
+                dependencies, rootDependencies, frameTitle, parentFrameTitle, parentFrameSourceRevisionId, invocationChain, cargoResults);
             code = string.Empty;
             message = string.Empty;
             return true;
@@ -706,6 +708,60 @@ public static class MediaWikiScribuntoWorkerProtocol
         return true;
     }
 
+    private static bool ReadCargoResults(
+        Dictionary<string, JsonElement> properties,
+        string name,
+        out List<MediaWikiScribuntoWorkerCargoResult>? results,
+        out string? error)
+    {
+        results = null;
+        error = null;
+        if (!properties.TryGetValue(name, out var element)) return true;
+        if (element.ValueKind == JsonValueKind.Null) return true;
+        if (element.ValueKind != JsonValueKind.Array) { error = "The Cargo result bundle must be an array."; return false; }
+        results = [];
+        var totalCells = 0;
+        foreach (var item in element.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object) { error = "A Cargo result entry was invalid."; return false; }
+            var values = item.EnumerateObject().ToDictionary(value => value.Name, value => value.Value, StringComparer.Ordinal);
+            if (values.Count != 3
+                || !values.TryGetValue("table", out var table)
+                || !values.TryGetValue("fields", out var fields)
+                || !values.TryGetValue("rows", out var rows)
+                || table.ValueKind != JsonValueKind.String || fields.ValueKind != JsonValueKind.String
+                || rows.ValueKind != JsonValueKind.Array)
+            { error = "A Cargo result entry omitted required fields."; return false; }
+            var tableText = table.GetString()!;
+            var fieldText = fields.GetString()!;
+            if (!IsSafeCargoIdentifier(tableText) || fieldText.Length == 0 || fieldText.Length > 512
+                || fieldText.Split(',').Any(value => !IsSafeCargoIdentifier(value)))
+            { error = "A Cargo result identifier was invalid."; return false; }
+            var parsedRows = new List<IReadOnlyDictionary<string, string?>>();
+            foreach (var row in rows.EnumerateArray())
+            {
+                if (row.ValueKind != JsonValueKind.Object) { error = "A Cargo result row was invalid."; return false; }
+                var cells = new Dictionary<string, string?>(StringComparer.Ordinal);
+                foreach (var cell in row.EnumerateObject())
+                {
+                    if (!IsSafeCargoIdentifier(cell.Name) || cell.Value.ValueKind is not (JsonValueKind.String or JsonValueKind.Null))
+                    { error = "A Cargo result cell was invalid."; return false; }
+                    cells[cell.Name] = cell.Value.ValueKind == JsonValueKind.Null ? null : cell.Value.GetString();
+                }
+                totalCells += cells.Count;
+                if (totalCells > 8_192) { error = "The Cargo result bundle exceeded its cell budget."; return false; }
+                parsedRows.Add(cells);
+            }
+            if (parsedRows.Count > 256) { error = "A Cargo result exceeded its row budget."; return false; }
+            results.Add(new(tableText, fieldText, parsedRows));
+            if (results.Count > 128) { error = "The Cargo result bundle exceeded its query budget."; return false; }
+        }
+        return true;
+    }
+
+    private static bool IsSafeCargoIdentifier(string value)
+        => value.Length is > 0 and <= 128 && value.All(character => char.IsLetterOrDigit(character) || character == '_');
+
     private static bool IsSafeCorrelationId(string value)
         => value.Length is > 0 and <= MaxCorrelationIdCharacters
             && value.All(character => char.IsLetterOrDigit(character) || character is '-' or '_');
@@ -718,7 +774,7 @@ public static class MediaWikiScribuntoWorkerProtocol
     {
         "protocolVersion", "correlationId", "moduleTitle", "moduleSourceIdentity", "sourceWikiIdentity", "sourceRevisionId",
         "source", "function", "positionalArguments", "namedArguments", "budget", "capabilities", "dependencies",
-        "rootDependencies", "frameTitle", "parentFrameTitle", "parentFrameSourceRevisionId", "invocationChain"
+        "rootDependencies", "frameTitle", "parentFrameTitle", "parentFrameSourceRevisionId", "invocationChain", "cargoResults"
     };
 
     private static readonly IReadOnlySet<string> ResponseProperties = new HashSet<string>(StringComparer.Ordinal)
@@ -786,7 +842,13 @@ public sealed record MediaWikiScribuntoWorkerRequest(
     string? FrameTitle = null,
     string? ParentFrameTitle = null,
     string? ParentFrameSourceRevisionId = null,
-    IReadOnlyList<string>? InvocationChain = null);
+    IReadOnlyList<string>? InvocationChain = null,
+    IReadOnlyList<MediaWikiScribuntoWorkerCargoResult>? CargoResults = null);
+
+public sealed record MediaWikiScribuntoWorkerCargoResult(
+    string Table,
+    string Fields,
+    IReadOnlyList<IReadOnlyDictionary<string, string?>> Rows);
 
 public sealed record MediaWikiScribuntoWorkerModuleDependency(
     string SourceWikiIdentity,

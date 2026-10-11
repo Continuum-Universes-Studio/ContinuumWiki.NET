@@ -1,0 +1,116 @@
+{
+  "ReportVersion": "cw-m3-007e-mediawiki-extension-compatibility-v1",
+  "GeneratedAtUtc": "2026-10-11T15:33:24Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Status": "IMPLEMENTATION_VERIFIED_SAFE_STATIC_FALLBACK_ONLY",
+  "ExtensionInventory": [
+    {
+      "Name": "mermaid",
+      "Construct": "<mermaid>...</mermaid>",
+      "Capability": "SAFE_STATIC",
+      "ObservedFixture": "mw-invoke-5c66128828b0dd24",
+      "PageTitle": "Jovan",
+      "SourceRevisionId": 9482,
+      "Invocation": "{{#invoke:DivineTree|renderLocal}}",
+      "RuntimeReachability": "Observed: Continuum output recorded UnsupportedExtensionTag:mermaid after the captured invocation; independent MediaWiki HTML contains the related escaped Mermaid block.",
+      "NativeRendering": "Not implemented",
+      "ExternalResources": "URLs remain inert encoded text; no resource is loaded.",
+      "WriteSemantics": false,
+      "IndependentTestability": "Bounded renderer tests and deterministic static output"
+    },
+    {
+      "Name": "ContinuumInfobox",
+      "Construct": "#cuinfobox and bounded legacy <infobox>",
+      "Capability": "BOUNDED_NATIVE",
+      "Evidence": "mediawiki-continuuminfobox-compatibility-v1.json",
+      "NativeRendering": "Existing typed schema subset; PHP is never executed"
+    },
+    {
+      "Name": "Cargo storage",
+      "Construct": "#cargo_store",
+      "Capability": "WRITE_CAPABILITY_REQUIRED",
+      "NativeRendering": "UNSUPPORTED",
+      "SecurityPolicy": "Read-only Cargo boundary; no write or helper-table mutation is exposed"
+    },
+    {
+      "Name": "TemplateStyles",
+      "Construct": "<templatestyles> and missing styles pages",
+      "Capability": "EXTERNAL_RENDERER_REQUIRED",
+      "NativeRendering": "Not implemented; reference-side errors remain separate source/dependency evidence"
+    },
+    {
+      "Name": "mw.ext, mw.getCurrentFrame, os.*",
+      "Construct": "Lexical inventory references",
+      "Capability": "INDETERMINATE",
+      "NativeRendering": "No implementation authorized from lexical presence alone"
+    }
+  ],
+  "MermaidSourceCharacteristics": {
+    "ReferencePath": "/home/cdjensen94/continuumwiki-validation/references/mw-invoke-5c66128828b0dd24.json",
+    "ReferenceRawApiResponseSha256": "4688028831ec522c171bfafbedaed6a332df9709ffcdc2dbe20c32f752b842c6",
+    "TagAttributesObserved": "None in the captured escaped opening tag",
+    "ObservedDiagramType": "flowchart",
+    "ReferenceRenderedBlockLines": 121,
+    "ReferenceRenderedBlockCharacters": 9791,
+    "ReferenceClickLines": 35,
+    "ReferenceUrlOccurrences": 70,
+    "RawMermaidInputAvailable": false,
+    "Interpretation": "The independent reference HTML establishes Mermaid-related output characteristics but does not authorize or prove a specific Mermaid renderer or raw source parity."
+  },
+  "ImplementedBoundary": {
+    "Type": "MediaWikiExtensionRenderRequest/MediaWikiExtensionRenderResult",
+    "InputLimit": "MaxMermaidInputCharacters defaults to 100000 and is independently configurable without changing existing global budgets",
+    "NestingLimit": "MaxMermaidNestingDepth defaults to 1; nested Mermaid tags are rejected",
+    "AttributeAllowList": [],
+    "AcceptedDiagramTypes": "Observed Mermaid diagram-type allow-list, including flowchart",
+    "SafeOutput": "HTML-encoded source in accessible cw-mermaid figure/pre markup",
+    "StaticDiagnostic": "ExternalRendererUnavailable",
+    "FailureDiagnostics": ["InvalidExtensionInput", "ExtensionInputLimitExceeded", "ExtensionSecurityRejected", "ExtensionOutputLimitExceeded"],
+    "Cancellation": "Request carries the render cancellation token and checks it before validation",
+    "SourceContext": "Request carries imported MediaWiki render provenance; source Wikitext remains persisted unchanged"
+  },
+  "CapabilityClassification": {
+    "MermaidSourcePreservation": "SAFE_STATIC",
+    "MermaidDiagramRendering": "EXTERNAL_RENDERER_REQUIRED",
+    "MermaidActualParity": "NOT_ESTABLISHED",
+    "CargoStore": "UNSUPPORTED_WRITE_CAPABILITY",
+    "TemplateStyles": "REFERENCE_OR_EXTERNAL_RENDERER_GAP",
+    "UnknownExtensions": "UNSUPPORTED"
+  },
+  "Security": {
+    "ArbitraryJavaScript": "REJECTED_AND_NOT_EXECUTED",
+    "PhpExtensionExecution": false,
+    "BrowserOrSvgRenderer": false,
+    "NetworkAccess": false,
+    "SubprocessExecution": false,
+    "EmbeddedExecutableMarkup": "Rejected",
+    "UrlsInMermaidSource": "Encoded as inert text; never fetched",
+    "ProductionLua": false,
+    "RejectingScribuntoDefault": true,
+    "CargoWrites": false,
+    "StrictPlannerModified": false,
+    "WorkerIsolationChanged": false,
+    "BudgetsRaised": false
+  },
+  "Validation": {
+    "FocusedRendererTests": {"Passed": 39, "Failed": 0, "Skipped": 0},
+    "CargoWriteBoundaryTests": "Existing rejecting Cargo and parser-function tests retained; no write path added",
+    "FullDebugTests": {"Passed": 285, "Failed": 0, "Skipped": 22, "Total": 307},
+    "ReleaseBuild": {"Warnings": 0, "Errors": 0},
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "RealMariaDbHarness": "NOT_RUN_BY_THIS_CHANGE",
+    "RealWorkerExecution": "NOT_RUN_BY_THIS_CHANGE",
+    "ReferenceArtifacts": "UNCHANGED",
+    "HistoricalParity": "NOT_CLAIMED"
+  },
+  "Verdict": "Implementation verified; safe static fallback only.",
+  "RemainingBlockers": [
+    "No independently authorized bounded Mermaid renderer or SVG parity evidence",
+    "Raw Mermaid input and historical extension implementation provenance are not available from the captured reference",
+    "#cargo_store remains intentionally unsupported because it requires write semantics",
+    "TemplateStyles and missing-source reference errors remain separate compatibility gaps",
+    "This milestone does not certify strict migration readiness, host worker certification, or MediaWiki parity"
+  ],
+  "RecommendedNextMilestone": "CW-M3-007F regression and diagnostic certification after source, Cargo, and worker gates are satisfied"
+}

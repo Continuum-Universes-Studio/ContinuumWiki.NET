@@ -1,0 +1,79 @@
+{
+  "ReportVersion": "cw-m4-001a-scribunto-runtime-certification-v1",
+  "GeneratedAtUtc": "2026-10-11T16:34:00Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "OverallVerdict": "HOST_CERTIFICATION_BLOCKED",
+  "MilestoneStatus": "INVESTIGATION_COMPLETE",
+  "AuthorizationGate": {
+    "ProcedureInspected": "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md",
+    "RequiredIdentity": "continuumwiki-scribunto (uid/gid 427)",
+    "CurrentIdentity": "uid=1000(cdjensen94), gid=1000(cdjensen94), groups=1000,100,494,4200,5001; SELinux context unconfined_u:unconfined_r:unconfined_t",
+    "EffectiveWorkerGroupPresent": false,
+    "OperatorActivationAuthorizationPresent": false,
+    "Decision": "BLOCKED; no socket request or diagnostic workload was sent"
+  },
+  "Preflight": {
+    "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+    "WorkingTree": "DIRTY; pre-existing generated and source changes preserved",
+    "SocketSystemdState": "active/listening",
+    "SocketPath": "/run/continuumwiki/scribunto-worker.sock",
+    "SocketFilesystemStat": "PERMISSION_DENIED from current session",
+    "SocketParentDirectory": "mode=0750 uid=0 gid=427",
+    "Selinux": {"Status": "enabled", "Mode": "enforcing", "Policy": "targeted"}
+  },
+  "InstalledArtifacts": {
+    "Worker": {"Path": "/srv/continuumwiki/current/ScribuntoWorker/bin/Release/net10.0/ContinuumWiki.ScribuntoWorker.dll", "Sha256": "f0301d935166bff81a8b9100ccbd122a1fc118e59d2d97486ba386e15c4ee37b", "MatchesPreviousMilestone": true, "Owner": "root:root", "Mode": "0644"},
+    "Launcher": {"Path": "/usr/local/libexec/continuumwiki-scribunto-worker-launcher", "Sha256": "4a2238ccd114c46456e78b433e8c6b3f2b23a63742a01c2b8f9ba309f14af714", "MatchesPreviousMilestone": true, "Owner": "root:root", "Mode": "0755"}
+  },
+  "InstalledConfiguration": {
+    "Socket": {"Unit": "continuumwiki-scribunto-worker.socket", "Active": true, "Listen": "/run/continuumwiki/scribunto-worker.sock", "SocketUser": "continuumwiki-scribunto", "SocketGroup": "continuumwiki-scribunto", "SocketMode": "0660", "DirectoryMode": "0750", "Accept": true},
+    "Service": {"Unit": "continuumwiki-scribunto-worker@.service", "User": "continuumwiki-scribunto", "Group": "continuumwiki-scribunto", "NoNewPrivileges": true, "PrivateDevices": true, "PrivateNetwork": true, "ProtectSystem": "strict", "ProtectHome": true, "MemoryMaxBytes": 268435456, "TasksMax": 32, "CPUQuota": "100%", "LimitCPUSeconds": 2, "LimitNOFILE": 256, "KillMode": "control-group", "ProtectKernelTunables": false},
+    "RuntimeVsDeclaration": "Configuration inspected; no live worker was available to prove effective runtime controls."
+  },
+  "InitialStartupFailureClassification": {
+    "Status": "PARTIALLY_CLASSIFIED",
+    "KnownHistoricalFailure": {"Units": ["continuumwiki-scribunto-worker@3-41109-577950_614923-427.service", "continuumwiki-scribunto-worker@4-53324-578822_548002-427.service"], "ExitStatus": 137, "Evidence": "Operator-supplied journal for instance 4 recorded GC bookkeeping allocation failure, CoreCLR initialization failure HRESULT 0x8007000E, and MemoryMax=256M.", "Classification": "Worker startup failed during CoreCLR/GC initialization under the configured memory ceiling; not classified as a security failure."},
+    "OtherObservedFailures": [
+      {"Units": ["continuumwiki-scribunto-worker@5-8972-579447_606966-427.service"], "ExitStatus": 134, "Classification": "Cause not established; current journal access unavailable."},
+      {"Units": ["continuumwiki-scribunto-worker@0-49639-568972_570746-427.service", "continuumwiki-scribunto-worker@1-57759-569138_579826-427.service", "continuumwiki-scribunto-worker@2-29238-572373_606620-427.service", "continuumwiki-scribunto-worker@54-29584-699891_699553-1000.service", "continuumwiki-scribunto-worker@55-16182-700863_706186-1000.service", "continuumwiki-scribunto-worker@56-58096-700969_717682-1000.service"], "ExitStatus": 1, "Classification": "Cause not established; current journal access unavailable."}
+    ],
+    "NotEstablished": ["socket permission rejection", "bubblewrap launch failure", "SELinux denial", "missing runtime dependency", "protocol failure", "timeout", "worker crash cause for exit 1/134 cases"]
+  },
+  "ActivationAttempts": {
+    "CurrentMilestone": {"Attempted": false, "Reason": "Authorization gate blocked; current session is not the dedicated identity and no explicit operator activation authorization was available."},
+    "Retry": {"Attempted": false, "Reason": "No authorized initial attempt occurred; no retry permitted."},
+    "HistoricalInstances": "Prior operator evidence and installed unit history show failed socket-activated instances, but those attempts are not reclassified as CW-M4-001A authorized runtime certification."
+  },
+  "RuntimeEvidence": {
+    "WorkerIdentity": {"Classification": "BLOCKED", "Observed": "No live MainPID; systemd User/Group declaration only"},
+    "Cgroup": {"Classification": "BLOCKED", "Observed": "Observed failed units have empty ControlGroup, MemoryCurrent, and TasksCurrent"},
+    "SocketAuthorization": {"Classification": "BLOCKED", "Observed": "Systemd listener/configuration observed; filesystem stat and authorized positive/negative access not performed"},
+    "Bubblewrap": {"Classification": "BLOCKED", "Observed": "Launcher configuration inspected; no activated process namespace or mount probe"},
+    "FilesystemIsolation": {"Classification": "BLOCKED", "Observed": "No authorized sentinel denial test"},
+    "NetworkIsolation": {"Classification": "BLOCKED", "Observed": "No authorized effective namespace denial test"},
+    "SelinuxContext": {"Classification": "BLOCKED", "Observed": "Host enforcement observed; worker/socket contexts unavailable"},
+    "ResourceEnforcement": {"Classification": "BLOCKED", "Observed": "Declared limits observed; no live cgroup or bounded termination test"},
+    "ApplicationBudgets": {"Classification": "BLOCKED", "Observed": "Existing source/tests preserve budgets; no current worker request executed"},
+    "TypedCapabilities": {"Classification": "BLOCKED", "Observed": "No current authorized valid/invalid capability requests"},
+    "ProductionActivation": {"Classification": "BLOCKED", "Observed": "Socket installation is not proof that production wiki Lua is enabled; effective application configuration was not inspected"}
+  },
+  "CertificationMatrix": [
+    {"Control": "Activation pathway", "Classification": "BLOCKED", "Reason": "Authorization gate prevented activation."},
+    {"Control": "Worker process identity", "Classification": "BLOCKED", "Reason": "No live PID."},
+    {"Control": "systemd cgroup membership", "Classification": "BLOCKED", "Reason": "No active ControlGroup."},
+    {"Control": "Socket authorization", "Classification": "BLOCKED", "Reason": "No authorized positive or approved negative test."},
+    {"Control": "bubblewrap namespace isolation", "Classification": "BLOCKED", "Reason": "No effective namespace observation."},
+    {"Control": "Filesystem restrictions", "Classification": "BLOCKED", "Reason": "No sentinel denial test."},
+    {"Control": "Network isolation", "Classification": "BLOCKED", "Reason": "No effective denial test."},
+    {"Control": "SELinux enforcement and context", "Classification": "BLOCKED", "Reason": "Enforcement observed; runtime contexts unavailable."},
+    {"Control": "Host resource limits", "Classification": "BLOCKED", "Reason": "Declared limits only."},
+    {"Control": "Application execution budgets", "Classification": "BLOCKED", "Reason": "No current worker execution."},
+    {"Control": "Typed capability restrictions", "Classification": "BLOCKED", "Reason": "No current authorized protocol probes."},
+    {"Control": "Production activation policy", "Classification": "BLOCKED", "Reason": "Effective application state not inspected."}
+  ],
+  "ProductionSafety": {"ProductionLuaActivated": false, "PositiveCargoActivated": false, "ProductionServiceRestarted": false, "SystemdChanged": false, "SocketPermissionsChanged": false, "BinaryChanged": false, "SelinuxChanged": false, "ProductionDataChanged": false, "SecretsRead": false},
+  "Verification": {"JsonValidation": "PASSED", "DiffCheck": "PASSED", "FullRegression": "NOT_RUN; no application source or test changes"},
+  "RemainingBlockers": ["Explicit operator authorization for diagnostic activation", "Effective dedicated identity with socket-group access", "Current journal access sufficient to classify exit 1/134 failures", "Live worker PID and service cgroup", "Authorized runtime isolation, resource, capability, and SELinux-context probes"],
+  "RecommendedNextAction": "Run the documented malformed synthetic socket probe and host certification harness from an explicitly authorized operator terminal as continuumwiki-scribunto; preserve initial and retry outcomes independently.",
+  "EvidenceReferences": ["docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md", "deploy/systemd/continuumwiki-scribunto-worker.socket", "deploy/systemd/continuumwiki-scribunto-worker@.service", "deploy/systemd/continuumwiki-scribunto-worker-launcher", "scripts/verify-moonsharp-host-sandbox.sh", "artifacts/validation/mediawiki-scribunto-host-certification-v1.json", "artifacts/validation/mediawiki-real-socket-execution-v1.json"]
+}

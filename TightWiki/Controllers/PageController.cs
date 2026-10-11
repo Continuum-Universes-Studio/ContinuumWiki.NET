@@ -24,6 +24,7 @@ using TightWiki.Plugin.Models;
 using TightWiki.RequestModels;
 using TightWiki.Repository.Helpers;
 using TightWiki.ViewModels.Page;
+using TightWiki;
 using static TightWiki.Plugin.TwConstants;
 using TwPermission = TightWiki.Plugin.TwPermission;
 
@@ -49,6 +50,8 @@ namespace TightWiki.Controllers
         )
         : TwController<PageController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
+        private static readonly TimeSpan StylesheetAssetLifetime = TimeSpan.FromHours(1);
+
         [AllowAnonymous]
         [Route("/robots.txt")]
         public ContentResult RobotsTxt()
@@ -257,6 +260,7 @@ namespace TightWiki.Controllers
                         if (MemCache.TryGet<TwPageCache>(cacheKey, out var cached))
                         {
                             model.Body = cached.Body;
+                            model.StylesheetUrls = BuildStylesheetUrls(cached.Stylesheets);
                             SessionState.PageTitle = cached.PageTitle;
                             MemCache.Set(cacheKey, cached); //Update the cache expiration.
                         }
@@ -266,11 +270,13 @@ namespace TightWiki.Controllers
                             SessionState.PageTitle = rendered.PageTitle;
 
                             model.Body = rendered.Body;
+                            model.StylesheetUrls = BuildStylesheetUrls(rendered.Stylesheets);
                             if (rendered.NoCache == false)
                             {
                                 var toBeCached = new TwPageCache(rendered.Body)
                                 {
-                                    PageTitle = rendered.PageTitle
+                                    PageTitle = rendered.PageTitle,
+                                    Stylesheets = rendered.Stylesheets
                                 };
 
                                 MemCache.Set(cacheKey, toBeCached); //This is cleared with the call to Cache.ClearCategory($"Page:{page.Navigation}");
@@ -282,7 +288,9 @@ namespace TightWiki.Controllers
                         var expansionContext = renderSource.Format == TwPageSourceFormat.ImportedMediaWiki
                             ? mediaWikiRenderer.CreateExpansionContext(renderSource, CultureInfo.CurrentUICulture, SessionState.GetPreferredTimeZone())
                             : null;
-                        model.Body = (await RenderPageAsync(page, pageRevision, renderSource, tightEngine, mediaWikiRenderer, expansionContext)).Body;
+                        var rendered = await RenderPageAsync(page, pageRevision, renderSource, tightEngine, mediaWikiRenderer, expansionContext);
+                        model.Body = rendered.Body;
+                        model.StylesheetUrls = BuildStylesheetUrls(rendered.Stylesheets);
                     }
 
                     if (WikiConfiguration.EnablePageComments && WikiConfiguration.ShowCommentsOnPageFooter && model.HideFooterComments == false)
@@ -359,7 +367,102 @@ namespace TightWiki.Controllers
             }
         }
 
-        private async Task<(string Body, string? PageTitle, bool NoCache)> RenderPageAsync(
+        /// <summary>
+        /// Serves only a renderer-approved, signed TemplateStyles identity.
+        /// Every request rechecks the current source-page permission and
+        /// re-resolves the exact historical source revision before returning
+        /// sanitized CSS. Invalid, stale, deleted, suppressed, restricted,
+        /// or unauthorized identities intentionally share a not-found result.
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet("Page/TemplateStyles")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> TemplateStyles(string? t)
+        {
+            Response.Headers["X-Content-Type-Options"] = "nosniff";
+            Response.Headers["Cache-Control"] = "private, no-store";
+            Response.Headers["Pragma"] = "no-cache";
+
+            MediaWikiStylesheetAssetPayload? payload = null;
+            var tokenValid = false;
+            try
+            {
+                tokenValid = !string.IsNullOrWhiteSpace(t)
+                    && t.Length <= 8192
+                    && TwSignedUrl.TryUnprotect(t, out payload)
+                    && payload is not null;
+            }
+            catch (InvalidOperationException)
+            {
+                // Data Protection is initialized during application startup;
+                // an unavailable protector must fail closed in every host.
+                tokenValid = false;
+            }
+
+            if (!tokenValid || payload is null || !IsValidStylesheetAssetPayload(payload))
+            {
+                return NotFound();
+            }
+            var assetPayload = payload;
+
+            try
+            {
+                var sourcePage = await mediaWikiImportRepository.ResolvePageAsync(
+                    assetPayload.ImportBatchId,
+                    assetPayload.SourceTitle,
+                    HttpContext.RequestAborted);
+                if (sourcePage is null)
+                {
+                    return NotFound();
+                }
+
+                // A deleted target page is not an authorized source, even if
+                // its import provenance row still exists.
+                var liveSourcePage = await applicationPageRepository.GetPageByIdAsync(
+                    sourcePage.TargetPageId,
+                    cancellationToken: HttpContext.RequestAborted);
+                if (liveSourcePage is null
+                    || !await SessionState.HoldsPermission(sourcePage.TargetNavigation, TwPermission.Read))
+                {
+                    return NotFound();
+                }
+
+                var provenance = new TwMediaWikiRenderSource(
+                    TwPageSourceFormat.ImportedMediaWiki,
+                    ImportBatchId: assetPayload.ImportBatchId,
+                    SourceTimestampUtc: assetPayload.SourceTimestampUtc);
+                var resolution = await MediaWikiTemplateStylesCompatibility.ResolveAsync(
+                    mediaWikiImportRepository,
+                    provenance,
+                    assetPayload.SourceTitle,
+                    mediaWikiRenderer.Options,
+                    HttpContext.RequestAborted);
+                var stylesheet = resolution.Stylesheet;
+                if (stylesheet is null
+                    || !string.Equals(stylesheet.SourcePageId, assetPayload.SourcePageId, StringComparison.Ordinal)
+                    || !string.Equals(stylesheet.SourceRevisionId, assetPayload.SourceRevisionId, StringComparison.Ordinal)
+                    || stylesheet.TargetRevision != assetPayload.TargetRevision
+                    || !string.Equals(stylesheet.SourceSha256, assetPayload.SourceSha256, StringComparison.OrdinalIgnoreCase)
+                    || !string.Equals(stylesheet.SanitizerPolicyVersion, assetPayload.SanitizerPolicyVersion, StringComparison.Ordinal)
+                    || !string.Equals(stylesheet.SanitizedCssSha256, assetPayload.SanitizedCssSha256, StringComparison.OrdinalIgnoreCase))
+                {
+                    return NotFound();
+                }
+
+                return Content(stylesheet.SanitizedCss, "text/css", Encoding.UTF8);
+            }
+            catch (OperationCanceledException) when (HttpContext.RequestAborted.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception exception)
+            {
+                Logger.LogWarning(exception, "TemplateStyles asset resolution failed without exposing asset details.");
+                return NotFound();
+            }
+        }
+
+        private async Task<(string Body, string? PageTitle, bool NoCache, IReadOnlyList<TwMediaWikiStylesheet> Stylesheets)> RenderPageAsync(
             TwPage page,
             int? requestedRevision,
             TwMediaWikiRenderSource renderSource,
@@ -370,12 +473,61 @@ namespace TightWiki.Controllers
             if (renderSource.Format == TwPageSourceFormat.ImportedMediaWiki)
             {
                 var result = await mediaWikiRenderer.RenderAsync(page.Body, renderSource, HttpContext.RequestAborted, expansionContext);
-                return (result.HtmlResult, null, result.DependsOnCurrentTime);
+                return (result.HtmlResult, null, result.DependsOnCurrentTime, result.Stylesheets?.Select(ToCacheStylesheet).ToList() ?? []);
             }
 
             var state = await tightEngine.Transform(Localizer, SessionState, page, requestedRevision);
-            return (state.HtmlResult, state.PageTitle, state.ProcessingInstructions.Contains(TwInstruction.NoCache));
+            return (state.HtmlResult, state.PageTitle, state.ProcessingInstructions.Contains(TwInstruction.NoCache), []);
         }
+
+        private List<string> BuildStylesheetUrls(IReadOnlyList<TwMediaWikiStylesheet> stylesheets)
+            => stylesheets.Select(stylesheet =>
+            {
+                var payload = new MediaWikiStylesheetAssetPayload(
+                    stylesheet.ImportBatchId,
+                    stylesheet.SourceTitle,
+                    stylesheet.SourcePageId,
+                    stylesheet.SourceRevisionId,
+                    stylesheet.TargetRevision,
+                    stylesheet.SourceTimestampUtc,
+                    stylesheet.SourceSha256,
+                    stylesheet.SanitizerPolicyVersion,
+                    stylesheet.SanitizedCssSha256);
+                var token = TwSignedUrl.Protect(payload, StylesheetAssetLifetime);
+                var path = string.IsNullOrEmpty(WikiConfiguration.BasePath)
+                    ? "/Page/TemplateStyles"
+                    : $"{WikiConfiguration.BasePath}/Page/TemplateStyles";
+                return $"{path}?t={token}";
+            }).ToList();
+
+        private static TwMediaWikiStylesheet ToCacheStylesheet(MediaWikiStylesheet stylesheet)
+            => new(
+                stylesheet.ImportBatchId ?? throw new InvalidOperationException("A MediaWiki stylesheet is missing its import-batch provenance."),
+                stylesheet.SourceTitle,
+                stylesheet.SourcePageId,
+                stylesheet.SourceRevisionId,
+                stylesheet.TargetRevision,
+                stylesheet.SourceTimestampUtc,
+                stylesheet.ContentModel,
+                stylesheet.SourceSha256,
+                stylesheet.ScopeSelector,
+                stylesheet.CacheKey,
+                stylesheet.SanitizerPolicyVersion,
+                stylesheet.SanitizedCssSha256 ?? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(stylesheet.SanitizedCss))),
+                stylesheet.ReferenceOrder);
+
+        private static bool IsValidStylesheetAssetPayload(MediaWikiStylesheetAssetPayload payload)
+            => payload.ImportBatchId > 0
+                && payload.TargetRevision > 0
+                && payload.SourceTitle is { Length: > 0 and <= 512 }
+                && payload.SourcePageId is { Length: > 0 and <= 128 }
+                && payload.SourceRevisionId is { Length: > 0 and <= 128 }
+                && IsSha256(payload.SourceSha256)
+                && string.Equals(payload.SanitizerPolicyVersion, MediaWikiTemplateStylesCompatibility.SanitizerPolicyVersion, StringComparison.Ordinal)
+                && IsSha256(payload.SanitizedCssSha256);
+
+        private static bool IsSha256(string value)
+            => value is { Length: 64 } && value.All(Uri.IsHexDigit);
 
         /// <summary>
         /// Renders the configured sidebar page, or returns null when the sidebar is disabled or the current user

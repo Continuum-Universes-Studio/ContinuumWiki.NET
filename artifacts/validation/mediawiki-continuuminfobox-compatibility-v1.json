@@ -1,0 +1,112 @@
+{
+  "ReportVersion": "cw-m3-007c-continuuminfobox-compatibility-v1",
+  "GeneratedAtUtc": "2026-10-11T14:55:06Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "ExternalReference": {
+    "Repository": "Continuum-Universes-Studio/mediawiki-extension-ContinuumInfobox",
+    "Commit": "a349f07dd34fa92135e61dd6dab57392499ad01d",
+    "Branch": "main",
+    "MediaWikiCompatibility": ">= 1.45.0",
+    "InspectedFiles": [
+      "README.md",
+      "extension.json",
+      "src/Hooks.php",
+      "src/Render/InfoboxRenderer.php",
+      "src/Schema/InfoboxSchema.php",
+      "src/Schema/InfoboxSchemaRegistry.php",
+      "src/Import/PortableInfoboxXmlReader.php",
+      "src/Import/PortableInfoboxSchemaConverter.php",
+      "src/Import/TemplateCallMigrator.php",
+      "schemas/curated/species.php",
+      "schemas/curated/generic.php",
+      "schemas/parts/base_lore.php",
+      "resources/ext.continuumInfobox.styles/infobox.less"
+    ],
+    "Architecture": "ParserFirstCallInit registers #cuinfobox; PHP schema registry and renderer produce HTML. It is not a Lua/Scribunto implementation."
+  },
+  "Implementation": {
+    "Status": "IMPLEMENTED_BOUNDED_SUBSET",
+    "Files": [
+      "TightWiki.Engine/MediaWiki/MediaWikiInfobox.cs",
+      "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs",
+      "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+      "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs"
+    ],
+    "NativeParserFunction": "#cuinfobox:type|field=value",
+    "LegacyAdapter": "Well-formed bounded <infobox> title/image/caption/data/group markup is converted to an internal typed token; DTDs, external entities, excessive XML, unknown elements, panels, navigation, and arbitrary attributes receive typed diagnostics and remain on the existing unsupported path.",
+    "RenderingBoundary": "Typed tokens are rendered by the existing bounded inline parser. Labels, attributes, links, media, and text use the existing allow-list and HTML encoding path.",
+    "SchemaInterchange": "Versioned schemaVersion=1 JSON supports bounded serialization/deserialization of immutable schema records; registry validation enforces maximum schema/field/group/alias counts, inheritance depth, duplicate detection, allowlisted layouts, alias targets, missing parts, and inheritance-cycle rejection. PHP is never executed.",
+    "SupportedSchemaFeatures": ["type and label", "title/subtitle/image/caption fields", "aliases", "field and group ordering", "nested dotted and bracket field paths", "horizontal groups", "unknown-field policy", "schema inheritance and packs"],
+    "BuiltInSchemas": ["generic", "species", "character", "divine"],
+    "UnsupportedConstructs": ["panel", "navigation", "unknown PortableInfobox elements", "unverified media panels", "PHP schema execution", "Cargo/Lua dependencies"],
+    "PreservedSecurity": [
+      "No PHP execution",
+      "No arbitrary imported HTML",
+      "No arbitrary URLs or external fetches",
+      "No database/provider access",
+      "Existing input, field, parse, expansion, diagnostic, and output budgets remain in force",
+      "RejectingMediaWikiScribuntoExecutor remains the default",
+      "Production Lua remains disabled"
+    ]
+  },
+  "DependencyAudit": {
+    "SourceExport": "Historical module inventory and dependency reports under artifacts/validation; source bodies are not regenerated or rewritten.",
+    "Jovan": {
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "PageTitle": "Jovan",
+      "SourcePageId": "534",
+      "SourceRevisionId": "9482",
+      "Invocation": "{{#invoke:DivineTree|renderLocal}}",
+      "RootModule": {
+        "Title": "Module:DivineTree",
+        "SourcePageId": "2035",
+        "SourceRevisionId": "9481",
+        "Selection": "Latest inventoried revision not later than the Jovan source revision timestamp",
+        "RecordedCargoCallSites": [
+          {"Line": 11, "Expression": "mw.ext.cargo.query(tables, fields, {where=where})"},
+          {"Line": 33, "Expression": "cargoQuery('Divines', 'Name, Father, Mother, Children', where)"},
+          {"Line": 78, "Expression": "cargoQuery(...); exact arguments are data-dependent"}
+        ]
+      },
+      "MissingTemplate": {
+        "Title": "Template:Divine",
+        "Classification": "AVAILABLE_IN_SOURCE_INVENTORY_NOT_SELECTED_OR_RESOLUTION_FAILED",
+        "SourceInventoryEvidence": {
+          "Path": "artifacts/validation/mediawiki-full-invocation-inventory-v1.json",
+          "SourcePageId": "520",
+          "RequiredRevisionId": "9469",
+          "RequiredRevisionTimestamp": "2026-03-13T05:24:23+00:00",
+          "Evidence": "The inventory records Template:Divine@9469 invoking Module:DivineMeta and Module:DivineFamily. It also records the preceding Template:Divine@9468 revision. This is revision/invocation evidence, not the source body itself."
+        },
+        "Importer": "The Jovan runtime reaches Template:Divine from Module:DivineTree@9481. The authorized full invocation inventory contains the required page identity (source page 520, revision 9469), but the disposable diagnostic context did not resolve/import that revision. This is a source-selection or dependency-closure defect, not evidence that Template:Divine is absent from the authorized source inventory.",
+        "RuntimeEvidence": "Continuum output diagnostic MissingTemplate: MediaWiki template 'Divine' was not safely resolved for this imported source.",
+        "Reachability": "REACHED_BY_CAPTURED_JOVAN_INVOCATION",
+        "RequiredRevision": "Template:Divine@9469 (source page 520; 2026-03-13T05:24:23+00:00)",
+        "ReplacementPolicy": "Select only Template:Divine@9469 for the Jovan context after verifying its source body/hash in the authorized export. Do not fabricate it or substitute a later revision. Then resolve Module:DivineFamily@9467 and the separately blocked Module:DivineMeta dependency under the same historical timestamp rules."
+      },
+      "OtherModules": [
+        {"Title": "Module:DivineFamily", "RevisionId": "9467", "Status": "Available", "Reachability": "Conditional family paths; Cargo-dependent"},
+        {"Title": "Module:DivineMeta", "RevisionId": null, "Status": "BLOCKED", "RequiredAsOfRevision": "9469", "NearestLaterRevision": "9470", "Reason": "No inventoried revision at or before source revision; later revision is not a valid historical substitution."}
+      ],
+      "CargoStatus": "Historical Cargo rows and revision-correlated snapshots remain unavailable; current snapshot evidence is not substituted."
+    },
+    "StrictImportPolicy": "UNCHANGED; source-persistence safety and historical dependency completeness remain separate gates."
+  },
+  "Verification": {
+    "FocusedRendererTests": {"Passed": 35, "Failed": 0},
+    "FullDebugTests": {"Passed": 273, "Skipped": 22, "Total": 295, "Failed": 0},
+    "ReleaseBuild": {"Warnings": 0, "Errors": 0},
+    "RepositoryDiffCheck": "PASSED",
+    "RealMariaDbHarnessRerun": "NOT_RUN; dependency report is being issued before another disposable import cycle.",
+    "RealWorkerExecution": "NOT_RUN_BY_THIS_CHANGE",
+    "ReferenceArtifacts": "UNCHANGED",
+    "CompatibilityParity": "NOT_CLAIMED"
+  },
+  "NextEvidenceRequired": [
+    "Authorized export body and content hash for Template:Divine@9469 (source page 520), followed by strict dependency-closure selection",
+    "Authorized Module:DivineMeta revision at or before source revision 9469",
+    "Historical Cargo dataset tied to the requested page/module revisions",
+    "Original MediaWiki reference output remains the independent comparison oracle"
+  ],
+  "Verdict": "Implementation verified; source dependencies partially blocked."
+}

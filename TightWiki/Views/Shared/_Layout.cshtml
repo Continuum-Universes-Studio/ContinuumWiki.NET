@@ -75,6 +75,8 @@
     <link rel="stylesheet" href="@FileVersion.AddFileVersionToPath(Context.Request.PathBase, Url.Content("~/css/base.css"))" />
     <link rel="stylesheet" href="@FileVersion.AddFileVersionToPath(Context.Request.PathBase, Url.Content("~/css/continuum.css"))" />
 
+    @RenderSection("Styles", required: false)
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.14.1/jquery-ui.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

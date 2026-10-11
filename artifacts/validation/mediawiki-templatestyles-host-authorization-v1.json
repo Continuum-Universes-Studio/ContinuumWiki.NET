@@ -1,0 +1,128 @@
+{
+  "ReportVersion": "mediawiki-templatestyles-host-authorization-v1",
+  "Milestone": "CW-M5-003",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "FinalClassification": "BLOCKED",
+  "ExecutionScope": "Static application-path audit, existing disposable-free renderer/loopback evidence, and authorization-gate regression only",
+  "FollowUpExecution": {
+    "Milestone": "CW-M5-003A",
+    "Report": "artifacts/validation/mediawiki-templatestyles-host-authorization-m5-003a-v1.json",
+    "OperationsProcedure": "docs/operations/CW-M5-003A-DISPOSABLE-MYSQL-CERTIFICATION.md",
+    "Status": "PREPARED_NOT_EXECUTED",
+    "Classification": "HOST_AUTHORIZATION_BLOCKED"
+  },
+  "HostAuthorization": {
+    "Status": "BLOCKED",
+    "ExplicitDisposableConnectionPresent": false,
+    "ExplicitHostAuthorizationPresent": false,
+    "ProductionConnectionFallbackAttempted": false,
+    "DatabaseWritesPerformed": false,
+    "Reason": "No CONTINUUMWIKI_MYSQL_TEST_CONNECTION or CONTINUUMWIKI_M5_003_HOST_AUTHORIZED=1 was present in the execution environment."
+  },
+  "TestEnvironment": {
+    "Target": "Guarded unique cw_m5_003_* child database on an operator-supplied disposable MySQL server",
+    "ConnectionPresent": false,
+    "DatabaseWritesPerformed": false,
+    "CredentialOrCookiePersistence": "NOT_EXECUTED"
+  },
+  "TestIdentities": {
+    "AnonymousVisitor": "GUARDED_SCENARIO_NOT_EXECUTED",
+    "AuthorizedRegisteredViewer": "GUARDED_SCENARIO_NOT_EXECUTED",
+    "UnauthorizedRegisteredViewer": "GUARDED_SCENARIO_NOT_EXECUTED",
+    "RevocableRegisteredViewer": "GUARDED_SCENARIO_NOT_EXECUTED",
+    "DeletionScenarioViewer": "GUARDED_SCENARIO_NOT_EXECUTED"
+  },
+  "AuthenticationPipeline": {
+    "Provider": "ASP.NET Core Identity with MySQL Entity Framework store",
+    "Registration": "TightWiki/MySqlDevelopmentRuntime.cs AddMySqlIdentity",
+    "Middleware": [
+      "UseRouting",
+      "UseAuthentication",
+      "UseAuthorization"
+    ],
+    "PersistedIdentityVerification": "NOT_EXECUTED",
+    "RealCookieVerification": "NOT_EXECUTED"
+  },
+  "TemplateStylesAuthorization": {
+    "Endpoint": "GET /Page/TemplateStyles?t=<signed Data Protection identity>",
+    "Attribute": "AllowAnonymous with explicit per-request fail-closed authorization",
+    "Checks": [
+      "bounded signed identity",
+      "live source page",
+      "current Read permission through TwSessionState",
+      "historical source revision",
+      "source and sanitized CSS hashes",
+      "sanitizer policy identity"
+    ],
+    "UnauthorizedResponse": "404",
+    "DeletedOrSuppressedResponse": "404",
+    "ResponseHeaders": {
+      "ContentType": "text/css; charset=utf-8",
+      "XContentTypeOptions": "nosniff",
+      "CacheControl": "private, no-store",
+      "Pragma": "no-cache"
+    }
+  },
+  "Results": {
+    "AuthorizedStylesheetAccess": "UNEXECUTED_HOST_CHECK; existing loopback/controller evidence only",
+    "UnauthorizedStylesheetAccess": "UNEXECUTED_HOST_CHECK; existing loopback/controller evidence only",
+    "PermissionRevocationOldUrl": "UNAVAILABLE_HOST_AUTHORIZATION; guarded test includes same-session old-URL and post-revocation conditional-request assertions",
+    "DeletedSource": "UNAVAILABLE_HOST_AUTHORIZATION; guarded real-host assertion exists",
+    "SuppressedSource": "UNAVAILABLE_HOST_AUTHORIZATION; guarded real-host assertion exists",
+    "ConditionalGetAfterRevocation": "UNAVAILABLE_HOST_AUTHORIZATION; guarded assertion exists",
+    "ConcurrentIdentityIsolation": "UNAVAILABLE_HOST_AUTHORIZATION; guarded assertion exists",
+    "CspBrowserEnforcement": "UNAVAILABLE; browser enforcement was not executed",
+    "CspApplicationHeader": "NOT_PRESENT_IN_REPOSITORY_HOST_CONFIGURATION; no CSP middleware/header was found",
+    "SameOriginStylesheetUrl": "GUARDED_ASSERTION_EXISTS; runtime not executed",
+    "RawCssServed": false,
+    "UnsafeInlineCspAdded": false
+  },
+  "Tests": {
+    "AuthorizationGateTest": "PASSED; requires explicit disposable target and host authorization",
+    "GuardedHostCoverage": "Real cookie issuance/validation, logout invalidation, persisted page/source permissions, unauthorized access, same-session revocation, deleted/suppressed sources, conditional requests before/after revocation, bounded concurrency, sanitized scoped CSS, and security headers",
+    "HostTestCommand": "CONTINUUMWIKI_RUN_MYSQL_TESTS=1 CONTINUUMWIKI_M5_003_HOST_AUTHORIZED=1 CONTINUUMWIKI_MYSQL_TEST_CONNECTION='<operator-supplied disposable cw_m5_003_* connection>' dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiTemplateStylesHostAuthorizationTests|FullyQualifiedName~MediaWikiTemplateStylesMySqlHostTests'",
+    "HostTestResult": "PASSED: 1 gate test; SKIPPED: 1 real-MySQL host test because explicit disposable authorization was absent; FAILED: 0",
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiTemplateStylesHostAuthorizationTests|FullyQualifiedName~MediaWikiTemplateStylesDeliveryTests|FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedResult": "PASSED: 53 passed, 0 failed, 0 skipped",
+    "ExistingFocusedEvidence": "Includes the existing synthetic/loopback delivery checks; no persisted host identity was used",
+    "HostFocusedCommand": "CONTINUUMWIKI_RUN_MYSQL_TESTS=1 CONTINUUMWIKI_M5_003_HOST_AUTHORIZED=1 CONTINUUMWIKI_MYSQL_TEST_CONNECTION='<operator-supplied disposable cw_m5_003_* connection>' dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiTemplateStylesHostAuthorizationTests|FullyQualifiedName~MediaWikiTemplateStylesMySqlHostTests'",
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "PASSED: 299 passed, 23 skipped, 0 failed, 322 total; the guarded real-MySQL host test skipped because explicit authorization was absent",
+    "ReleaseBuildCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseBuildResult": "PASSED: 0 warnings, 0 errors",
+    "ApplicationReleaseBuildCommand": "dotnet build TightWiki/TightWiki.csproj -c Release --no-restore -m:1",
+    "ApplicationReleaseBuildResult": "PASSED: 0 warnings, 0 errors"
+  },
+  "Defects": {
+    "Confirmed": [],
+    "Fixed": [],
+    "PotentialFollowUp": [
+      "Run real permission-revocation sequence to verify current TwSessionState permission-cache invalidation semantics."
+    ]
+  },
+  "SecurityPreservation": {
+    "ProductionDatabaseModified": false,
+    "ProductionAuthenticationAccessed": false,
+    "ProductionMediaWikiModified": false,
+    "LuaActivated": false,
+    "CargoActivated": false,
+    "SystemdOrBubblewrapModified": false,
+    "CspWeakened": false,
+    "RawCssServed": false
+  },
+  "RemainingCertificationGaps": [
+    "Actual disposable persisted identities and Identity cookies",
+    "Application-host permission revocation using the same session and old asset URL",
+    "Deleted/suppressed source checks through the host",
+    "Conditional GET authorization ordering",
+    "Bounded concurrent identity isolation",
+    "Browser-level CSP enforcement"
+  ],
+  "ChangedFiles": [
+    "TightWiki.Tests/Integration/MediaWikiTemplateStylesHostAuthorizationTests.cs",
+    "TightWiki.Tests/Integration/MediaWikiTemplateStylesMySqlHostTests.cs",
+    "docs/architecture/CW-M5-003-TEMPLATESTYLES-HOST-AUTHORIZATION.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-templatestyles-host-authorization-v1.json"
+  ]
+}

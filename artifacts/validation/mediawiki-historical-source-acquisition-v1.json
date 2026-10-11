@@ -1,0 +1,463 @@
+{
+  "ReportVersion": "cw-m4-004-mediawiki-historical-source-acquisition-v1",
+  "GeneratedAtUtc": "2026-10-11",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "WorkingTree": "DIRTY; pre-existing implementation, generated build, validation, and documentation changes were preserved.",
+  "Status": "SOURCE_INVESTIGATION_VERIFIED_ACQUISITION_BLOCKED",
+  "FinalClassification": "Source investigation verified; acquisition blocked.",
+  "Scope": {
+    "ExternalAcquisitionAttempted": false,
+    "ProductionMediaWikiAccessAttempted": false,
+    "ProductionDatabaseAccessAttempted": false,
+    "BackupAccessAttempted": false,
+    "CargoAcquired": false,
+    "WorkerActivated": false,
+    "DatabaseWrites": false,
+    "ProductionConfigurationChanged": false,
+    "OriginalReferencesModified": false,
+    "ExistingComparisonsModified": false,
+    "AuthenticatedCargoSnapshotModified": false
+  },
+  "AuthorizationResults": [
+    {
+      "Source": "Existing operator-supplied local/private validation files",
+      "SourceType": "LOCAL_FILE_EVIDENCE",
+      "Authorization": "AUTHORIZED",
+      "Scope": "Read-only inspection of existing files and reports",
+      "Evidence": "/home/cdjensen94/continuumwiki-validation",
+      "Limitation": "Local read access does not authorize new production acquisition or database access."
+    },
+    {
+      "Source": "Repository synthetic MediaWiki fixtures",
+      "SourceType": "SYNTHETIC_LOCAL_FIXTURES",
+      "Authorization": "AUTHORIZED",
+      "Scope": "Read-only implementation tests only",
+      "Evidence": "MediaWikiInventory/Fixtures/*.xml",
+      "Limitation": "These files do not contain the authentic historical Jovan dependency bodies."
+    },
+    {
+      "Source": "Production MediaWiki read-only API",
+      "SourceType": "PRODUCTION_EXTERNAL_SYSTEM",
+      "Authorization": "AUTHORIZATION_UNVERIFIED",
+      "Scope": "No new API request made",
+      "Evidence": "No current acquisition approval or operator command was present in the inspected readiness procedures.",
+      "Limitation": "Prior reference captures do not authorize a new source export or revision-content retrieval."
+    },
+    {
+      "Source": "Production MediaWiki database",
+      "SourceType": "PRODUCTION_DATABASE",
+      "Authorization": "NOT_AUTHORIZED",
+      "Scope": "No connection or query made",
+      "Evidence": "CW-M4-003 readiness boundaries",
+      "Limitation": "A connection string or authenticated account would not by itself establish acquisition authorization."
+    },
+    {
+      "Source": "Historical MediaWiki backup/archive",
+      "SourceType": "BACKUP_OR_ARCHIVE",
+      "Authorization": "SOURCE_UNAVAILABLE",
+      "Scope": "No archive opened or accessed",
+      "Evidence": "Local/private candidate inventory found no MediaWiki XML, dump, or historical source archive.",
+      "Limitation": "No archive identity, source wiki identity, or approval record is available."
+    },
+    {
+      "Source": "Export-generation tools or privileged source access",
+      "SourceType": "EXTERNAL_TOOLING",
+      "Authorization": "AUTHORIZATION_UNVERIFIED",
+      "Scope": "No tool invoked and no permission changed",
+      "Evidence": "CW-M4-003 operational plan",
+      "Limitation": "No operator identity or approval authority was invented."
+    }
+  ],
+  "ExistingSourceInventory": {
+    "Status": "METADATA_ONLY_NO_AUTHENTICATED_RAW_BODY",
+    "SourceExportIdentity": "5a6d6ad13e9b0f3315053db8168bbbfbf6bc3d0983cd9bd835d4c9a956a38afd",
+    "SourceExportPathExpectedByExistingHarness": "artifacts/imports/mediawiki/continuumwiki-full-with-files.xml",
+    "SourceExportPresent": false,
+    "PrivateRawExportPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-full-with-files.xml",
+    "PrivateRawExportPresent": false,
+    "EvidenceRecords": [
+      {
+        "EvidenceId": "module-inventory",
+        "Type": "HISTORICAL_REVISION_METADATA",
+        "Path": "artifacts/validation/mediawiki-module-inventory-v1.json",
+        "Sha256": "c1db52237a8ce91a85ef65dd972ccbf42dea3b92df4c5d4c237a1d1e10626b07",
+        "ContentAvailability": "METADATA_AND_RECORDED_HASHES_ONLY",
+        "RawBodiesAvailable": false,
+        "ProvenanceConfidence": "EXISTING_OPERATOR_VALIDATION_ARTIFACT",
+        "ImmutableForThisTask": true,
+        "IndependentlyReverified": true
+      },
+      {
+        "EvidenceId": "invocation-inventory",
+        "Type": "HISTORICAL_INVOCATION_METADATA",
+        "Path": "artifacts/validation/mediawiki-full-invocation-inventory-v1.json",
+        "Sha256": "87e950cbaae49849ecd023332718638eeaca5f46196074080161deae71d9ebe4",
+        "ContentAvailability": "INVOCATION_METADATA_ONLY",
+        "RawBodiesAvailable": false,
+        "ProvenanceConfidence": "EXISTING_OPERATOR_VALIDATION_ARTIFACT",
+        "ImmutableForThisTask": true,
+        "IndependentlyReverified": true
+      },
+      {
+        "EvidenceId": "compatibility-corpus",
+        "Type": "FIXTURE_INVOCATION_METADATA",
+        "Path": "artifacts/validation/mediawiki-compatibility-corpus-v1.json",
+        "Sha256": "85239bbccbfd0b4f6c9007cae2363670570910f972f512b05847bb7c3e372bb5",
+        "ContentAvailability": "FIXTURE_METADATA_ONLY",
+        "RawBodiesAvailable": false,
+        "ProvenanceConfidence": "EXISTING_VALIDATED_CORPUS",
+        "ImmutableForThisTask": true,
+        "IndependentlyReverified": true
+      },
+      {
+        "EvidenceId": "private-reference-captures",
+        "Type": "INDEPENDENT_MEDIAWIKI_REFERENCE_OUTPUT",
+        "Path": "/home/cdjensen94/continuumwiki-validation/references",
+        "ContentAvailability": "RENDERED_HTML_AND_API_HASHES; NOT_RAW_SOURCE",
+        "RawBodiesAvailable": false,
+        "ProvenanceConfidence": "OPERATOR_SUPPLIED_PRIVATE_REFERENCE_EVIDENCE",
+        "ImmutableForThisTask": true,
+        "IndependentlyReverified": true
+      },
+      {
+        "EvidenceId": "repository-fixtures",
+        "Type": "SYNTHETIC_MEDIAWIKI_XML",
+        "Path": "MediaWikiInventory/Fixtures",
+        "ContentAvailability": "RAW_SYNTHETIC_FIXTURE_BODIES",
+        "RawBodiesAvailable": true,
+        "ProvenanceConfidence": "REPOSITORY_SYNTHETIC_ONLY",
+        "ImmutableForThisTask": true,
+        "IndependentlyReverified": true,
+        "HistoricalUse": "NOT_AUTHENTIC_SOURCE_EVIDENCE"
+      },
+      {
+        "EvidenceId": "local-sql-artifact",
+        "Type": "UNRELATED_CONTINUUMWIKI_SQL_ARTIFACT",
+        "Path": "@Utility/tightwikidata.db.sql",
+        "ContentAvailability": "NOT_TREATED_AS_MEDIAWIKI_SOURCE",
+        "RawBodiesAvailable": false,
+        "ProvenanceConfidence": "NOT_APPLICABLE",
+        "ImmutableForThisTask": true,
+        "HistoricalUse": "EXCLUDED; not a MediaWiki export or historical source package"
+      }
+    ],
+    "PrivatePackage": {
+      "Status": "NOT_PREPARED_SOURCE_BODIES_UNAVAILABLE",
+      "DatasetId": null,
+      "Path": null,
+      "Manifest": null,
+      "RawBodiesWritten": false,
+      "ExistingPackageOverwritten": false
+    }
+  },
+  "TargetRevisionInventory": [
+    {
+      "Title": "Jovan",
+      "PageId": "534",
+      "RevisionId": "9482",
+      "Timestamp": "2026-03-13T08:16:42+00:00",
+      "ContentModel": "METADATA_NOT_RECORDED_IN_CURRENT_SUMMARY",
+      "RawBodyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "ContentHash": null,
+      "TemporalStatus": "ROOT_CONTEXT_RECORDED",
+      "AcquisitionStatus": "NOT_ACQUIRED"
+    },
+    {
+      "Title": "Module:DivineTree",
+      "PageId": "2035",
+      "RevisionId": "9481",
+      "Timestamp": "2026-03-13T08:15:26+00:00",
+      "ContentModel": "Scribunto",
+      "RawBodyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "ContentHash": "81358d3664fb7e6a1e53c4ffe6925882e855651871fe406cc55cdcdbc5caac9d",
+      "TemporalStatus": "ELIGIBLE_METADATA_IDENTITY",
+      "AcquisitionStatus": "NOT_ACQUIRED"
+    },
+    {
+      "Title": "Template:Divine",
+      "PageId": "520",
+      "RevisionId": "9469",
+      "Timestamp": "2026-03-13T05:24:23+00:00",
+      "ContentModel": "METADATA_NOT_RECORDED_IN_CURRENT_SUMMARY",
+      "RawBodyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "ContentHash": null,
+      "TemporalStatus": "REQUIRED_HISTORICAL_CONTEXT",
+      "AcquisitionStatus": "NOT_ACQUIRED"
+    },
+    {
+      "Title": "Module:DivineFamily",
+      "PageId": "2033",
+      "RevisionId": "9467",
+      "Timestamp": "2026-03-13T05:19:46+00:00",
+      "ContentModel": "Scribunto",
+      "RawBodyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "ContentHash": "421947c475c5921143f428180e3eaa2b89dfce88a615bfeea7cd97a5c9a5f0da",
+      "TemporalStatus": "ELIGIBLE_METADATA_IDENTITY",
+      "AcquisitionStatus": "NOT_ACQUIRED"
+    },
+    {
+      "Title": "Module:DivineMeta",
+      "PageId": "2034",
+      "RevisionId": "9470",
+      "Timestamp": "2026-03-13T05:24:46+00:00",
+      "ContentModel": "Scribunto",
+      "RawBodyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "ContentHash": "23b089a8c17654b9388e5d71749f812a6d2c05654254087b1f96e1e9daa137a8",
+      "TemporalStatus": "INELIGIBLE_LATER_REVISION",
+      "AcquisitionStatus": "NOT_ACQUIRED",
+      "SubstitutionPolicy": "REJECTED; no later revision substitution"
+    }
+  ],
+  "AcquisitionMethods": {
+    "MethodsUsed": [
+      "Read-only local file inventory",
+      "Read-only validation-report reconciliation",
+      "Read-only source/invocation/module metadata inspection"
+    ],
+    "MethodsNotUsed": [
+      "MediaWiki API",
+      "Production database",
+      "Historical backup/archive",
+      "Export-generation tool",
+      "Cargo acquisition",
+      "Scribunto worker"
+    ],
+    "AcquiredRecordCount": 0,
+    "RawBodiesAcquired": 0,
+    "Reason": "No new source-system authorization was established and no local raw source package exists."
+  },
+  "IntegrityVerification": {
+    "Status": "METADATA_INTEGRITY_ONLY",
+    "RawContentHashesComputedThisMilestone": false,
+    "RecordedMetadataHashesReviewed": true,
+    "BytePreservationVerified": false,
+    "Reason": "There are no acquired raw source bytes to hash or compare. Rendered HTML and API response hashes cannot substitute for raw Wikitext/Lua.",
+    "RequiredForAcquisition": [
+      "Preserve original acquired bytes before decoding",
+      "Record raw byte length and SHA-256",
+      "Record decoded-content identity separately if the export transforms encoding",
+      "Correlate each hash to authenticated source wiki/page/revision identity",
+      "Verify export or API response integrity independently"
+    ]
+  },
+  "JovanDependencyClosure": {
+    "Status": "DEPENDENCY_CLOSURE_PARTIAL",
+    "DirectDependencies": [
+      {
+        "From": "Jovan@9482",
+        "To": "Module:DivineTree@9481",
+        "Classification": "AVAILABLE_INVENTORY_METADATA_ONLY",
+        "Reachability": "CAPTURED_ROOT_INVOCATION"
+      },
+      {
+        "From": "Template:Divine@9469",
+        "To": "Module:DivineMeta",
+        "Classification": "REVISION_UNRESOLVED",
+        "Reachability": "CAPTURED_FIXTURE mw-invoke-8d5e90707608a71b"
+      },
+      {
+        "From": "Template:Divine@9468",
+        "To": "Module:DivineFamily@9467",
+        "Classification": "AVAILABLE_ELIGIBLE_METADATA_ONLY",
+        "Reachability": "CAPTURED_FIXTURE mw-invoke-e5edab96328f070f"
+      }
+    ],
+    "TransitiveDependencies": [
+      {
+        "From": "Module:DivineTree@9481",
+        "To": "Template:Divine@9469",
+        "Classification": "SOURCE_CONTENT_UNAVAILABLE",
+        "Reachability": "REPORTED_JOVAN_CONTEXT; raw body not available for fresh scan"
+      },
+      {
+        "From": "Module:DivineTree@9481",
+        "To": "Cargo:Divines",
+        "Classification": "DATA_DEPENDENCY_UNAVAILABLE",
+        "Reachability": "STATIC_CALL_SITE_REPORTED; no historical Cargo rows"
+      },
+      {
+        "From": "Module:DivineFamily@9467",
+        "To": "Cargo:Divines and Characters helper relationships",
+        "Classification": "DATA_DEPENDENCY_UNAVAILABLE",
+        "Reachability": "Static audit evidence only; no Lua execution this milestone"
+      }
+    ],
+    "StaticReferencePolicy": "Lexical references are not classified as reached without execution evidence. Dynamic Lua dependencies remain INDETERMINATE until authenticated source and authorized execution exist.",
+    "ModuleDivineMeta": {
+      "AvailableMetadataRevisions": ["9470"],
+      "EligibleRevision": null,
+      "Status": "REVISION_UNRESOLVED",
+      "Reason": "9470 is timestamped 2026-03-13T05:24:46Z, after Template:Divine@9469 at 05:24:23Z; no earlier revision is authenticated."
+    }
+  },
+  "FixtureEligibility": [
+    {
+      "FixtureId": "mw-invoke-075b2608d7c07c57",
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "REFERENCE_SIDE_MISSING_MODULE",
+      "CargoStatus": "NOT_REQUIRED_FOR_REFERENCE_ERROR",
+      "ExtensionStatus": "NEGATIVE_REFERENCE_EVIDENCE",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "NOT_EXECUTED; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-72066581f5f001e8",
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "REFERENCE_SIDE_MISSING_TEMPLATE_AND_TEMPLATESTYLES_RESOURCES",
+      "CargoStatus": "NOT_REQUIRED_FOR_REFERENCE_ERROR",
+      "ExtensionStatus": "NEGATIVE_REFERENCE_EVIDENCE",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "NOT_EXECUTED; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "CargoStatus": "DATA_DEPENDENCY_UNAVAILABLE_HISTORICAL",
+      "ExtensionStatus": "BOUNDED_LEGACY_INFOBOX_ONLY",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "FAILED_PRIOR_OUTPUT; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "CargoStatus": "DATA_DEPENDENCY_UNAVAILABLE_HISTORICAL",
+      "ExtensionStatus": "CARGO_STORE_UNSUPPORTED_BY_POLICY",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "FAILED_PRIOR_OUTPUT; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "MODULE_DIVINEFAMILY_SOURCE_CONTENT_UNAVAILABLE",
+      "CargoStatus": "DATA_DEPENDENCY_UNAVAILABLE_HISTORICAL",
+      "ExtensionStatus": "BOUNDED_SOURCE_BEHAVIOR_ONLY",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "FAILED_PRIOR_OUTPUT; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "REVISION_UNRESOLVED_DIVINEMETA",
+      "CargoStatus": "DATA_DEPENDENCY_UNAVAILABLE_HISTORICAL",
+      "ExtensionStatus": "UNVERIFIED",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "FAILED_PRIOR_OUTPUT; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "TRANSITIVE_CLOSURE_PARTIAL_TEMPLATE_DIVINE_AND_DIVINEMETA",
+      "CargoStatus": "DATA_DEPENDENCY_UNAVAILABLE_HISTORICAL",
+      "ExtensionStatus": "MERMAID_SAFE_STATIC_ONLY",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "FAILED_PRIOR_OUTPUT; preserved"
+    },
+    {
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "SourceContent": "METADATA_ONLY_NOT_ACQUIRED",
+      "DependencyStatus": "SOURCE_CONTENT_UNAVAILABLE",
+      "CargoStatus": "DATA_DEPENDENCY_UNAVAILABLE_HISTORICAL",
+      "ExtensionStatus": "BOUNDED_INFOBOX_SOURCE_BEHAVIOR_ONLY",
+      "WorkerAuthorization": "BLOCKED",
+      "HistoricalParity": "INELIGIBLE",
+      "ExistingComparison": "FAILED_PRIOR_OUTPUT; preserved"
+    }
+  ],
+  "HistoricalCargoLimitation": {
+    "Status": "HISTORICAL_PARITY_UNAVAILABLE",
+    "CurrentSnapshotId": "cargo-authentic-current-20261011-1",
+    "CurrentSnapshotUsed": false,
+    "HistoricalRowsAcquiredThisMilestone": false,
+    "Policy": "Do not acquire Cargo rows during this source-only milestone and do not substitute current rows for historical values."
+  },
+  "ProductionSafety": {
+    "ProductionMediaWikiModified": false,
+    "ProductionDatabaseWritten": false,
+    "ProductionLuaEnabled": false,
+    "RejectingScribuntoDefaultPreserved": true,
+    "RejectingCargoDefaultPreserved": true,
+    "WorkerActivated": false,
+    "SystemdBubblewrapSelinuxModified": false,
+    "SocketPermissionsModified": false,
+    "StrictPlannerModified": false,
+    "ReferencesAndComparisonsModified": false,
+    "CredentialsRecorded": false,
+    "PrivateSourceBodiesCommitted": false
+  },
+  "Verification": {
+    "SourceInventoryReviewed": true,
+    "AuthorizationGateReviewed": true,
+    "ExistingReportsReconciled": true,
+    "RawSourceBodiesObtained": false,
+    "PrivatePackagePrepared": false,
+    "DisposableImportPerformed": false,
+    "TestsAdded": false,
+    "TestsReason": "No acquisition tooling or verification logic changed; no authorized raw source was available to test.",
+    "Commands": [
+      {
+        "Command": "find artifacts/imports/mediawiki /home/cdjensen94/continuumwiki-validation -maxdepth 3 -type f",
+        "Result": "PASSED; no authentic MediaWiki XML/source package found"
+      },
+      {
+        "Command": "python3 -m json.tool artifacts/validation/mediawiki-historical-source-acquisition-v1.json",
+        "Result": "PASSED"
+      },
+      {
+        "Command": "git diff --check",
+        "Result": "PASSED"
+      },
+      {
+        "Command": "sha256sum /home/cdjensen94/continuumwiki-validation/references/*.json",
+        "Result": "PASSED; eight private reference files remain present and unchanged for this milestone"
+      }
+    ]
+  },
+  "RemainingBlockers": [
+    "No authorized raw source export or historical backup is available locally",
+    "No current authorization is recorded for new production MediaWiki API or database acquisition",
+    "Template:Divine@9469 raw Wikitext unavailable",
+    "Module:DivineFamily@9467 raw Lua unavailable",
+    "No eligible Module:DivineMeta revision has been authenticated",
+    "Historical Cargo parity remains unavailable",
+    "Worker host certification remains blocked and is outside this milestone"
+  ],
+  "RecommendedNextAction": {
+    "Action": "Obtain explicit read-only approval for the smallest source acquisition path, then acquire only the exact target revisions and their authenticated dependency closure.",
+    "RequiredEvidenceBeforeAccess": [
+      "Approved source system and account scope",
+      "Approved acquisition method and bounded request limits",
+      "Private storage location and permissions",
+      "Source wiki identity and export/API provenance",
+      "Operator approval to stage raw source outside Git"
+    ],
+    "AfterAcquisition": [
+      "Verify raw bytes, identities, timestamps, content models, and hashes",
+      "Prepare a private immutable source package without overwriting prior evidence",
+      "Reassess direct/transitive closure and fixture eligibility",
+      "Only in a later milestone, consider the separately authorized disposable import"
+    ],
+    "DoNotDo": [
+      "Do not query production or backups without explicit approval",
+      "Do not fabricate or reconstruct source from rendered HTML",
+      "Do not use Module:DivineMeta@9470 as a substitute",
+      "Do not perform a disposable import in CW-M4-004"
+    ]
+  }
+}

@@ -1662,6 +1662,13 @@
             source titles retained by the MediaWiki import provenance tables.
             </summary>
         </member>
+        <member name="M:TightWiki.Plugin.Interfaces.Persistence.ITwMediaWikiImportRepository.ResolveTransclusionAsync(System.Int64,System.Int32,System.String,System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Resolves a bounded MediaWiki transclusion target after title
+            normalization. Namespace 10 delegates to the established template
+            resolver; other namespaces are optional and remain missing by default.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Interfaces.Persistence.TwPersistenceProvider">
             <summary>Identifies a supported application persistence provider.</summary>
         </member>
@@ -3898,6 +3905,20 @@
         <member name="M:TightWiki.Plugin.Models.TwMediaWikiRenderSource.#ctor(TightWiki.Plugin.Models.TwPageSourceFormat,System.Nullable{System.Int64},System.String,System.String,System.String,System.Boolean,System.String,System.String,System.String,System.Nullable{System.DateTime},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
             <summary>Immutable provenance descriptor for the revision being rendered.</summary>
         </member>
+        <member name="T:TightWiki.Plugin.Models.TwMediaWikiStylesheet">
+            <summary>
+            Immutable, renderer-produced identity for one sanitized MediaWiki
+            TemplateStyles asset. The application may turn this into a delivery URL,
+            but the identity itself is not an authorization grant.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwMediaWikiStylesheet.#ctor(System.Int64,System.String,System.String,System.String,System.Int32,System.Nullable{System.DateTime},System.String,System.String,System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Immutable, renderer-produced identity for one sanitized MediaWiki
+            TemplateStyles asset. The application may turn this into a delivery URL,
+            but the identity itself is not an authorization grant.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Models.TwMenuItem">
             <summary>
             Represents a single item in the wiki's navigation menu,
@@ -4318,6 +4339,13 @@
         <member name="P:TightWiki.Plugin.Models.TwPageCache.Body">
             <summary>
             The fully rendered HTML body of the wiki page.
+            </summary>
+        </member>
+        <member name="P:TightWiki.Plugin.Models.TwPageCache.Stylesheets">
+            <summary>
+            Renderer-approved stylesheet identities. CSS bytes are deliberately
+            not placed in the page cache; the MVC asset endpoint revalidates
+            authorization and source revision before delivery.
             </summary>
         </member>
         <member name="M:TightWiki.Plugin.Models.TwPageCache.#ctor(System.String)">

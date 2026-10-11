@@ -33,12 +33,16 @@ public sealed class SchemaVerifiedMediaWikiCargoQueryProvider : IMediaWikiCargoQ
     private readonly string _datasetIdentity;
     private readonly string _sourceWikiIdentity;
     private readonly string _tablePrefix;
+    private readonly MediaWikiCargoRelationshipCatalog _relationshipCatalog;
+    private readonly MediaWikiCargoSchemaIdentity? _relationshipSchemaIdentity;
 
     public SchemaVerifiedMediaWikiCargoQueryProvider(
         IDatabaseConnectionFactory connectionFactory,
         string datasetIdentity,
         string sourceWikiIdentity,
-        string tablePrefix = "cargo__")
+        string tablePrefix = "cargo__",
+        MediaWikiCargoRelationshipCatalog? relationshipCatalog = null,
+        MediaWikiCargoSchemaIdentity? relationshipSchemaIdentity = null)
     {
         _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         _datasetIdentity = RequireIdentity(datasetIdentity, nameof(datasetIdentity));
@@ -46,6 +50,8 @@ public sealed class SchemaVerifiedMediaWikiCargoQueryProvider : IMediaWikiCargoQ
         if (tablePrefix.Any(value => !char.IsLetterOrDigit(value) && value != '_'))
             throw new ArgumentException("The Cargo table prefix contains an invalid identifier.", nameof(tablePrefix));
         _tablePrefix = tablePrefix;
+        _relationshipCatalog = relationshipCatalog ?? MediaWikiCargoRelationshipCatalog.Default;
+        _relationshipSchemaIdentity = relationshipSchemaIdentity;
     }
 
     public async Task<MediaWikiCargoProviderResult> QueryAsync(MediaWikiCargoQueryRequest request, CancellationToken cancellationToken = default)
@@ -126,6 +132,95 @@ public sealed class SchemaVerifiedMediaWikiCargoQueryProvider : IMediaWikiCargoQ
         }
     }
 
+    public async Task<MediaWikiCargoRelationshipProviderResult> QueryRelationshipAsync(
+        MediaWikiCargoRelationshipQuery request,
+        CancellationToken cancellationToken = default)
+    {
+        var validation = MediaWikiCargoRelationshipQueryValidator.Validate(
+            request, _relationshipCatalog, _relationshipSchemaIdentity, allowSyntheticDataset: false);
+        if (!string.Equals(request.Identity.SourceWikiIdentity, _sourceWikiIdentity, StringComparison.Ordinal))
+            validation = validation.Append(new(MediaWikiCargoProviderFailure.HistoricalProvenanceUnavailable, "The relationship source wiki does not match the authorized dataset.")).ToArray();
+        if (!string.Equals(request.Identity.DatasetIdentity, _datasetIdentity, StringComparison.Ordinal))
+            validation = validation.Append(new(MediaWikiCargoProviderFailure.HistoricalProvenanceUnavailable, "The relationship dataset does not match the authorized dataset.")).ToArray();
+        if (request.DatasetClassification != MediaWikiCargoRelationshipDatasetClassification.AuthenticSourceCurrentState
+            || !string.Equals(request.Identity.SourcePageId, "current-state", StringComparison.Ordinal)
+            || !string.Equals(request.Identity.SourceRevisionId, "current-state", StringComparison.Ordinal))
+            validation = validation.Append(new(MediaWikiCargoProviderFailure.HistoricalProvenanceUnavailable, "The relationship provider is current-state-only and cannot answer a historical identity.")).ToArray();
+        if (!_relationshipCatalog.TryGet(request.Relationship, out var definition))
+            return RelationshipFailure(validation.Count > 0 ? validation[0] : new(MediaWikiCargoProviderFailure.UnsupportedQuery, "The Cargo relationship is not allowlisted."));
+        if (definition.Readiness != MediaWikiCargoRelationshipReadiness.SemanticsVerified)
+            validation = validation.Append(new(MediaWikiCargoProviderFailure.RelationshipUnverified, "The relationship is not semantically verified and remains fail-closed.")).ToArray();
+        if (validation.Count > 0) return RelationshipFailure(validation[0]);
+        if (!definition.HelperTable.StartsWith(_tablePrefix, StringComparison.Ordinal))
+            return RelationshipFailure(new(MediaWikiCargoProviderFailure.SchemaMismatch, "The helper table is outside the authorized Cargo table prefix."));
+
+        var started = DateTime.UtcNow;
+        await using var session = await _connectionFactory.OpenSessionAsync(cancellationToken);
+        await using var command = session.Connection.CreateCommand();
+        command.CommandTimeout = Math.Max(1, (int)Math.Ceiling(request.Budget.EffectiveExecutionTime.TotalSeconds));
+        var parentTable = Identifier(_tablePrefix + definition.ParentTable);
+        var helperTable = Identifier(definition.HelperTable);
+        var selected = new List<(MediaWikiCargoRelationshipProjection Projection, string Alias)>();
+        foreach (var projection in request.Projections)
+        {
+            var alias = projection == MediaWikiCargoRelationshipProjection.Value ? "value" : "position";
+            var column = projection == MediaWikiCargoRelationshipProjection.Value ? definition.ValueColumn : definition.OrderColumn;
+            selected.Add((projection, alias));
+            _ = column;
+        }
+        var select = string.Join(", ", selected.Select(value =>
+        {
+            var column = value.Projection == MediaWikiCargoRelationshipProjection.Value ? definition.ValueColumn : definition.OrderColumn;
+            return $"h.`{Identifier(column)}` AS `{value.Alias}`";
+        }));
+        var sql = $"SELECT {select} FROM `{parentTable}` AS p INNER JOIN `{helperTable}` AS h ON h.`{Identifier(definition.ParentKeyColumn)}` = p.`{Identifier(definition.ParentStorageKeyColumn)}` WHERE p.`{Identifier(definition.ParentLookupColumn)}` = @cargoParent";
+        AddParameter(command, "@cargoParent", request.ParentValue);
+        if (request.ValueEquals is not null)
+        {
+            sql += $" AND h.`{Identifier(definition.ValueColumn)}` = @cargoValue";
+            AddParameter(command, "@cargoValue", request.ValueEquals);
+        }
+        sql += $" ORDER BY h.`{Identifier(definition.OrderColumn)}` ASC, h.`{Identifier(definition.ValueColumn)}` ASC LIMIT @cargoLimit OFFSET @cargoOffset";
+        AddParameter(command, "@cargoLimit", request.Limit);
+        AddParameter(command, "@cargoOffset", request.Offset);
+        command.CommandText = sql;
+
+        try
+        {
+            await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess, cancellationToken);
+            var rows = new List<IReadOnlyDictionary<string, string?>>();
+            var outputCharacters = 0;
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                var row = new Dictionary<string, string?>(StringComparer.Ordinal);
+                for (var i = 0; i < selected.Count; i++)
+                {
+                    var value = reader.IsDBNull(i) ? null : Convert.ToString(reader.GetValue(i), System.Globalization.CultureInfo.InvariantCulture);
+                    outputCharacters += selected[i].Alias.Length + (value?.Length ?? 0);
+                    if (outputCharacters > request.Budget.MaxOutputCharacters)
+                        return RelationshipFailure(new(MediaWikiCargoProviderFailure.BudgetExceeded, "Cargo relationship output exceeded the configured character budget."));
+                    row[selected[i].Alias] = value;
+                }
+                rows.Add(row);
+                if (rows.Count > definition.MaxFanOut)
+                    return RelationshipFailure(new(MediaWikiCargoProviderFailure.BudgetExceeded, "Cargo relationship fan-out exceeded the configured limit."));
+            }
+            if (DateTime.UtcNow - started > request.Budget.EffectiveExecutionTime)
+                return RelationshipFailure(new(MediaWikiCargoProviderFailure.BudgetExceeded, "Cargo relationship exceeded the configured execution budget."));
+            var provenance = new MediaWikiCargoRelationshipDatasetProvenance(
+                _datasetIdentity,
+                MediaWikiCargoRelationshipDatasetClassification.AuthenticSourceCurrentState,
+                _sourceWikiIdentity,
+                _relationshipSchemaIdentity!,
+                false);
+            return new(new MediaWikiCargoRelationshipResult(request.Relationship, rows, request.Identity, provenance), null);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return RelationshipFailure(new(MediaWikiCargoProviderFailure.Cancelled, "Cargo relationship query was cancelled."));
+        }
+    }
+
     public static IReadOnlyDictionary<string, IReadOnlySet<string>> VerifiedScalarAllowlist => ScalarFields;
 
     private static IReadOnlyDictionary<string, IReadOnlySet<string>> QueryFieldAllowlist
@@ -149,4 +244,7 @@ public sealed class SchemaVerifiedMediaWikiCargoQueryProvider : IMediaWikiCargoQ
     private static string Identifier(string value) => value;
     private static void AddParameter(DbCommand command, string name, object value) { var p = command.CreateParameter(); p.ParameterName = name; p.Value = value; command.Parameters.Add(p); }
     private static MediaWikiCargoProviderResult Failure(MediaWikiCargoProviderDiagnostic diagnostic) => new(null, diagnostic);
+
+    private static MediaWikiCargoRelationshipProviderResult RelationshipFailure(MediaWikiCargoProviderDiagnostic diagnostic)
+        => new(null, diagnostic);
 }

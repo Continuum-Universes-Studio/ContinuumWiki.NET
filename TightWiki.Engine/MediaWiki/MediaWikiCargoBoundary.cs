@@ -61,6 +61,8 @@ public enum MediaWikiCargoProviderFailure
     ProviderUnavailable,
     InvalidQuery,
     UnsupportedQuery,
+    RelationshipUnverified,
+    SchemaMismatch,
     HistoricalProvenanceUnavailable,
     BudgetExceeded,
     Cancelled

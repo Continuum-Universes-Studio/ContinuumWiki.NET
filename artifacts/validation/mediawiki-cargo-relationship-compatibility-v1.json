@@ -1,0 +1,153 @@
+{
+  "ReportVersion": "cw-m3-007d-cargo-relationship-compatibility-v1",
+  "GeneratedAtUtc": "2026-10-11T15:19:29Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Status": "IMPLEMENTATION_VERIFIED_AUTHENTIC_HELPER_DATA_UNAVAILABLE",
+  "SourceSchemaEvidence": {
+    "ColumnsPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-columns-v1.tsv",
+    "IndexesPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-indexes-v1.tsv",
+    "ColumnsSha256": "ade3431abf2cc321e333eac35c858d25f8c97a52e0379436aa52917cda1ebc4f",
+    "IndexesSha256": "952e50120fa88ed06bb163209afadfed99ec867a8d6dd69de5ea113c166beaeb",
+    "ColumnRows": 224,
+    "IndexRows": 384,
+    "CargoTablesInInventory": 73,
+    "EffectivePrefix": "cargo__",
+    "HelperEvidence": "The index inventory identifies helper tables and indexed _rowID, _value, and _position columns. The column inventory has no helper-table column rows, so helper nullability/types and complete table definitions are not independently available."
+  },
+  "DatasetEvidence": {
+    "SnapshotId": "cargo-authentic-current-20261011-1",
+    "SnapshotPath": "/home/cdjensen94/continuumwiki-validation/cargo-snapshot-authentic-20261011-1",
+    "Classification": "AUTHENTIC_SOURCE_CURRENT_STATE",
+    "BaseTables": ["Characters", "Divines", "Species", "Subvariants", "Variants"],
+    "BaseRowCount": 249,
+    "HelperTablesCaptured": false,
+    "HistoricalCorrelationVerified": false,
+    "SnapshotModified": false
+  },
+  "ObservedQueryInventory": [
+    {
+      "Module": "Module:SpeciesVariants",
+      "Revisions": [9602, 9658],
+      "CallSites": [
+        {"RevisionId": 9602, "Line": 49, "Shape": "#cargo_query parser-function arguments"},
+        {"RevisionId": 9602, "Line": 61, "Shape": "Variants.Name rows ordered by Name"},
+        {"RevisionId": 9658, "Line": 54, "Shape": "#cargo_query parser-function arguments"},
+        {"RevisionId": 9658, "Line": 96, "Shape": "Variants.Name rows ordered by Name"}
+      ],
+      "Tables": ["Variants", "Subvariants"],
+      "Fields": ["Name", "Species", "GeneticAncestor"],
+      "Filters": "species/ancestor values are dynamically assembled; no arbitrary SQL is accepted",
+      "Ordering": "Name for the direct mw.ext.cargo.query path",
+      "ResultShape": "Array of row tables consumed through row.Name and #results"
+    },
+    {
+      "Module": "Module:DivineTree",
+      "Revision": 9481,
+      "CallSites": [
+        {"Line": 11, "Shape": "dynamic tables/fields/where"},
+        {"Line": 33, "Shape": "Divines.Name,Father,Mother,Children"},
+        {"Line": 78, "Shape": "dynamic children/allChildren query"}
+      ],
+      "Tables": ["Divines"],
+      "Fields": ["Name", "Father", "Mother", "Children"],
+      "ResultShape": "Named row fields; list-valued fields split on semicolons"
+    },
+    {
+      "Module": "Module:DivineFamily",
+      "Revision": 9467,
+      "CallSites": [
+        {"Line": 15, "Shape": "dynamic tables/fields/options"},
+        {"Line": 54, "Shape": "family query with optional where"}
+      ],
+      "Tables": ["Divines", "Characters"],
+      "Fields": ["Name", "Father", "Mother", "Spouses", "Consorts", "Companions", "NotableDivineSiblings", "NotableDivineOffspring"],
+      "ResultShape": "Named row fields iterated as list-valued strings"
+    },
+    {
+      "Module": "Module:DivineMeta",
+      "Revision": 9469,
+      "CallSites": [
+        {"Line": 45, "Shape": "dynamic metadata fields and where"},
+        {"Line": 56, "Shape": "dynamic cargoQuery arguments"}
+      ],
+      "Tables": ["Divines"],
+      "Fields": ["Name and metadata fields selected by the revision"],
+      "ResultShape": "Named row field lookup"
+    },
+    {
+      "Module": "Module:CharacterFamily",
+      "Revision": 9455,
+      "CallSites": [
+        {"Line": 11, "Shape": "dynamic query argument table"},
+        {"Line": 31, "Shape": "family rows converted to list items"}
+      ],
+      "Tables": ["Characters"],
+      "Fields": ["Family and relationship fields consumed by makeList"],
+      "ResultShape": "Named row fields converted to list items"
+    }
+  ],
+  "RelationshipEvidenceMatrix": {
+    "ObservedHelperRelationships": [
+      {"LogicalName": "Variants.GeneticAncestor", "HelperTable": "cargo__Variants__GeneticAncestor", "ParentTable": "cargo__Variants", "ParentLookupColumn": "Name", "HelperKeyColumn": "_rowID", "ValueColumn": "_value", "OrderColumn": "_position", "Readiness": "SCHEMA_ONLY"},
+      {"LogicalName": "Divines.Spouses", "HelperTable": "cargo__Divines__Spouses", "ParentTable": "cargo__Divines", "ParentLookupColumn": "Name", "HelperKeyColumn": "_rowID", "ValueColumn": "_value", "OrderColumn": "_position", "Readiness": "SCHEMA_ONLY"},
+      {"LogicalName": "Divines.Consorts", "HelperTable": "cargo__Divines__Consorts", "ParentTable": "cargo__Divines", "ParentLookupColumn": "Name", "HelperKeyColumn": "_rowID", "ValueColumn": "_value", "OrderColumn": "_position", "Readiness": "SCHEMA_ONLY"},
+      {"LogicalName": "Divines.Companions", "HelperTable": "cargo__Divines__Companions", "ParentTable": "cargo__Divines", "ParentLookupColumn": "Name", "HelperKeyColumn": "_rowID", "ValueColumn": "_value", "OrderColumn": "_position", "Readiness": "SCHEMA_ONLY"},
+      {"LogicalName": "Divines.NotableDivineSiblings", "HelperTable": "cargo__Divines__NotableDivineSiblings", "ParentTable": "cargo__Divines", "ParentLookupColumn": "Name", "HelperKeyColumn": "_rowID", "ValueColumn": "_value", "OrderColumn": "_position", "Readiness": "SCHEMA_ONLY"},
+      {"LogicalName": "Divines.NotableDivineOffspring", "HelperTable": "cargo__Divines__NotableDivineOffspring", "ParentTable": "cargo__Divines", "ParentLookupColumn": "Name", "HelperKeyColumn": "_rowID", "ValueColumn": "_value", "OrderColumn": "_position", "Readiness": "SCHEMA_ONLY"}
+    ],
+    "DynamicCharactersSurface": {
+      "Relationships": ["Affiliations", "Partners", "Lovers", "Hair", "Eyes", "Feathers", "Scales", "Fur", "NotableRelatives", "StepSiblings", "SocialRelatives", "FullSiblings", "HalfSiblings", "Children", "DivineSpouse"],
+      "Readiness": "SCHEMA_ONLY",
+      "Evidence": "Authenticated indexes identify the corresponding helper tables; the audited source records a dynamic CharacterFamily field surface, but no helper rows or independently captured query semantics are available."
+    },
+    "DivinesChildren": {
+      "LogicalName": "Divines.Children",
+      "Readiness": "UNSUPPORTED",
+      "Evidence": "cargo__Divines.Children is absent from the base-column inventory and no cargo__Divines__Children helper table appears in the authenticated index inventory.",
+      "Policy": "Reject; do not derive children from Father/Mother and do not create a virtual column."
+    },
+    "ReadinessPolicy": "Only SEMANTICS_VERIFIED definitions may execute through the live provider. Current authenticated helper definitions remain SCHEMA_ONLY."
+  },
+  "Implementation": {
+    "Files": ["TightWiki.Engine/MediaWiki/MediaWikiCargoRelationships.cs", "TightWiki.Engine/MediaWiki/SchemaVerifiedMediaWikiCargoQueryProvider.cs", "TightWiki.Engine/MediaWiki/MediaWikiCargoBoundary.cs"],
+    "Contracts": ["immutable relationship definitions", "schema identity", "bounded relationship query", "dataset provenance", "bounded relationship result"],
+    "Provider": "Adds a parameterized explicit parent-to-helper join path for future SEMANTICS_VERIFIED definitions; all current catalog definitions fail closed before database access because they are SCHEMA_ONLY.",
+    "SyntheticProjector": "Supports explicit synthetic rows, stable position/value ordering, value equality filtering, pagination, null values, fan-out and output bounds. It is not an authentic provider and cannot authorize current or historical data.",
+    "WorkerProtocol": "Unchanged; the existing typed cargoResults row bundle remains the host-to-worker boundary.",
+    "ScalarCargo": "Unchanged and still functional."
+  },
+  "Verification": {
+    "FocusedCargoTests": {"Passed": 17, "Failed": 0, "Skipped": 0},
+    "FullDebugTests": {"Passed": 281, "Failed": 0, "Skipped": 22, "Total": 303},
+    "ReleaseBuild": {"Warnings": 0, "Errors": 0},
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "AuthenticCurrentStateRelationshipExecution": "NOT_AVAILABLE; authenticated snapshot contains no helper rows",
+    "HistoricalParity": "NOT_CLAIMED"
+  },
+  "Security": {
+    "ArbitrarySql": "REJECTED",
+    "UnallowlistedIdentifiers": "REJECTED",
+    "UnverifiedRelationships": "REJECTED",
+    "DivinesChildren": "REJECTED",
+    "Writes": "REJECTED",
+    "LuaDatabaseAccess": "REJECTED",
+    "CurrentStateHistoricalFallback": "REJECTED",
+    "RejectingProviderDefault": true,
+    "ProductionCargoActivation": false,
+    "ProductionLua": false,
+    "WorkerIsolationChanged": false,
+    "AuthenticatedSnapshotModified": false,
+    "StrictPlannerModified": false
+  },
+  "RemainingEvidenceGaps": [
+    "Authenticated helper-table column metadata including nullability/types",
+    "Authorized helper-table row values",
+    "Independent confirmation of parent/value semantics and Cargo result ordering",
+    "Current-state helper snapshot authorization",
+    "Revision-correlated historical base/helper Cargo data",
+    "Independent MediaWiki query outputs for the same dataset"
+  ],
+  "Verdict": "Contracts verified; positive activation evidence incomplete.",
+  "RecommendedNextMilestone": "Obtain separately authorized helper-table metadata and a bounded current-state helper snapshot, then independently verify relationship semantics before activating any positive live definition. Historical parity remains a separate gate."
+}

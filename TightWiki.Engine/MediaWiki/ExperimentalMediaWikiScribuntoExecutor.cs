@@ -101,10 +101,14 @@ public sealed class ExperimentalMediaWikiScribuntoExecutor : IMediaWikiScribunto
             return new MediaWikiScribuntoExecutionResult(null, budgetDiagnostics,
                 [new("module", invocation.Module.CanonicalTitle, invocation.CallingSourceRevisionId, "BudgetRejected")]);
 
+        IReadOnlyList<MediaWikiScribuntoWorkerCargoResult>? cargoResults = null;
+        if (host is IMediaWikiScribuntoCargoExecutionHost cargoHost)
+            cargoResults = await cargoHost.ResolveCargoResultsAsync(invocation, context, cancellationToken);
+
         await _concurrency.WaitAsync(cancellationToken);
         try
         {
-            return await RunWorkerAsync(invocation, host, context, bundle, cgroupEvidence, cancellationToken);
+            return await RunWorkerAsync(invocation, host, context, bundle, cgroupEvidence, cargoResults, cancellationToken);
         }
         finally
         {
@@ -120,6 +124,7 @@ public sealed class ExperimentalMediaWikiScribuntoExecutor : IMediaWikiScribunto
         MediaWikiScribuntoExecutionContext context,
         MediaWikiScribuntoModuleBundle bundle,
         MediaWikiScribuntoWorkerCgroupEvidence? cgroupEvidence,
+        IReadOnlyList<MediaWikiScribuntoWorkerCargoResult>? cargoResults,
         CancellationToken cancellationToken)
     {
         var root = bundle.Root;
@@ -165,7 +170,8 @@ public sealed class ExperimentalMediaWikiScribuntoExecutor : IMediaWikiScribunto
             invocation.CallingPageTitle,
             parentFrameTitle,
             parentFrameRevisionId,
-            invocation.TemplateInvocationChain);
+            invocation.TemplateInvocationChain,
+            cargoResults);
         var serializedRequest = MediaWikiScribuntoWorkerProtocol.SerializeRequest(request);
         if (serializedRequest.Length > _options.WorkerInputCharacters)
             return Failed("ScribuntoWorkerInputLimitExceeded", "The worker request exceeded the configured input limit.");

@@ -1,0 +1,650 @@
+{
+  "ReportVersion": "cw-m4-003-mediawiki-migration-readiness-v1",
+  "GeneratedAtUtc": "2026-10-11",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "WorkingTree": "DIRTY; pre-existing implementation, generated build, validation, and documentation changes were preserved.",
+  "Status": "READINESS_PLAN_VERIFIED",
+  "FinalClassification": "Readiness plan verified; controlled migration conditional; production migration blocked.",
+  "EvidenceBaseline": {
+    "ImplementationRegression": {
+      "Evidence": "artifacts/validation/mediawiki-compatibility-certification-v1.json",
+      "VerificationTimestamp": "2026-10-11T15:45:00Z",
+      "Scope": "Existing implementation and compatibility regression evidence",
+      "Status": "IMPLEMENTED_VERIFIED",
+      "Method": "Reviewed recorded focused/full Debug test results and Release build result; no fresh expensive run performed for this documentation-only milestone.",
+      "Results": {
+        "FocusedTests": "115 passed, 0 failed, 0 skipped",
+        "FullDebugTests": "285 passed, 0 failed, 22 skipped",
+        "ReleaseBuild": "0 warnings, 0 errors",
+        "HistoricalParity": "NOT_CLAIMED"
+      }
+    },
+    "Importer": {
+      "Evidence": [
+        "MediaWikiInventory/ImportPlanning.cs",
+        "MediaWikiImport/MediaWikiImportExecution.cs",
+        "MediaWikiImport/Fixtures/disposable-target.template.json",
+        "artifacts/validation/mediawiki-real-module-import-v1.json"
+      ],
+      "Scope": "Strict planning, transactional import, reconciliation, source preservation, and disposable-target enforcement",
+      "Status": "IMPLEMENTED_VERIFIED",
+      "Limitation": "The prior VERIFIED import was a historical diagnostic baseline, not current CW-M4-003 execution."
+    },
+    "PriorDisposableImport": {
+      "Evidence": "artifacts/validation/mediawiki-real-module-import-v1.json",
+      "VerificationTimestamp": "Historical report; not re-executed",
+      "Status": "VERIFIED_HISTORICAL_BASELINE",
+      "ImportBatchId": 1,
+      "TargetDatabase": "cw_m3_003a",
+      "Pages": 19,
+      "Revisions": 123,
+      "CurrentDatabaseStateVerified": false
+    },
+    "SourceInventory": {
+      "Evidence": [
+        "artifacts/validation/mediawiki-module-inventory-v1.json",
+        "artifacts/validation/mediawiki-full-invocation-inventory-v1.json",
+        "artifacts/validation/mediawiki-compatibility-corpus-v1.json"
+      ],
+      "SourceExportIdentity": "5a6d6ad13e9b0f3315053db8168bbbfbf6bc3d0983cd9bd835d4c9a956a38afd",
+      "RawExportPathExpectedByHarness": "artifacts/imports/mediawiki/continuumwiki-full-with-files.xml",
+      "RawExportPresent": false,
+      "Status": "SOURCE_REVISION_METADATA_AVAILABLE_RAW_BODIES_UNAVAILABLE",
+      "Limitation": "Metadata and hashes do not constitute importable Wikitext/Lua bodies."
+    },
+    "ReferenceAndComparisonEvidence": {
+      "Evidence": [
+        "artifacts/validation/mediawiki-reference-aware-evaluation-v1.json",
+        "artifacts/validation/mediawiki-compatibility-certification-v1.json",
+        "/home/cdjensen94/continuumwiki-validation/references",
+        "/home/cdjensen94/continuumwiki-validation/continuum-outputs",
+        "/home/cdjensen94/continuumwiki-validation/comparisons"
+      ],
+      "Status": "EVIDENCE_RECONCILED",
+      "ReferenceSuccesses": 6,
+      "ReferenceErrors": 2,
+      "ExistingComparisons": 6,
+      "ExistingComparisonClassification": "FAILED",
+      "FreshComparisons": 0,
+      "OriginalReferencesModified": false,
+      "ExistingComparisonsModified": false
+    },
+    "Worker": {
+      "Evidence": [
+        "artifacts/validation/mediawiki-scribunto-host-certification-v1.json",
+        "artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json",
+        "artifacts/validation/mediawiki-scribunto-memory-characterization-v1.json",
+        "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md"
+      ],
+      "Status": "HOST_CERTIFICATION_BLOCKED",
+      "Authorization": "No current dedicated-identity activation authorization",
+      "WorkerActivatedForThisAssessment": false,
+      "KnownStartupEvidence": "Historical exit 137 included CoreCLR/GC initialization failure under MemoryMax=256M; cgroup OOM causality was not established.",
+      "RequiredRuntimeEvidence": "Live worker PID, cgroup path/counters, identity, namespace denial, filesystem/network denial, capability, SELinux context, resource, cancellation, and recovery evidence."
+    },
+    "Cargo": {
+      "Evidence": [
+        "artifacts/validation/mediawiki-cargo-provider-readiness-v1.json",
+        "artifacts/validation/mediawiki-cargo-historical-provenance-v1.json",
+        "artifacts/validation/mediawiki-cargo-relationship-compatibility-v1.json",
+        "artifacts/validation/mediawiki-cargo-snapshot-authentic-v1.json",
+        "artifacts/validation/mediawiki-cargo-runtime-diagnostic-v1.json"
+      ],
+      "CurrentSnapshotId": "cargo-authentic-current-20261011-1",
+      "CurrentSnapshotRows": 249,
+      "CurrentSnapshotClassification": "AUTHENTIC_SOURCE_CURRENT_STATE",
+      "HistoricalCorrelationVerified": false,
+      "ScalarCurrentStateDiagnostic": "VERIFIED_WITH_EXPLICIT_DATASET_IDENTITY",
+      "HelperRelationships": "SCHEMA_ONLY_OR_UNRESOLVED; provider rejects positive activation",
+      "Status": "CURRENT_STATE_VERIFIED_HISTORICAL_UNAVAILABLE"
+    },
+    "ProductionPolicy": {
+      "Evidence": [
+        "docs/architecture/MEDIAWIKI-MOONSHARP-COMPATIBILITY.md",
+        "docs/architecture/CW-M3-006F-CARGO-COMPATIBILITY.md",
+        "artifacts/validation/mediawiki-compatibility-gap-inventory-v1.json"
+      ],
+      "ProductionLuaEnabled": false,
+      "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+      "DefaultCargoProvider": "RejectingMediaWikiCargoQueryProvider",
+      "CargoRelationshipsActive": false,
+      "CargoStoreSupported": false,
+      "ProductionWritesPerformed": false,
+      "Status": "PRESERVED"
+    }
+  },
+  "HistoricalSourceAcquisitionPlan": {
+    "Status": "BLOCKED_BY_EVIDENCE",
+    "MinimumRecordSchema": [
+      "SourceWikiIdentity",
+      "SourceExportSha256",
+      "SourceExportTimestamp",
+      "SourcePageId",
+      "SourceNamespaceId",
+      "CanonicalTitle",
+      "SourceRevisionId",
+      "RevisionTimestamp",
+      "ContentModel",
+      "ContentFormat",
+      "RawWikitextOrLuaContent",
+      "ContentSha256",
+      "ParentRevisionId",
+      "ContributorProvenance",
+      "ExportAndImportProvenance"
+    ],
+    "KnownRequiredRecords": [
+      {
+        "Title": "Jovan",
+        "RevisionId": "9482",
+        "Requirement": "Root page body and identity"
+      },
+      {
+        "Title": "Module:DivineTree",
+        "RevisionId": "9481",
+        "Requirement": "Root module body and identity"
+      },
+      {
+        "Title": "Template:Divine",
+        "RevisionId": "9469",
+        "Requirement": "Historical template body; metadata page 520 and timestamp 2026-03-13T05:24:23Z are recorded"
+      },
+      {
+        "Title": "Module:DivineFamily",
+        "RevisionId": "9467",
+        "Requirement": "Historically eligible module body and identity"
+      },
+      {
+        "Title": "Module:DivineMeta",
+        "RevisionId": null,
+        "Requirement": "Authoritative revision at or before the Template:Divine@9469 context, if one exists; revision 9470 is not acceptable"
+      }
+    ],
+    "AcquisitionMethod": "Use the existing authorized MediaWiki XML export/capture workflow with read-only approval. No external acquisition was performed and no new command is invented by this assessment.",
+    "ExpectedStagingPath": "artifacts/imports/mediawiki/continuumwiki-full-with-files.xml",
+    "PrivateEvidenceHandling": "Keep the raw export and any credentials outside Git; record only sanitized identities, hashes, timestamps, and provenance in reports.",
+    "ClosureProcedure": [
+      "Run the existing module/invocation inventory against the complete export.",
+      "Select each dependency by canonical title and greatest eligible timestamp, never by numeric revision proximity.",
+      "Re-run the unchanged strict planner and retain all blocking findings.",
+      "Inspect direct and transitive template, #invoke, module, parser-function, extension-tag, and data dependencies.",
+      "Reject the plan if a required body, identity, namespace, timestamp, or hash is absent or conflicting."
+    ],
+    "AuthorizationRequirements": [
+      "Read-only source export permission",
+      "Approval to stage the private export at the harness input path",
+      "Independent source identity and hash verification",
+      "No production wiki writes or source mutation"
+    ]
+  },
+  "CargoEvidenceAcquisitionPlan": {
+    "CurrentStateHelperCompatibility": {
+      "Status": "CONDITIONAL",
+      "RequiredEvidence": [
+        "Helper-table column and index metadata",
+        "Bounded helper rows with parent keys, values, and stable ordering positions",
+        "Source wiki identity and schema identity",
+        "Snapshot consistency and per-dataset hashes",
+        "Explicit typed join/result semantics for each audited relationship"
+      ],
+      "CurrentKnownGaps": [
+        "Helper-table row values were not captured",
+        "Divines.Children has no verified base or helper field",
+        "Positive helper provider activation remains rejected"
+      ],
+      "PermittedUse": "Separate current-state or synthetic implementation tests only; never historical parity."
+    },
+    "HistoricalCargoParity": {
+      "Status": "BLOCKED_BY_EVIDENCE",
+      "RequiredEvidence": [
+        "Historical dataset identity",
+        "Source wiki identity",
+        "Acquisition timestamp and Cargo rebuild/indexing interval",
+        "Historical base-table and helper-table coverage",
+        "Transactional consistency evidence",
+        "Correlation to each reference fixture's page/module context",
+        "Schema/data integrity hashes"
+      ],
+      "CurrentEvidence": "Zero fixture-correlated historical or time-bounded datasets; one authenticated current-state snapshot only.",
+      "FallbackPolicy": "Current-state rows must not be used as historical rows; missing values must remain explicit Cargo provenance failures."
+    },
+    "SecurityBoundaries": [
+      "Read-only source access",
+      "No arbitrary SQL to Lua",
+      "No Cargo writes",
+      "Private evidence storage",
+      "Sanitized reports without credentials or private row values"
+    ]
+  },
+  "WorkerCertificationPlan": {
+    "Status": "BLOCKED_BY_AUTHORIZATION",
+    "RequiredIdentity": "continuumwiki-scribunto uid/gid 427",
+    "RequiredApproval": "Explicit operator authorization for a disposable diagnostic activation from the authorized terminal",
+    "ExistingProcedure": "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md",
+    "RequiredChecks": [
+      "Read-only systemd socket/service inspection",
+      "Installed worker and launcher hash/provenance verification",
+      "Effective dedicated UID/GID and socket authorization",
+      "Observed service ControlGroup and cgroup v2 memory/pids/cpu controls",
+      "Bubblewrap namespace and mount isolation",
+      "Filesystem and secret denial",
+      "Network denial",
+      "Environment and process restrictions",
+      "Capability and malformed/unauthorized protocol rejection",
+      "SELinux enforcement and worker/socket contexts",
+      "Resource termination, cancellation, recovery, and bounded execution"
+    ],
+    "StartupFailureHandling": "Keep the historical CoreCLR/GC exit-137 evidence separate from cgroup-OOM claims. Require live memory.events, memory.current/peak, process termination, journal, and cgroup evidence before any resource-policy recommendation.",
+    "ApprovalBoundaries": [
+      "Do not run the worker as root",
+      "Do not change systemd, bubblewrap, SELinux, or socket permissions",
+      "Do not restart production services",
+      "Do not deploy binaries",
+      "Do not read real secrets or production wiki/database data"
+    ],
+    "CertificationRule": "Every required control must be PASS; unavailable evidence remains BLOCKED and is never inferred from configuration or prior reports."
+  },
+  "DisposableMigrationEnvironment": {
+    "Status": "CONDITIONAL_NOT_AUTHORIZED",
+    "IsolationRequirements": [
+      "Explicit disposable MariaDB storage and separate credentials",
+      "Database name and target purpose independently verified",
+      "Separate application configuration",
+      "No production connection or service activation",
+      "Identifiable import batch",
+      "Source and stored content hashes independently checked"
+    ],
+    "ExistingTargetTemplate": "MediaWikiImport/Fixtures/disposable-target.template.json",
+    "ExistingTargetContract": {
+      "Purpose": "disposable-mariadb",
+      "DatabaseName": "cw_m3_003a",
+      "RequireEmptyTarget": true,
+      "ConnectionSecretHandling": "Environment variable; not recorded in reports"
+    },
+    "ExistingDiagnosticCommand": "CW_SCRIBUNTO_SOCKET_PATH=/run/continuumwiki/scribunto-worker.sock scripts/verify-m3-006c-diagnostic.sh",
+    "Preconditions": [
+      "Complete source export is staged and hashed",
+      "Strict planner produces a source-preserving eligible plan or explicitly records blockers",
+      "Disposable target authorization is independently established",
+      "Worker host certification is separately satisfied before real socket execution",
+      "No existing disposable evidence is reset or deleted without authorization"
+    ],
+    "Acceptance": "Only an actually executed transaction followed by read-only reconciliation may be classified IMPORT_VERIFIED. A plan alone is PLAN_VERIFIED."
+  },
+  "CompatibilityGateMatrix": [
+    {
+      "GateId": "IMPORTER_CORRECTNESS",
+      "Capability": "Strict planner, transactional import, revision/source preservation, reconciliation",
+      "CurrentStatus": "IMPLEMENTED_VERIFIED",
+      "Evidence": ["MediaWikiInventory/ImportPlanning.cs", "MediaWikiImport/MediaWikiImportExecution.cs", "artifacts/validation/mediawiki-real-module-import-v1.json"],
+      "RequiredCompletionEvidence": "Fresh source-complete plan and independent disposable import reconciliation",
+      "AuthorizationRequired": "Disposable target authorization",
+      "SafetyCriticality": "HIGH",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Migration operator and application maintainer",
+      "NextPermittedAction": "Obtain source export and target authorization; do not change strict planner"
+    },
+    {
+      "GateId": "HISTORICAL_SOURCE_BODIES",
+      "Capability": "Raw Wikitext/Lua and complete source provenance",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "Evidence": ["artifacts/validation/mediawiki-disposable-dependency-diagnostics-v1.json", "artifacts/validation/mediawiki-module-inventory-v1.json"],
+      "RequiredCompletionEvidence": "Complete authorized export with identity, timestamp, content, and hash for the closure",
+      "AuthorizationRequired": "Read-only MediaWiki export permission",
+      "SafetyCriticality": "HIGH",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "MediaWiki data administrator",
+      "NextPermittedAction": "Acquire only the minimum source-preserving historical closure"
+    },
+    {
+      "GateId": "DEPENDENCY_CLOSURE",
+      "Capability": "Revision-aware direct/transitive dependency selection",
+      "CurrentStatus": "IMPLEMENTED_PARTIAL",
+      "Evidence": ["artifacts/validation/mediawiki-disposable-dependency-diagnostics-v1.json", "MediaWikiInventory/ImportPlanning.cs"],
+      "RequiredCompletionEvidence": "Complete closure with no missing/conflicting eligible source records",
+      "AuthorizationRequired": "Source export access",
+      "SafetyCriticality": "HIGH",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Migration operator",
+      "NextPermittedAction": "Re-run unchanged planner after source acquisition"
+    },
+    {
+      "GateId": "DISPOSABLE_TARGET_AUTHORIZATION",
+      "Capability": "Isolated named MariaDB target",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "AuthorizationStatus": "NOT_AUTHORIZED",
+      "Evidence": ["MediaWikiImport/Fixtures/disposable-target.template.json", "artifacts/validation/mediawiki-disposable-dependency-diagnostics-v1.json"],
+      "RequiredCompletionEvidence": "Independent operator authorization and current identity/target verification",
+      "AuthorizationRequired": "Explicit disposable database approval",
+      "SafetyCriticality": "CRITICAL",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Database administrator",
+      "NextPermittedAction": "Authorize a fresh disposable target without resetting existing evidence"
+    },
+    {
+      "GateId": "DISPOSABLE_IMPORT_EXECUTION",
+      "Capability": "Actual source-complete import and storage verification",
+      "CurrentStatus": "UNVERIFIED",
+      "Evidence": ["artifacts/validation/mediawiki-real-module-import-v1.json", "artifacts/validation/mediawiki-disposable-dependency-diagnostics-v1.json"],
+      "RequiredCompletionEvidence": "New import execution, batch identity, counts, hashes, and read-only post-import verification",
+      "AuthorizationRequired": "Source and disposable target gates",
+      "SafetyCriticality": "CRITICAL",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Migration operator",
+      "NextPermittedAction": "Execute only the existing harness after prerequisites pass"
+    },
+    {
+      "GateId": "WIKITEXT_INFOBOX",
+      "Capability": "Bounded Wikitext, native infobox, and legacy PortableInfobox subset",
+      "CurrentStatus": "IMPLEMENTED_PARTIAL",
+      "Evidence": ["artifacts/validation/mediawiki-expansion-characterization-v1.json", "artifacts/validation/mediawiki-continuuminfobox-compatibility-v1.json", "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs"],
+      "RequiredCompletionEvidence": "Authentic source comparison with extension behavior classified separately",
+      "AuthorizationRequired": "None for synthetic/source-only tests; source export for authentic tests",
+      "SafetyCriticality": "HIGH",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Renderer maintainer",
+      "NextPermittedAction": "Continue bounded tests; do not claim full extension parity"
+    },
+    {
+      "GateId": "LUA_WORKER_HOST_CERTIFICATION",
+      "Capability": "Installed worker identity, socket, sandbox, cgroup, SELinux, and denial behavior",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "AuthorizationStatus": "BLOCKED_BY_AUTHORIZATION",
+      "Evidence": ["artifacts/validation/mediawiki-scribunto-host-certification-v1.json", "artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json", "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md"],
+      "RequiredCompletionEvidence": "All required host controls PASS from the dedicated identity",
+      "AuthorizationRequired": "Explicit operator diagnostic activation",
+      "SafetyCriticality": "CRITICAL",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Host administrator",
+      "NextPermittedAction": "Run documented host certification procedure only from authorized terminal"
+    },
+    {
+      "GateId": "CORECLR_STARTUP_CHARACTERIZATION",
+      "Capability": "Worker startup and resource behavior",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "Evidence": ["artifacts/validation/mediawiki-scribunto-memory-characterization-v1.json", "artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json"],
+      "RequiredCompletionEvidence": "Live startup/post-init/idle/bounded-Lua memory and cgroup termination evidence",
+      "AuthorizationRequired": "Disposable resource experiment approval",
+      "SafetyCriticality": "HIGH",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Host administrator",
+      "NextPermittedAction": "Characterize under unchanged policy; do not raise MemoryMax from static evidence"
+    },
+    {
+      "GateId": "CURRENT_CARGO_SCALAR",
+      "Capability": "Explicit current-state scalar Cargo query subset",
+      "CurrentStatus": "IMPLEMENTED_VERIFIED",
+      "Evidence": ["artifacts/validation/mediawiki-cargo-runtime-diagnostic-v1.json", "artifacts/validation/mediawiki-cargo-provider-readiness-v1.json"],
+      "RequiredCompletionEvidence": "Explicit dataset identity, schema allowlist, bounded query, and no production activation",
+      "AuthorizationRequired": "Separate current-state snapshot authorization",
+      "SafetyCriticality": "MEDIUM",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": false,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Cargo/provider maintainer",
+      "NextPermittedAction": "Use only with current-state label and explicit snapshot identity"
+    },
+    {
+      "GateId": "CARGO_HELPER_RELATIONSHIPS",
+      "Capability": "Typed helper relationship joins and result shapes",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "Evidence": ["artifacts/validation/mediawiki-cargo-provider-readiness-v1.json", "artifacts/validation/mediawiki-cargo-relationship-compatibility-v1.json"],
+      "RequiredCompletionEvidence": "Helper metadata, rows, semantics, and bounded typed provider verification",
+      "AuthorizationRequired": "Separate helper evidence authorization",
+      "SafetyCriticality": "HIGH",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Cargo/provider maintainer",
+      "NextPermittedAction": "Keep positive activation rejected; acquire helper evidence separately"
+    },
+    {
+      "GateId": "HISTORICAL_CARGO_PARITY",
+      "Capability": "Fixture-correlated historical Cargo rows",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "Evidence": ["artifacts/validation/mediawiki-cargo-historical-provenance-v1.json", "artifacts/validation/mediawiki-cargo-snapshot-authentic-v1.json"],
+      "RequiredCompletionEvidence": "Historical dataset identity, rebuild interval, base/helper rows, transaction consistency, fixture correlation, and hashes",
+      "AuthorizationRequired": "Separate read-only historical data approval",
+      "SafetyCriticality": "CRITICAL_FOR_HISTORICAL_PARITY",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "MediaWiki/Cargo data administrator",
+      "NextPermittedAction": "Request metadata manifest first; do not export private rows without authorization"
+    },
+    {
+      "GateId": "MERMAID_VISUAL_PARITY",
+      "Capability": "MediaWiki Mermaid visual rendering",
+      "CurrentStatus": "UNSUPPORTED",
+      "Evidence": ["artifacts/validation/mediawiki-extension-compatibility-v1.json", "artifacts/validation/mediawiki-expansion-characterization-v1.json"],
+      "RequiredCompletionEvidence": "Approved bounded rendering contract and independent visual reference comparison",
+      "AuthorizationRequired": "Separate extension/rendering approval",
+      "SafetyCriticality": "MEDIUM",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": "AFFECTED_CONTENT_ONLY",
+      "RecommendedOwnerRole": "Renderer/product owner",
+      "NextPermittedAction": "Retain safe static fallback and explicit unsupported classification"
+    },
+    {
+      "GateId": "TEMPLATESTYLES_COMPATIBILITY",
+      "Capability": "TemplateStyles and missing reference-side extension resources",
+      "CurrentStatus": "UNVERIFIED",
+      "Evidence": ["artifacts/validation/mediawiki-reference-aware-evaluation-v1.json", "artifacts/validation/mediawiki-compatibility-certification-v1.json"],
+      "RequiredCompletionEvidence": "Authentic source/resource evidence and bounded safe rendering contract",
+      "AuthorizationRequired": "Source/reference evidence if implementation is pursued",
+      "SafetyCriticality": "MEDIUM",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": true,
+      "BlocksProductionMigration": "AFFECTED_CONTENT_ONLY",
+      "RecommendedOwnerRole": "Renderer/product owner",
+      "NextPermittedAction": "Keep the two reference-error fixtures as negative evidence"
+    },
+    {
+      "GateId": "PRODUCTION_ACTIVATION",
+      "Capability": "Production Lua/Cargo/service activation",
+      "CurrentStatus": "BLOCKED_BY_EVIDENCE",
+      "AuthorizationStatus": "NOT_AUTHORIZED",
+      "Evidence": ["artifacts/validation/mediawiki-compatibility-gap-inventory-v1.json", "artifacts/validation/mediawiki-scribunto-host-certification-v1.json"],
+      "RequiredCompletionEvidence": "Separate production approval after all migration and host gates pass",
+      "AuthorizationRequired": "Explicit production change approval",
+      "SafetyCriticality": "CRITICAL",
+      "BlocksSourceOnlyTesting": false,
+      "BlocksControlledMigrationTest": false,
+      "BlocksProductionMigration": true,
+      "RecommendedOwnerRole": "Production change authority",
+      "NextPermittedAction": "Remain disabled and rejecting by default"
+    }
+  ],
+  "ReadinessDecisions": {
+    "SourceOnlyDiagnostics": {
+      "Decision": "GO",
+      "Scope": "Synthetic, static, bounded renderer/provider diagnostics that do not activate the uncertified worker or access production data",
+      "Conditions": [
+        "Preserve strict planner and all resource budgets",
+        "Keep rejecting Scribunto/Cargo defaults",
+        "Label current-state and synthetic data explicitly",
+        "Do not claim historical parity"
+      ],
+      "NotIncluded": "Real historical Lua execution, production Cargo reads, and source-dependent Jovan rendering"
+    },
+    "ControlledDisposableMigration": {
+      "Decision": "CONDITIONAL",
+      "CurrentAuthorization": "NO AUTHORIZATION; do not execute now",
+      "UnsatisfiedConditions": [
+        "Complete source-preserving historical export and dependency closure",
+        "Valid eligible source body for every required dependency",
+        "Independent disposable target authorization",
+        "Strict plan inspection and approval",
+        "Post-import read-only verification",
+        "Separate worker host certification before socket-backed real-fixture execution",
+        "Explicit treatment of historical Cargo and unsupported extensions"
+      ],
+      "PermittedAfterConditions": "Run the existing disposable diagnostic harness only; no production connection or service activation."
+    },
+    "ProductionMigration": {
+      "Decision": "NO_GO",
+      "Reasons": [
+        "Worker host certification blocked",
+        "Historical source dependency closure incomplete",
+        "Historical Cargo parity unavailable",
+        "Real compatibility comparisons remain failed or unevaluated",
+        "Unsupported Mermaid/TemplateStyles behavior remains",
+        "Controlled disposable migration has not been freshly verified"
+      ],
+      "ReassessmentRule": "Production migration remains NO_GO until all critical gates are PASS and a separate production change approval exists."
+    }
+  },
+  "ExecutionOrder": [
+    {
+      "Order": 1,
+      "Action": "Acquire the minimum authorized historical source export and dependency closure",
+      "Evidence": "Source export identity, page/revision metadata, raw bodies, hashes, and provenance",
+      "Authorization": "MediaWiki read-only export approval"
+    },
+    {
+      "Order": 2,
+      "Action": "Verify source identities, timestamps, hashes, namespaces, and eligible revision selection",
+      "Evidence": "Unchanged inventory and strict planner output",
+      "Authorization": "Migration operator review"
+    },
+    {
+      "Order": 3,
+      "Action": "Complete direct/transitive dependency closure without later-revision substitution",
+      "Evidence": "No unresolved required source body; missing/conditional/data/extension diagnostics retained",
+      "Authorization": "Migration operator review"
+    },
+    {
+      "Order": 4,
+      "Action": "Authorize and identify a fresh disposable database target",
+      "Evidence": "Purpose, database identity, isolation, credentials handling, and emptiness verified",
+      "Authorization": "Database administrator"
+    },
+    {
+      "Order": 5,
+      "Action": "Execute the existing strict planned disposable import",
+      "Evidence": "Import batch, transactional reconciliation, counts, source/stored hashes",
+      "Authorization": "Explicit disposable import approval"
+    },
+    {
+      "Order": 6,
+      "Action": "Perform read-only post-import verification",
+      "Evidence": "Jovan@9482, eligible dependencies, namespace/title identities, hashes, and no production mutation",
+      "Authorization": "Migration operator"
+    },
+    {
+      "Order": 7,
+      "Action": "Run eligible source-only diagnostics and classify extension/Cargo limitations",
+      "Evidence": "Bounded outputs and structured diagnostics; no parity claim",
+      "Authorization": "None beyond repository test scope"
+    },
+    {
+      "Order": 8,
+      "Action": "Run separate dedicated-identity host certification",
+      "Evidence": "All required host controls PASS and sanitized reports preserved",
+      "Authorization": "Host administrator"
+    },
+    {
+      "Order": 9,
+      "Action": "Acquire helper and historical Cargo evidence where authorized",
+      "Evidence": "Dataset/schema/rebuild/transaction/fixture correlation and hashes",
+      "Authorization": "MediaWiki/Cargo data administrator"
+    },
+    {
+      "Order": 10,
+      "Action": "Run eligible real-fixture execution and compare against unchanged references",
+      "Evidence": "Per-fixture output, provenance, diagnostics, and exact/partial/unsupported/failure classification",
+      "Authorization": "Host and migration operators"
+    },
+    {
+      "Order": 11,
+      "Action": "Reassess historical parity and migration readiness",
+      "Evidence": "Updated gates, independent approvals, and no unsupported claims",
+      "Authorization": "Migration review authority"
+    }
+  ],
+  "SecurityPreservation": {
+    "ProductionLuaEnabled": false,
+    "RejectingScribuntoDefault": true,
+    "RejectingCargoDefault": true,
+    "CargoRelationshipsActive": false,
+    "CargoStoreSupported": false,
+    "LuaDatabaseFilesystemNetworkAccess": false,
+    "StrictPlannerChanged": false,
+    "ResourceBudgetsRelaxed": false,
+    "SystemdBubblewrapSelinuxChanged": false,
+    "SocketPermissionsChanged": false,
+    "ProductionServicesRestarted": false,
+    "BinariesDeployed": false,
+    "ProductionDatabaseWritten": false,
+    "OriginalSourceReferencesAndAuthenticatedSnapshotsModified": false,
+    "CredentialsOrPrivateCargoRowsRecorded": false
+  },
+  "Verification": {
+    "DocumentationOnlyChangesForThisMilestone": true,
+    "FreshFullBuild": "NOT_REQUIRED; no application source or test changes made for CW-M4-003",
+    "FreshFullRegression": "NOT_REQUIRED; latest recorded baseline retained and explicitly timestamped",
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "SecretScan": "PASSED; no credential-bearing values or private Cargo rows included",
+    "EarlierEvidenceHashes": "Preserved in referenced reports; no source/reference/Cargo snapshot mutation performed",
+    "Commands": [
+      {
+        "Command": "python3 -m json.tool artifacts/validation/mediawiki-migration-readiness-v1.json",
+        "Result": "PASSED"
+      },
+      {
+        "Command": "git diff --check",
+        "Result": "PASSED"
+      },
+      {
+        "Command": "jq evidence-path extraction followed by filesystem existence checks for CompatibilityGateMatrix evidence",
+        "Result": "PASSED; all gate evidence paths exist"
+      },
+      {
+        "Command": "sha256sum /home/cdjensen94/continuumwiki-validation/references/*.json",
+        "Result": "PASSED; eight private reference files present and hashes recorded unchanged"
+      },
+      {
+        "Command": "rg secret-bearing patterns in the new report and operational plan",
+        "Result": "PASSED"
+      }
+    ]
+  },
+  "RemainingEvidenceGaps": [
+    "Complete raw historical source export and source-body hashes",
+    "Eligible Module:DivineMeta revision or authoritative proof none exists",
+    "Independent disposable database authorization and current target verification",
+    "Fresh source-complete import and post-import verification",
+    "Dedicated worker host certification and runtime memory characterization",
+    "Historical Cargo base/helper rows and fixture correlation",
+    "Typed helper relationship semantics",
+    "Approved Mermaid visual and TemplateStyles behavior if required by migration scope"
+  ],
+  "RecommendedNextMilestone": {
+    "Name": "CW-M4-004 — Authorized source-complete disposable rehearsal and independent host-gate execution",
+    "ShortestSafeSequence": "Obtain source metadata/body evidence first; then authorize a fresh disposable target; then execute strict import and read-only reconciliation; certify the worker separately; acquire Cargo evidence only under separate read-only authorization; finally rerun eligible comparisons.",
+    "DoNotDo": [
+      "Do not enable production Lua or Cargo",
+      "Do not substitute current Cargo rows for historical data",
+      "Do not select later source revisions",
+      "Do not reset existing disposable evidence without approval",
+      "Do not treat this plan as execution authorization"
+    ]
+  }
+}

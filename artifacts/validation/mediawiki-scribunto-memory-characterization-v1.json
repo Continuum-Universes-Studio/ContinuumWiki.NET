@@ -1,0 +1,91 @@
+{
+  "ReportVersion": "cw-m4-001b-scribunto-memory-characterization-v1",
+  "GeneratedAtUtc": "2026-10-11T16:42:00Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Verdict": "STATIC_INVESTIGATION_VERIFIED_RUNTIME_CHARACTERIZATION_BLOCKED",
+  "Authorization": {
+    "Procedure": "docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md",
+    "CurrentIdentity": "uid=1000(cdjensen94), gid=1000(cdjensen94), effective groups do not include continuumwiki-scribunto gid 427",
+    "ActivationAuthorization": false,
+    "DisposableResourceExperimentAuthorization": false,
+    "Decision": "Only read-only inspection and offline analysis performed; no worker activation, memory experiment, transient unit, or failure probe was attempted."
+  },
+  "ArtifactIdentity": {
+    "WorkerPath": "/srv/continuumwiki/current/ScribuntoWorker/bin/Release/net10.0/ContinuumWiki.ScribuntoWorker.dll",
+    "WorkerSha256": "f0301d935166bff81a8b9100ccbd122a1fc118e59d2d97486ba386e15c4ee37b",
+    "LauncherPath": "/usr/local/libexec/continuumwiki-scribunto-worker-launcher",
+    "LauncherSha256": "4a2238ccd114c46456e78b433e8c6b3f2b23a63742a01c2b8f9ba309f14af714",
+    "PreviousMilestoneHashesMatch": true,
+    "DeployedSha256Manifest": "sha256sum -c SHA256SUMS passed for the deployed bundle; output was fully successful.",
+    "ProductionArtifactsChanged": false
+  },
+  "HistoricalFailureInventory": {
+    "Status": "PARTIALLY_RECONCILED",
+    "Failures": [
+      {"Instances": ["continuumwiki-scribunto-worker@3-41109-577950_614923-427.service", "continuumwiki-scribunto-worker@4-53324-578822_548002-427.service"], "ObservedExitStatus": 137, "EvidenceConfidence": "HIGH_FOR_STARTUP_MESSAGE; INSUFFICIENT_FOR_CGROUP_OOM", "StartupStage": "CORECLR_INITIALIZATION", "Evidence": "Operator-supplied journal for instance 4 recorded GC bookkeeping reservation failure, CoreCLR heap initialization failure HRESULT 0x8007000E, and status 137 under MemoryMax=256M.", "CgroupOomConfirmed": false, "Classification": "CoreCLR/GC initialization failed under the configured memory ceiling; exit 137 is not independently classified as cgroup OOM."},
+      {"Instances": ["continuumwiki-scribunto-worker@5-8972-579447_606966-427.service"], "ObservedExitStatus": 134, "EvidenceConfidence": "LOW", "StartupStage": "INDETERMINATE", "CgroupOomConfirmed": false, "Classification": "Cause unavailable; current journal/cgroup counters were not accessible."},
+      {"Instances": ["continuumwiki-scribunto-worker@0-49639-568972_570746-427.service", "continuumwiki-scribunto-worker@1-57759-569138_579826-427.service", "continuumwiki-scribunto-worker@2-29238-572373_606620-427.service", "continuumwiki-scribunto-worker@54-29584-699891_699553-1000.service", "continuumwiki-scribunto-worker@55-16182-700863_706186-1000.service", "continuumwiki-scribunto-worker@56-58096-700969_717682-1000.service"], "ObservedExitStatus": 1, "EvidenceConfidence": "LOW", "StartupStage": "INDETERMINATE", "CgroupOomConfirmed": false, "Classification": "Cause unavailable; current journal/cgroup counters were not accessible."}
+    ],
+    "NotDemonstrated": ["cgroup memory.events oom/oom_kill", "kernel OOM-kill record", "SELinux denial", "bubblewrap setup failure", "missing shared dependency", "protocol readiness", "MoonSharp initialization", "bounded Lua execution", "cancellation behavior"]
+  },
+  "RuntimeConfigurationAudit": {
+    "RuntimeConfig": {"TargetFramework": "net10.0", "Frameworks": ["Microsoft.NETCore.App 10.0.0", "Microsoft.AspNetCore.App 10.0.0"], "ConfigProperties": {"System.Reflection.Metadata.MetadataUpdater.IsSupported": false, "System.Reflection.NullabilityInfoContext.IsSupported": true, "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false}, "GcHeapHardLimit": "NOT_PRESENT", "GcServerMode": "NOT_PRESENT", "RuntimeRollForward": "NOT_PRESENT"},
+    "ServiceEnvironment": "Environment= empty for observed service instances; no EnvironmentFile was reported.",
+    "LauncherEnvironment": {"Clearenv": true, "SetVariables": ["DOTNET_ROOT=/dotnet", "DOTNET_ROOT_X64=/dotnet", "HOME=/tmp", "TMPDIR=/tmp", "PATH=/dotnet"], "GcOverrides": "NONE_OBSERVED"},
+    "RuntimeInventory": {"DotnetExecutable": "/opt/dotnet/dotnet", "Microsoft.NETCore.App": ["10.0.7", "10.0.10", "10.0.11", "10.0.12"], "Microsoft.AspNetCore.App": ["10.0.7", "10.0.10", "10.0.11", "10.0.12"]},
+    "AddressSpace": {"SystemdLimitAS": "infinity", "LauncherPrlimitASBytes": 2147483648},
+    "NativeDependencyStatus": "Static bundle/dependency manifest present and verified; runtime load not exercised.",
+    "Interpretation": "No invalid GC override or missing declared runtime framework was found statically. The 256 MiB cgroup ceiling remains a plausible contributor to the recorded CoreCLR initialization failure, but is not proven causal without cgroup counters or an authorized controlled comparison."
+  },
+  "StartupStageAttribution": {
+    "WorkerEntryPoint": "Program.Main reads one bounded protocol line before Execute creates a MoonSharp Script; no startup marker proves stages beyond process/runtime initialization.",
+    "Exit137": "CORECLR_INITIALIZATION based on the supplied GC/CoreCLR message; assembly loading, MoonSharp, protocol-ready, Lua, and shutdown stages were not reached or not evidenced.",
+    "Exit134And1": "INDETERMINATE; no stage marker or journal cause available.",
+    "Bubblewrap": "Declared launcher configuration inspected; effective setup not observed.",
+    "Selinux": "Host enforcing state observed; no worker denial correlation available."
+  },
+  "MemoryAccounting": {
+    "CgroupMemoryBaseline": "UNAVAILABLE",
+    "WorkerStartupPeak": "UNAVAILABLE",
+    "PostInitialization": "UNAVAILABLE",
+    "IdleResidentMemory": "UNAVAILABLE",
+    "BoundedLuaPeak": "UNAVAILABLE",
+    "CancellationCleanup": "UNAVAILABLE",
+    "CgroupMemoryEvents": "UNAVAILABLE",
+    "ProcessTerminationReason": "Only exit status observed for failed units; mechanism not independently established",
+    "MeasurementIntegrity": "No memory number was fabricated or inferred from managed heap, exit code, or MemoryMax alone."
+  },
+  "DiagnosticMemoryMatrix": {
+    "256MiB": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "384MiB": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "512MiB": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "768MiB": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "NormalBoundedLua": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "Cancellation": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "Recovery": "NOT_RUN_AUTHORIZATION_BLOCKED",
+    "Recommendation": "No production resource-policy change is supported by current evidence. Do not increase MemoryMax from this report."
+  },
+  "CgroupAndSecurityEvidence": {
+    "ConfiguredMemoryMaxBytes": 268435456,
+    "ConfiguredTasksMax": 32,
+    "ConfiguredCpuQuota": "100%",
+    "ConfiguredLimitCPUSeconds": 2,
+    "ConfiguredLimitNOFILE": 256,
+    "ConfiguredLauncherAddressSpaceBytes": 2147483648,
+    "ObservedLiveCgroup": "UNAVAILABLE; failed instances had empty ControlGroup",
+    "Selinux": "enabled/enforcing/targeted; worker context unavailable",
+    "ProductionLua": false,
+    "RejectingScribuntoDefault": true,
+    "RejectingCargoDefault": true,
+    "SecurityChanges": false
+  },
+  "Verification": {
+    "RuntimeReportJson": "PASSED",
+    "DiffCheck": "PASSED",
+    "FullRegression": "NOT_RUN; no application source or test files changed",
+    "FocusedTests": "Prior CW-M4-001 evidence: 59 passed, 0 failed; not rerun for this static-only milestone"
+  },
+  "RemainingBlockers": ["Explicit authorization for a disposable worker/resource experiment", "Dedicated worker identity and effective socket access", "Current journal and cgroup memory.events access", "Live startup/post-init/idle/normal-Lua memory measurements", "Controlled limit comparison and cancellation/recovery evidence"],
+  "RecommendedNextMilestone": "Run the authorized disposable memory matrix under the unchanged sandbox and identity, beginning at 256 MiB, with cgroup memory.current/high/events and process termination evidence; keep any resource-policy change as a separate approval decision.",
+  "EvidenceReferences": ["docs/operations/SCRIBUNTO-HOST-CERTIFICATION.md", "deploy/systemd/continuumwiki-scribunto-worker@.service", "deploy/systemd/continuumwiki-scribunto-worker-launcher", "ScribuntoWorker/Program.cs", "ScribuntoWorker/ScribuntoWorker.csproj", "/srv/continuumwiki/current/ScribuntoWorker/bin/Release/net10.0/ContinuumWiki.ScribuntoWorker.runtimeconfig.json", "/srv/continuumwiki/current/ScribuntoWorker/bin/Release/net10.0/SHA256SUMS", "artifacts/validation/mediawiki-scribunto-runtime-certification-v1.json"]
+}

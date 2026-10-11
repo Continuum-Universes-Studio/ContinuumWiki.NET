@@ -1,27 +1,403 @@
 {
-  "ReportVersion": "cw-m3-006c.2-gap-inventory-v1",
-  "Status": "OPEN",
-  "Gaps": [
+  "ReportVersion": "cw-m3-007a-compatibility-gap-inventory-v1",
+  "GeneratedAtUtc": "2026-10-11T14:20:24Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "OverallStatus": "INVESTIGATION_VERIFIED_IMPLEMENTATION_ROADMAP_READY_ADDITIONAL_EVIDENCE_REQUIRED",
+  "Scope": "Evidence reconciliation and prioritization only; no broad compatibility implementation was performed.",
+  "WorkingTree": "DIRTY_BEFORE_TASK; pre-existing user changes and generated build outputs were preserved.",
+  "BaselineVerification": {
+    "DebugTestCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "DebugTests": {"Passed": 259, "Failed": 0, "Skipped": 22, "Total": 281},
+    "ReleaseBuildCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseBuild": {"Status": "PASSED", "Warnings": 0, "Errors": 0},
+    "DisposableImport": {"Status": "VERIFIED", "ImportBatchId": 1, "Pages": 19, "Revisions": 123},
+    "SocketExecution": {"Status": "REACHED_AND_RESPONDED", "Path": "/run/continuumwiki/scribunto-worker.sock", "RealFixtureComparisons": 6},
+    "HostSandboxCertification": "HOST_CERTIFICATION_UNAVAILABLE",
+    "ProductionMutation": "NONE",
+    "ProductionLua": "DISABLED",
+    "DefaultCargoProvider": "REJECTING",
+    "WorkerIsolation": "UNCHANGED"
+  },
+  "EvidenceReferences": [
+    {"Path": "artifacts/validation/mediawiki-cargo-dependency-audit-v1.json", "Status": "COMPLETE_WITH_UNRESOLVED_PROVENANCE"},
+    {"Path": "artifacts/validation/mediawiki-cargo-historical-provenance-v1.json", "Status": "INVESTIGATION_VERIFIED_HISTORICAL_PARITY_UNAVAILABLE"},
+    {"Path": "artifacts/validation/mediawiki-cargo-runtime-diagnostic-v1.json", "Status": "CURRENT_STATE_CARGO_RUNTIME_VERIFIED_HISTORICAL_PARITY_PENDING"},
+    {"Path": "artifacts/validation/mediawiki-cargo-provider-readiness-v1.json", "Status": "CURRENT_SNAPSHOT_VERIFIED_PROVIDER_INACTIVE"},
+    {"Path": "artifacts/validation/mediawiki-reference-aware-evaluation-v1.json", "Status": "SIX_REFERENCE_SUCCESS_TWO_REFERENCE_ERROR"},
+    {"Path": "artifacts/validation/mediawiki-safe-fixture-eligibility-v1.json", "Status": "SIX_DISPOSABLE_CANDIDATES_ZERO_STRICT_ELIGIBLE"},
+    {"Path": "artifacts/validation/mediawiki-real-socket-execution-v1.json", "Status": "SOCKET_SMOKE_VERIFIED_REAL_PARITY_NOT_CLAIMED"},
+    {"Path": "artifacts/validation/mediawiki-module-inventory-v1.json", "Status": "30_MODULES_89_REVISIONS_2175_INVOCATIONS"},
+    {"Path": "docs/architecture/MEDIAWIKI-WIKITEXT-COMPATIBILITY.md", "Status": "SUPPORTED_SUBSET_AND_BOUNDED_DIAGNOSTIC_POLICY"},
+    {"Path": "docs/architecture/MEDIAWIKI-MOONSHARP-COMPATIBILITY.md", "Status": "TYPED_CAPABILITIES_AND_SANDBOX_BOUNDARY"}
+  ],
+  "ImplementedSurface": {
+    "Import": ["lossless Wikitext and revision provenance", "transactional disposable MediaWiki import", "revision-aware template/module resolution", "dependency and unsupported-construct diagnostics"],
+    "Wikitext": ["headings", "emphasis", "lists", "bounded tables", "links and files", "categories", "redirects", "references", "bounded named/positional template expansion", "selected parser functions", "selected magic words", "safe URL and HTML handling"],
+    "Scribunto": ["typed invocation boundary", "socket worker transport", "MoonSharp worker execution", "bounded source/argument/result/dependency/instruction/time controls", "mw.title", "mw.text", "mw.ustring", "selected mw.site/mw.language/data loading", "explicit diagnostic Cargo result bundle"],
+    "Cargo": ["schema-verified host provider", "authenticated current-state snapshot", "bounded scalar query subset", "typed pre-resolved worker transfer", "fail-closed historical provenance and helper-field rejection"],
+    "DefaultSecurity": ["rejecting Lua executor", "production Lua disabled", "no Lua database/filesystem/network access", "systemd and bubblewrap isolation preserved"]
+  },
+  "ObservedApiInventory": {
+    "SourceModules": 30,
+    "SourceRevisions": 89,
+    "RealInvocationSites": 2175,
+    "ReferencedMwApis": {"require": 13, "mw.text": 11, "mw.title": 9, "mw.ustring": 7, "mw.site": 3, "mw.loadData": 2, "mw.language": 1},
+    "StaticUnsupportedReferences": {"mw.ext": 6, "mw.getCurrentFrame": 3, "os.": 1},
+    "CargoParserFunctionOccurrences": 11,
+    "EvidenceLimit": "Static inventory is not proof that every API is reached by a selected fixture. Reachability is recorded only where runtime diagnostics or source context establish it."
+  },
+  "ReferenceAndOutputIntegrity": {
+    "ReferenceFiles": [
+      {"FixtureId": "mw-invoke-075b2608d7c07c57", "FileSha256": "2bc1afa08c54b4eefbc95da1ad4cbd2c6c9b0e00d18a7391e9a1396fb54c188f", "RawApiResponseSha256": "faed5d67c61406977f1d2e4f73590ebb89c95cb47fa7a8b3ccfcf8c6d0b86b41"},
+      {"FixtureId": "mw-invoke-0aacc6fd104a1bc6", "FileSha256": "d41145d0729f05b5c083f23edaf1a8df5d4af1416dddd5aa8b0392926b68b224", "RawApiResponseSha256": "41c5457502d5076683913209181ecd64422e98b60b928dc11e086eb69fdf1e9c"},
+      {"FixtureId": "mw-invoke-5c66128828b0dd24", "FileSha256": "570c118d1a8781d48b89b06bec3f346d7c24a4cbef333d11bc09b6082cfe9f11", "RawApiResponseSha256": "4688028831ec522c171bfafbedaed6a332df9709ffcdc2dbe20c32f752b842c6"},
+      {"FixtureId": "mw-invoke-72066581f5f001e8", "FileSha256": "3c4af03b178b532b212b508aa5960cb11c928ded884a6e5861af12d72ba062b8", "RawApiResponseSha256": "106ff0224a3326080b0fe6a33ad86bfad0dc594c5d29f1610a679d09e2f7a4e0"},
+      {"FixtureId": "mw-invoke-79af37a81a16b674", "FileSha256": "17d4d146c49b36b2298437b3cd427720fef294f8df2cf6a19d6ea27ca5c9c873", "RawApiResponseSha256": "cfb3ab5800a04676466945625c533e86b5437d5ee1861d3c97d6cd99fa178dd0"},
+      {"FixtureId": "mw-invoke-8d5e90707608a71b", "FileSha256": "c87d53a11139a9d0f217087347e1c3d7db475a6a5eb23e119ce91be0322c26a6", "RawApiResponseSha256": "03f34faef785e5cf84a2808eeecd9a43bac6ad2fbce977b110b07def5ecd1042"},
+      {"FixtureId": "mw-invoke-e5edab96328f070f", "FileSha256": "10fb8f69a96ed9e1e12acce9109c8451114a64d51778de49d183d88cd86480d5", "RawApiResponseSha256": "0dd10de62d91160a572c54bfa75d77c558edff70076237bebdd3052073d2dc9d"},
+      {"FixtureId": "mw-invoke-f9451d8b2558c7b8", "FileSha256": "61bb6821ca5921955fc6c5c9556cfb4188327a4483eeb31e83d2d12121c57134", "RawApiResponseSha256": "3af235831766d447a0cca35dd8f687838526d31171ee66760a111acc7df39ebe"}
+    ],
+    "ContinuumOutputs": [
+      {"FixtureId": "mw-invoke-0aacc6fd104a1bc6", "FileSha256": "6ee34da8366a6847fa96b1f9ceae7ec325791df4094cc7226fd90c21d4170a7d"},
+      {"FixtureId": "mw-invoke-5c66128828b0dd24", "FileSha256": "ecb6d0b6c48c4d622348f3b3e4bcb6058e2623c4bcd2640f61ff1cf35d007c6c"},
+      {"FixtureId": "mw-invoke-79af37a81a16b674", "FileSha256": "e2668cc1248b83ebb023b8bc843b1f4e20d757a347fb57dfa53032c03dfc4da2"},
+      {"FixtureId": "mw-invoke-8d5e90707608a71b", "FileSha256": "8f95f93bbd6f43219d0d0c5bc0e0ee8de7cbeeb41ee1ab8c5f89bf163609309d"},
+      {"FixtureId": "mw-invoke-e5edab96328f070f", "FileSha256": "5d3cf8395be074ff768a8c19985927a6a11a0a570a66414358db04fe2c157171"},
+      {"FixtureId": "mw-invoke-f9451d8b2558c7b8", "FileSha256": "3b0b3332337827cb7485138b8f2c75318532257949bc9a90af429006bfedbbc0"}
+    ],
+    "ComparisonReports": [
+      {"FixtureId": "mw-invoke-0aacc6fd104a1bc6", "Classification": "FAILED", "FileSha256": "5bdcd8ac0cf32354f469b3399412b87b7e731b919b131193890fec778772f688"},
+      {"FixtureId": "mw-invoke-5c66128828b0dd24", "Classification": "FAILED", "FileSha256": "bb722b8e036d0f91b23a93ba0343b934a097217b0dd2c8da522a4e085a8967c8"},
+      {"FixtureId": "mw-invoke-79af37a81a16b674", "Classification": "FAILED", "FileSha256": "18a0fdffde9007fb755534f184fdd050b86f20467ac275962ea19a3bdb37c73e"},
+      {"FixtureId": "mw-invoke-8d5e90707608a71b", "Classification": "FAILED", "FileSha256": "a1bf73779b4c372fa52c11a4815ce87a07f8a40a7946e67db9d7a6d75394523d"},
+      {"FixtureId": "mw-invoke-e5edab96328f070f", "Classification": "FAILED", "FileSha256": "8da78c7483d8ed801b2499f9e471883996e1955ccdabf76bfcf4e9355710359f"},
+      {"FixtureId": "mw-invoke-f9451d8b2558c7b8", "Classification": "FAILED", "FileSha256": "ae5704e1806157da219e5d794d86af86fd131c409407841634c22d0bf67eb49c"}
+    ]
+  },
+  "ReferenceFixtureInventory": [
     {
-      "GapId": "reference-capture-unavailable",
-      "Category": "Unknown",
-      "Priority": "blocking",
-      "AffectedFixtures": 8,
-      "RequiredAction": "Capture each corpus page revision from the approved MediaWiki renderer."
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "ReferenceClassification": "REFERENCE_SUCCESS",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:12.180274+00:00",
+      "PageTitle": "Template:Species",
+      "PageRevisionId": "9907",
+      "ModuleRevisionContext": ["Module:CargoSanitizer@9906", "Module:SpeciesVariants@9658"],
+      "OriginalInvocation": "{{#invoke:CargoSanitizer|cleanList|{{{eye_colors|}}}}",
+      "TemplateRevisionEvidence": [{"Title": "Documentation", "RevisionId": null, "Status": "TITLE_ONLY_IN_PLANNER; revision identity not recorded"}],
+      "CargoDependencies": ["Variants.Name", "Variants.Species", "Variants.GeneticAncestor", "Subvariants.Name", "Subvariants.Species", "Subvariants.GeneticAncestor"],
+      "ReferenceOutcome": "Successful HTML; Cargo and PortableInfobox resources present.",
+      "ContinuumOutcome": {"Comparison": "FAILED", "HtmlBytes": 228, "Diagnostics": ["#cargo_store unsupported", "CargoProviderUnavailable", "<infobox> unsupported", "unsupported parser-function marker"]},
+      "PrimaryClassification": "UNSUPPORTED_EXTENSION",
+      "SecondaryClassifications": ["HISTORICAL_DATA_UNAVAILABLE"],
+      "IndependentIssue": "Yes: bounded PortableInfobox and read-only Cargo behavior can be specified/tested separately; #cargo_store writes remain intentionally out of scope.",
+      "Testability": "CURRENT_STATE_OR_SYNTHETIC_ONLY; historical parity blocked"
     },
     {
-      "GapId": "dedicated-identity-sandbox-certification",
-      "Category": "Capability denial",
-      "Priority": "high",
-      "AffectedFixtures": 8,
-      "RequiredAction": "Run host sandbox certification as continuumwiki-scribunto; root execution is invalid evidence."
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "ReferenceClassification": "REFERENCE_SUCCESS",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:12.711355+00:00",
+      "PageTitle": "Template:Character2",
+      "PageRevisionId": "9456",
+      "ModuleRevisionContext": ["Module:CharacterFamily@9455"],
+      "OriginalInvocation": "{{#invoke:CharacterFamily|children}}",
+      "TemplateRevisionEvidence": [{"Title": "Documentation", "RevisionId": null, "Status": "TITLE_ONLY_IN_PLANNER; revision identity not recorded"}],
+      "CargoDependencies": ["Characters relationship fields"],
+      "ReferenceOutcome": "Successful HTML infobox.",
+      "ContinuumOutcome": {"Comparison": "FAILED", "HtmlBytes": 40, "Diagnostics": ["#cargo_store unsupported", "CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"]},
+      "PrimaryClassification": "HISTORICAL_DATA_UNAVAILABLE",
+      "SecondaryClassifications": ["UNSUPPORTED_EXTENSION", "RESOURCE_LIMIT", "CONFIGURATION_DIFFERENCE"],
+      "IndependentIssue": "Yes: helper-backed relationship result shape and deterministic fail-fast diagnostics are independently testable; current rows must not stand in for historical rows.",
+      "Testability": "SYNTHETIC_AND_EXPLICIT_CURRENT_STATE; historical parity blocked"
     },
     {
-      "GapId": "unsupported-mediawiki-apis",
-      "Category": "Missing mw.* API",
-      "Priority": "review",
-      "AffectedFixtures": 8,
-      "RequiredAction": "Compare only after reference capture; preserve intentional rejection behavior."
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "ReferenceClassification": "REFERENCE_SUCCESS",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:13.262327+00:00",
+      "PageTitle": "Template:Divine",
+      "PageRevisionId": "9468",
+      "ModuleRevisionContext": ["Module:DivineFamily@9467"],
+      "OriginalInvocation": "{{#invoke:DivineFamily|siblings}}",
+      "TemplateRevisionEvidence": [{"Title": "Documentation", "RevisionId": null, "Status": "TITLE_ONLY_IN_PLANNER; revision identity not recorded"}],
+      "CargoDependencies": ["Divines.Name", "Divines.Father", "Divines.Mother", "Divines.Spouses", "Divines.Consorts", "Divines.Companions", "Divines.NotableDivineSiblings", "Divines.NotableDivineOffspring", "Characters relationship fields"],
+      "ReferenceOutcome": "Successful HTML infobox.",
+      "ContinuumOutcome": {"Comparison": "FAILED", "HtmlBytes": 40, "Diagnostics": ["CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"]},
+      "PrimaryClassification": "HISTORICAL_DATA_UNAVAILABLE",
+      "SecondaryClassifications": ["FEATURE_MISSING", "RESOURCE_LIMIT", "CONFIGURATION_DIFFERENCE"],
+      "IndependentIssue": "Yes: typed bounded helper joins/result shaping can be tested with synthetic rows; no historical values are authenticated.",
+      "Testability": "SYNTHETIC_AND_EXPLICIT_CURRENT_STATE; historical parity blocked"
+    },
+    {
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "ReferenceClassification": "REFERENCE_SUCCESS",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:13.810279+00:00",
+      "PageTitle": "Template:Divine",
+      "PageRevisionId": "9469",
+      "ModuleRevisionContext": ["Module:DivineMeta has no inventoried revision at or before page revision; nearest later revision is 9470"],
+      "OriginalInvocation": "{{#invoke:DivineMeta|universes}}",
+      "TemplateRevisionEvidence": [{"Title": "Documentation", "RevisionId": null, "Status": "TITLE_ONLY_IN_PLANNER; revision identity not recorded"}],
+      "CargoDependencies": ["Divines.Name and metadata fields selected dynamically"],
+      "ReferenceOutcome": "Successful HTML infobox.",
+      "ContinuumOutcome": {"Comparison": "FAILED", "HtmlBytes": 40, "Diagnostics": ["CargoProviderUnavailable", "ScribuntoModuleMissing", "CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"]},
+      "PrimaryClassification": "SOURCE_DEPENDENCY_MISSING",
+      "SecondaryClassifications": ["HISTORICAL_DATA_UNAVAILABLE", "RESOURCE_LIMIT", "INDETERMINATE"],
+      "IndependentIssue": "No historical module identity is currently sufficient for a valid parity run; source inventory conflict must be resolved before implementation conclusions.",
+      "Testability": "BLOCKED_PENDING_AUTHENTIC_SOURCE_REVISION_AND_DATASET"
+    },
+    {
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "ReferenceClassification": "REFERENCE_SUCCESS",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:14.608498+00:00",
+      "PageTitle": "Jovan",
+      "PageRevisionId": "9482",
+      "ModuleRevisionContext": ["Module:DivineTree@9481", "Module:DivineFamily@9467", "Module:DivineMeta context"],
+      "OriginalInvocation": "{{#invoke:DivineTree|renderLocal}}",
+      "TemplateRevisionEvidence": [{"Title": "Divine", "RevisionId": null, "Status": "MISSING_AT_RUNTIME; no selected revision identity"}],
+      "CargoDependencies": ["Divines.Name", "Divines.Father", "Divines.Mother", "Divines.Children", "Divines relationship fields", "Characters relationship fields"],
+      "ReferenceOutcome": "Successful HTML infobox and mermaid-related output.",
+      "ContinuumOutcome": {"Comparison": "FAILED", "HtmlBytes": 5012, "Diagnostics": ["MissingTemplate Divine", "CargoProviderUnavailable", "mermaid unsupported", "UnsupportedTemplate", "UnresolvedInternalLink" ]},
+      "PrimaryClassification": "SOURCE_DEPENDENCY_MISSING",
+      "SecondaryClassifications": ["UNSUPPORTED_EXTENSION", "HISTORICAL_DATA_UNAVAILABLE", "FEATURE_MISSING"],
+      "IndependentIssue": "Yes: complete source dependency selection and bounded mermaid/relationship behavior can be tested independently; current import omitted required template context.",
+      "Testability": "DISPOSABLE_SOURCE_IMPORT_AND_SYNTHETIC_EXTENSION_TEST; historical parity blocked"
+    },
+    {
+      "FixtureId": "mw-invoke-075b2608d7c07c57",
+      "ReferenceClassification": "REFERENCE_ERROR",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:15.024496+00:00",
+      "PageTitle": "Template:Mbox",
+      "PageRevisionId": "6208",
+      "ModuleRevisionContext": ["Module:Message box has no inventoried revision at or before page revision; nearest later revision is 6209"],
+      "OriginalInvocation": "{{#invoke:Message box|mbox}}",
+      "TemplateRevisionEvidence": [{"Title": "Documentation", "RevisionId": null, "Status": "TITLE_ONLY_IN_REFERENCE_CONTEXT; revision identity not recorded"}],
+      "CargoDependencies": [],
+      "ReferenceOutcome": "Lua error: Module:Message box/configuration not found.",
+      "ContinuumOutcome": "NOT_ATTEMPTED; reference error is negative-test evidence.",
+      "PrimaryClassification": "REFERENCE_ERROR",
+      "SecondaryClassifications": ["SOURCE_DEPENDENCY_MISSING"],
+      "IndependentIssue": "No; do not treat matching error text as compatibility parity.",
+      "Testability": "NEGATIVE_REFERENCE_EVIDENCE_ONLY"
+    },
+    {
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "ReferenceClassification": "REFERENCE_SUCCESS",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:15.431568+00:00",
+      "PageTitle": "Template:Species",
+      "PageRevisionId": "9603",
+      "ModuleRevisionContext": ["Module:SpeciesVariants@9602"],
+      "OriginalInvocation": "{{#invoke:SpeciesVariants|infobox|species={{PAGENAME}}}}",
+      "TemplateRevisionEvidence": [{"Title": "Documentation", "RevisionId": null, "Status": "TITLE_ONLY_IN_PLANNER; revision identity not recorded"}],
+      "CargoDependencies": ["Variants.Name", "Variants.Species", "Variants.GeneticAncestor", "Subvariants.Name", "Subvariants.Species", "Subvariants.GeneticAncestor"],
+      "ReferenceOutcome": "Successful HTML infobox and Cargo output.",
+      "ContinuumOutcome": {"Comparison": "FAILED", "HtmlBytes": 40, "Diagnostics": ["#cargo_store unsupported", "CargoProviderUnavailable", "ExpansionTimeLimitExceeded", "UnsafeExternalUrl"]},
+      "PrimaryClassification": "HISTORICAL_DATA_UNAVAILABLE",
+      "SecondaryClassifications": ["UNSUPPORTED_EXTENSION", "RESOURCE_LIMIT", "CONFIGURATION_DIFFERENCE"],
+      "IndependentIssue": "Yes: bounded Cargo result shaping and infobox rendering can be tested with explicit current/synthetic evidence; #cargo_store writes remain out of scope.",
+      "Testability": "SYNTHETIC_AND_EXPLICIT_CURRENT_STATE; historical parity blocked"
+    },
+    {
+      "FixtureId": "mw-invoke-72066581f5f001e8",
+      "ReferenceClassification": "REFERENCE_ERROR",
+      "ReferenceCaptureTimestamp": "2026-10-11T06:03:15.788426+00:00",
+      "PageTitle": "Template:Extension",
+      "PageRevisionId": "7245",
+      "ModuleRevisionContext": ["Module:String@6195"],
+      "OriginalInvocation": "{{#invoke:String|replace|{{PAGENAME:{{translatable}}}}| |}}",
+      "TemplateRevisionEvidence": [{"Title": "Template translation", "RevisionId": null, "Status": "MISSING_IN_REFERENCE"}, {"Title": "Template:Infobox/styles.css", "RevisionId": null, "Status": "MISSING_IN_REFERENCE"}, {"Title": "Template:Extension/status.css", "RevisionId": null, "Status": "MISSING_IN_REFERENCE"}],
+      "CargoDependencies": [],
+      "ReferenceOutcome": "Template translation missing; Template:Infobox/styles.css and Template:Extension/status.css have no content; TemplateStyles errors present.",
+      "ContinuumOutcome": "NOT_ATTEMPTED; reference error is negative-test evidence.",
+      "PrimaryClassification": "REFERENCE_ERROR",
+      "SecondaryClassifications": ["SOURCE_DEPENDENCY_MISSING", "UNSUPPORTED_EXTENSION"],
+      "IndependentIssue": "No; do not implement missing source pages or fabricate TemplateStyles output.",
+      "Testability": "NEGATIVE_REFERENCE_EVIDENCE_ONLY"
     }
-  ]
+  ],
+  "GapInventory": [
+    {
+      "GapId": "historical-cargo-dataset",
+      "PrimaryClassification": "HISTORICAL_DATA_UNAVAILABLE",
+      "AffectedFixtures": ["mw-invoke-79af37a81a16b674", "mw-invoke-f9451d8b2558c7b8", "mw-invoke-e5edab96328f070f", "mw-invoke-8d5e90707608a71b", "mw-invoke-5c66128828b0dd24", "mw-invoke-0aacc6fd104a1bc6"],
+      "Evidence": ["mediawiki-cargo-historical-provenance-v1.json", "mediawiki-cargo-provider-readiness-v1.json", "mediawiki-cargo-runtime-diagnostic-v1.json", "CargoProviderUnavailable diagnostics"],
+      "Finding": "The only authenticated Cargo rows are current-state snapshot cargo-authentic-current-20261011-1; no fixture-correlated historical rows or transaction identity exists.",
+      "Testability": "BLOCKED for historical parity; current-state and synthetic testing remain separate",
+      "Priority": {"Tier": "P3", "SourceUsageFrequency": 5, "RenderingImpact": 5, "ArchitecturalDependencyImportance": 5, "IndependentTestability": 1, "ImplementationEffort": 5, "SecurityRisk": 4, "Evidence": "High impact but cannot be solved by implementation without authorized historical evidence."}
+    },
+    {
+      "GapId": "cargo-helper-result-shapes",
+      "PrimaryClassification": "FEATURE_MISSING",
+      "AffectedFixtures": ["mw-invoke-79af37a81a16b674", "mw-invoke-f9451d8b2558c7b8", "mw-invoke-e5edab96328f070f", "mw-invoke-8d5e90707608a71b", "mw-invoke-5c66128828b0dd24", "mw-invoke-0aacc6fd104a1bc6"],
+      "Evidence": ["mediawiki-cargo-provider-readiness-v1.json", "mediawiki-cargo-dependency-audit-v1.json"],
+      "Finding": "Scalar Cargo query transfer is implemented for explicitly supplied results, but helper-backed relationship fields and Divines.Children lack a complete typed join/result contract. This is not evidence that historical values are known.",
+      "Testability": "Synthetic bounded rows and explicit current-state snapshot only; historical parity remains blocked",
+      "Priority": {"Tier": "P1", "SourceUsageFrequency": 4, "RenderingImpact": 5, "ArchitecturalDependencyImportance": 5, "IndependentTestability": 4, "ImplementationEffort": 4, "SecurityRisk": 4, "Evidence": "Eleven audited Cargo call sites and provider report identify repeated helper-backed requirements."}
+    },
+    {
+      "GapId": "portable-infobox-extension",
+      "PrimaryClassification": "UNSUPPORTED_EXTENSION",
+      "AffectedFixtures": ["mw-invoke-79af37a81a16b674", "mw-invoke-0aacc6fd104a1bc6", "mw-invoke-f9451d8b2558c7b8", "mw-invoke-e5edab96328f070f", "mw-invoke-8d5e90707608a71b"],
+      "Evidence": ["real Continuum output diagnostics", "mediawiki-real-fixture-blockers-v1.json", "reference HTML infobox markers", "MediaWiki module compatibility docs"],
+      "Finding": "PortableInfobox/infobox extension output and styles are not implemented as a Continuum extension adapter. Generic table support is implemented, but that does not establish PortableInfobox parity.",
+      "Testability": "Independent specification/synthetic extension fixtures; authentic comparison requires complete source/data context",
+      "Priority": {"Tier": "P1", "SourceUsageFrequency": 4, "RenderingImpact": 5, "ArchitecturalDependencyImportance": 4, "IndependentTestability": 4, "ImplementationEffort": 4, "SecurityRisk": 3, "Evidence": "Reference outputs contain infobox structures; Continuum diagnostics explicitly reject infobox extension tags."}
+    },
+    {
+      "GapId": "cargo-store-parser-function",
+      "PrimaryClassification": "UNSUPPORTED_EXTENSION",
+      "AffectedFixtures": ["mw-invoke-79af37a81a16b674", "mw-invoke-0aacc6fd104a1bc6", "mw-invoke-f9451d8b2558c7b8"],
+      "Evidence": ["real Continuum output diagnostics", "mediawiki-cargo-dependency-audit-v1.json"],
+      "Finding": "#cargo_store is recognized but intentionally not evaluated. Implementing it would add write behavior and cannot be justified by a read-only Cargo provider or current snapshot.",
+      "Testability": "Negative/specification test only unless a separately authorized disposable write model is approved",
+      "Priority": {"Tier": "P3", "SourceUsageFrequency": 3, "RenderingImpact": 4, "ArchitecturalDependencyImportance": 3, "IndependentTestability": 2, "ImplementationEffort": 5, "SecurityRisk": 5, "Evidence": "Observed in output; write semantics conflict with the current read-only boundary."}
+    },
+    {
+      "GapId": "missing-template-context-jovan",
+      "PrimaryClassification": "SOURCE_DEPENDENCY_MISSING",
+      "AffectedFixtures": ["mw-invoke-5c66128828b0dd24"],
+      "Evidence": ["continuum output MissingTemplate Divine diagnostic", "continuum output UnresolvedInternalLink diagnostics", "mediawiki-safe-fixture-eligibility-v1.json"],
+      "Finding": "The diagnostic import did not provide Template:Divine and related page/template context required by the Jovan render. This is an import corpus/dependency completeness issue, not proof of a renderer defect.",
+      "Testability": "Disposable import with complete already-authorized source export; no fabricated template permitted",
+      "Priority": {"Tier": "P1", "SourceUsageFrequency": 2, "RenderingImpact": 4, "ArchitecturalDependencyImportance": 3, "IndependentTestability": 5, "ImplementationEffort": 2, "SecurityRisk": 2, "Evidence": "Runtime diagnostics identify the exact missing title."}
+    },
+    {
+      "GapId": "divine-meta-source-revision",
+      "PrimaryClassification": "SOURCE_DEPENDENCY_MISSING",
+      "AffectedFixtures": ["mw-invoke-8d5e90707608a71b"],
+      "Evidence": ["mediawiki-cargo-historical-provenance-v1.json", "mediawiki-module-inventory-v1.json", "ScribuntoModuleMissing diagnostic"],
+      "Finding": "The source inventory has no Module:DivineMeta revision at or before page revision 9469; revision 9470 is later and cannot be silently selected. The existing report/runtime identity is therefore unresolved.",
+      "Testability": "Blocked pending authoritative source revision; no implementation conclusion",
+      "Priority": {"Tier": "P3", "SourceUsageFrequency": 1, "RenderingImpact": 4, "ArchitecturalDependencyImportance": 3, "IndependentTestability": 1, "ImplementationEffort": 5, "SecurityRisk": 2, "Evidence": "Temporal source conflict is directly computed from preserved revision timestamps."}
+    },
+    {
+      "GapId": "mermaid-extension",
+      "PrimaryClassification": "UNSUPPORTED_EXTENSION",
+      "AffectedFixtures": ["mw-invoke-5c66128828b0dd24"],
+      "Evidence": ["continuum output UnsupportedExtensionTag mermaid diagnostic", "reference HTML mermaid marker"],
+      "Finding": "Mermaid extension rendering is preserved/diagnosed but not evaluated. No extension implementation or external rendering process exists in the bounded renderer.",
+      "Testability": "Synthetic safe placeholder/specification tests; real parity requires an approved rendering contract",
+      "Priority": {"Tier": "P2", "SourceUsageFrequency": 1, "RenderingImpact": 3, "ArchitecturalDependencyImportance": 2, "IndependentTestability": 4, "ImplementationEffort": 4, "SecurityRisk": 4, "Evidence": "One authentic fixture reaches the tag and the reference contains mermaid output."}
+    },
+    {
+      "GapId": "bounded-expansion-failure-attribution",
+      "PrimaryClassification": "RESOURCE_LIMIT",
+      "AffectedFixtures": ["mw-invoke-0aacc6fd104a1bc6", "mw-invoke-79af37a81a16b674", "mw-invoke-f9451d8b2558c7b8", "mw-invoke-e5edab96328f070f", "mw-invoke-8d5e90707608a71b"],
+      "Evidence": ["continuum output ExpansionTimeLimitExceeded diagnostics", "MediaWikiTemplateExpander bounded options and operation checks", "MediaWikiWikitextRendererTests budget cases"],
+      "Finding": "The renderer enforces finite 500 ms/10,000-operation diagnostic defaults and returns a bounded failure. Current evidence does not prove that the budget itself is too low or that a finite workload would complete after missing data/dependencies are supplied. Do not raise production limits.",
+      "Testability": "Synthetic recursion/finite-workload characterization; compare only after dependency/data blockers are removed",
+      "Priority": {"Tier": "P0", "SourceUsageFrequency": 4, "RenderingImpact": 5, "ArchitecturalDependencyImportance": 5, "IndependentTestability": 5, "ImplementationEffort": 3, "SecurityRisk": 5, "Evidence": "A real failure is observed, but causal attribution beyond bounded termination is not yet proven."}
+    },
+    {
+      "GapId": "reference-side-missing-dependencies",
+      "PrimaryClassification": "REFERENCE_ERROR",
+      "AffectedFixtures": ["mw-invoke-075b2608d7c07c57", "mw-invoke-72066581f5f001e8"],
+      "Evidence": ["mediawiki-reference-aware-evaluation-v1.json", "unchanged private reference HTML and RawApiResponseSha256"],
+      "Finding": "MediaWiki itself reports missing Module:Message box/configuration, Template translation, and TemplateStyles pages. These fixtures are negative evidence and cannot establish Continuum compatibility.",
+      "Testability": "Negative-test classification only; do not fabricate dependencies or compare matching errors as parity",
+      "Priority": {"Tier": "P3", "SourceUsageFrequency": 0, "RenderingImpact": 1, "ArchitecturalDependencyImportance": 1, "IndependentTestability": 5, "ImplementationEffort": 5, "SecurityRisk": 1, "Evidence": "Reference-side error text and hashes are independently recorded."}
+    },
+    {
+      "GapId": "static-unsupported-api-surface",
+      "PrimaryClassification": "INDETERMINATE",
+      "AffectedFixtures": ["mw-invoke-0aacc6fd104a1bc6", "mw-invoke-79af37a81a16b674", "mw-invoke-f9451d8b2558c7b8", "mw-invoke-e5edab96328f070f", "mw-invoke-8d5e90707608a71b", "mw-invoke-5c66128828b0dd24"],
+      "Evidence": ["mediawiki-module-inventory-v1.json: unsupported mw.ext/mw.getCurrentFrame/os references", "runtime CargoProviderUnavailable diagnostics"],
+      "Finding": "Static unsupported API inventory is broader than the reached failures. mw.ext.cargo has an explicit diagnostic host path; other mw.ext, frame, and os behavior remains unproven for the selected reachability paths. Do not add APIs solely from lexical inventory.",
+      "Testability": "Specification/synthetic reachability fixtures first; historical comparison only with complete source/data",
+      "Priority": {"Tier": "P3", "SourceUsageFrequency": 3, "RenderingImpact": 3, "ArchitecturalDependencyImportance": 4, "IndependentTestability": 4, "ImplementationEffort": 4, "SecurityRisk": 5, "Evidence": "Inventory evidence is static and explicitly incomplete."}
+    },
+    {
+      "GapId": "security-preserving-url-divergence",
+      "PrimaryClassification": "CONFIGURATION_DIFFERENCE",
+      "AffectedFixtures": ["mw-invoke-0aacc6fd104a1bc6", "mw-invoke-f9451d8b2558c7b8", "mw-invoke-e5edab96328f070f", "mw-invoke-8d5e90707608a71b"],
+      "Evidence": ["continuum output UnsafeExternalUrl diagnostics", "MediaWikiWikitextRenderer safe URL allowlist"],
+      "Finding": "The renderer rejects unsafe external URLs by design. This is a security-preserving divergence, not evidence that the URL policy should be weakened.",
+      "Testability": "Existing security regression coverage and specification tests",
+      "Priority": {"Tier": "P3", "SourceUsageFrequency": 1, "RenderingImpact": 1, "ArchitecturalDependencyImportance": 3, "IndependentTestability": 5, "ImplementationEffort": 5, "SecurityRisk": 5, "Evidence": "Diagnostics are explicit and the policy is covered by renderer/security tests."}
+    }
+  ],
+  "PrioritizedRoadmap": [
+    {
+      "Milestone": "CW-M3-007B",
+      "Title": "Bounded Wikitext expansion compatibility and failure attribution",
+      "Priority": "P0",
+      "Scope": ["Add characterization tests for finite workloads versus recursive/cyclic expansion", "preserve operation/time/output/depth budgets", "fail fast and retain the first causal diagnostic when a dependency/provider failure makes further expansion nonproductive"],
+      "DoNotDo": ["do not raise production budgets", "do not disable limits", "do not turn Cargo unavailable into empty data"],
+      "Acceptance": "A synthetic finite case passes, recursive/cyclic cases terminate with resource diagnostics, and real fixture timeouts are not attributed to parser defects without reproducing evidence."
+    },
+    {
+      "Milestone": "CW-M3-007C",
+      "Title": "Dependency-complete template and infobox rendering subset",
+      "Priority": "P1",
+      "Scope": ["Use only already-authorized source pages to make the Jovan diagnostic subset dependency-complete", "specify bounded PortableInfobox input/output behavior", "test table/attribute/sanitization boundaries"],
+      "Dependencies": ["complete source dependency selection", "no fabricated templates or extension pages"],
+      "Acceptance": "Synthetic and disposable-source tests distinguish missing source pages from renderer behavior; no claim of historical parity is made."
+    },
+    {
+      "Milestone": "CW-M3-007D",
+      "Title": "Typed Cargo relationship result shapes",
+      "Priority": "P1",
+      "Scope": ["Define bounded helper-table joins/result shaping for observed fields", "retain table/field allowlists and provenance-bearing bundles", "keep production provider rejecting by default"],
+      "Dependencies": ["current schema/helper metadata", "explicit current-state or synthetic dataset", "historical dataset remains optional for unrelated implementation tests"],
+      "Acceptance": "Synthetic helper rows and current-state labeled tests pass; unknown joins/fields, unversioned fallback, arbitrary SQL, and writes remain rejected."
+    },
+    {
+      "Milestone": "CW-M3-007E",
+      "Title": "Bounded extension compatibility",
+      "Priority": "P2",
+      "Scope": ["Evaluate mermaid and other high-impact extension tags only with an approved safe contract", "keep #cargo_store read-only/unsupported unless separately authorized", "classify TemplateStyles and reference-side errors separately"],
+      "Acceptance": "Each adapter has a focused synthetic/security test and does not execute PHP, network code, or arbitrary extension code."
+    },
+    {
+      "Milestone": "CW-M3-007F",
+      "Title": "Compatibility regression and diagnostic certification",
+      "Priority": "P2",
+      "Scope": ["rerun six positive fixtures after evidence and dependency blockers are addressed", "retain two reference errors as negative tests", "run dedicated-identity host certification separately", "classify exact/semantic/partial/unsupported/failure outcomes from actual artifacts"],
+      "Dependencies": ["valid source-module revisions", "revision-correlated Cargo evidence for historical claims", "authorized host certification"],
+      "Acceptance": "No parity claim without matching revision/data provenance and actual rendered output."
+    }
+  ],
+  "HistoricalProvenanceLimitations": {
+    "RevisionCorrelatedCargoDatasets": 0,
+    "TimeBoundedCargoDatasets": 0,
+    "CurrentStateOnlyCargoDatasets": 1,
+    "HistoricalParityEligibleFixtures": 0,
+    "Policy": "Current-state Cargo data is never substituted for historical rows. Historical parity remains an evidence gate, not a prerequisite for independent implementation work."
+  },
+  "SecurityPreservation": {
+    "ProductionLuaEnabled": false,
+    "DefaultExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "PositiveCargoProviderProductionActivation": false,
+    "LuaDatabaseAccess": false,
+    "LuaFilesystemAccess": false,
+    "LuaNetworkAccess": false,
+    "SystemdBubblewrapIsolationChanged": false,
+    "ResourceBudgetsRelaxed": false,
+    "StrictMigrationPlannerChanged": false,
+    "SourceAndReferenceArtifactsModified": false,
+    "ProductionDataModified": false
+  },
+  "Verification": {
+    "Commands": [
+      "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+      "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+      "python3 -m json.tool artifacts/validation/mediawiki-compatibility-gap-inventory-v1.json",
+      "sha256 verification of 8 private references, 6 private Continuum outputs, 6 comparison reports, and current snapshot/schema manifests",
+      "git diff --check"
+    ],
+    "Results": {
+      "DebugTests": "259 passed, 22 skipped, 0 failed",
+      "ReleaseBuild": "0 warnings, 0 errors",
+      "GapInventoryJson": "VALID",
+      "EvidenceHashChecks": "PASSED",
+      "DiffCheck": "PASSED"
+    },
+    "CodeModifiedForThisMilestone": false
+  },
+  "Claims": {
+    "ImplementationDefectsConfirmed": 0,
+    "FeatureMissingOrUnsupportedGaps": 4,
+    "SourceDependencyGaps": 2,
+    "HistoricalEvidenceGaps": 1,
+    "ReferenceErrorFixtures": 2,
+    "HistoricalParityClaim": "NOT_CLAIMED",
+    "RecommendedNextMilestone": "CW-M3-007B"
+  }
 }

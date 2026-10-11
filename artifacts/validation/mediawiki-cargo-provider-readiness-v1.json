@@ -1,8 +1,16 @@
 {
   "ReportVersion": "cw-m3.3-cargo-provider-readiness-v1",
-  "Status": "SCHEMA_RECONCILED_READONLY_PROVIDER_NOT_READY_HISTORICAL_DATA_UNVERIFIED",
+  "Status": "AUTHENTIC_CURRENT_SNAPSHOT_VERIFIED_HISTORICAL_DATA_UNVERIFIED_PROVIDER_INACTIVE",
   "InventorySha256Verified": true,
   "PositiveProviderEnabled": false,
+  "CurrentSnapshot": {
+    "SnapshotId": "cargo-authentic-current-20261011-1",
+    "SnapshotPath": "/home/cdjensen94/continuumwiki-validation/cargo-snapshot-authentic-20261011-1",
+    "ValidationReport": "artifacts/validation/mediawiki-cargo-snapshot-authentic-v1.json",
+    "Classification": "AUTHENTIC_SOURCE_CURRENT_STATE_INDEPENDENTLY_VERIFIED",
+    "HistoricalCorrelationVerified": false,
+    "ExactRows": {"Characters": 83, "Divines": 68, "Species": 57, "Subvariants": 1, "Variants": 40}
+  },
   "SchemaVerifiedProviderImplementation": {
     "Type": "SchemaVerifiedMediaWikiCargoQueryProvider",
     "HostSideOnly": true,
@@ -23,6 +31,6 @@
   "SchemaEvidence": {"ColumnsPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-columns-v1.tsv", "ColumnsSha256": "ade3431abf2cc321e333eac35c858d25f8c97a52e0379436aa52917cda1ebc4f", "IndexesPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-indexes-v1.tsv", "IndexesSha256": "952e50120fa88ed06bb163209afadfed99ec867a8d6dd69de5ea113c166beaeb", "ColumnsSidecar": "ABSENT", "IndexesSidecar": "ABSENT", "ColumnRows": 224, "IndexRows": 384, "AllRequiredBaseTablesPresent": true},
   "HistoricalProvenance": "UNVERIFIED",
   "CurrentToHistoricalFallback": "REJECTED",
-  "MissingEvidence": ["versioned row snapshot", "fixture-correlated historical snapshot", "typed helper-table join/result contract", "historical source configuration and timestamps", "independently captured Cargo query results"],
+  "MissingEvidence": ["fixture-correlated historical snapshot", "typed helper-table join/result contract", "historical source configuration and timestamps", "independently captured Cargo query results"],
   "Security": {"ArbitrarySql": "REJECTED", "LuaDatabaseAccess": "REJECTED", "Writes": "REJECTED", "RejectingProviderDefault": true}
 }

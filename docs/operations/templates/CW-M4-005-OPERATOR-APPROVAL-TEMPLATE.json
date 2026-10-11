@@ -1,0 +1,48 @@
+{
+  "SchemaVersion": "cw-m4-005-operator-approval-v1",
+  "ApprovalState": "NOT_REQUESTED",
+  "VerificationState": "UNVERIFIED",
+  "Track": "REPLACE_WITH_TRACK_A_B_C_OR_D",
+  "RequestedScope": {
+    "Purpose": "",
+    "ReadOnly": true,
+    "HistoricalRevisionScope": [],
+    "CargoTablesAndFields": [],
+    "DisposableTarget": "",
+    "WorkerIdentity": "",
+    "SocketPath": "",
+    "MutationScope": {
+      "CreateDisposableDatabase": false,
+      "CreateSyntheticIdentityRecords": false,
+      "CreateSyntheticWikiContent": false,
+      "MutateSyntheticPermissions": false,
+      "DeleteDisposableDatabase": false,
+      "CreateAndRemoveContainer": false,
+      "RetainSanitizedEvidence": false
+    }
+  },
+  "Approver": {
+    "Name": "",
+    "Role": "",
+    "RecordedAtUtc": ""
+  },
+  "Evidence": {
+    "Paths": [],
+    "Sha256": [],
+    "SourceExportIdentity": "",
+    "TargetIdentity": "",
+    "RetentionAndCleanup": ""
+  },
+  "AuthorizationBoundaries": {
+    "NewMediaWikiApiAccess": false,
+    "NewMediaWikiDatabaseAccess": false,
+    "NewBackupAccess": false,
+    "PrivateCargoRows": false,
+    "ProductionMariaDb": false,
+    "ProductionLua": false,
+    "SystemdOrBubblewrapChanges": false,
+    "WorkerDeployment": false,
+    "CredentialMaterialIncluded": false
+  },
+  "Notes": "Fill only with evidence-backed operator approval. Do not add credentials, private response bodies, or inferred source revisions."
+}

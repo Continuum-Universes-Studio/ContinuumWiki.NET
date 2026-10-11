@@ -14,6 +14,23 @@ public interface ITwMediaWikiImportRepository
     Task<TwMediaWikiPageTarget?> ResolvePageAsync(long importBatchId, string sourceTitle, CancellationToken cancellationToken = default);
     Task<TwMediaWikiMediaTarget?> ResolveMediaAsync(long importBatchId, string sourcePageId, string sourceRevisionId, string sourceFileName, CancellationToken cancellationToken = default);
     Task<TwMediaWikiTemplateTarget> ResolveTemplateAsync(long importBatchId, string sourceTitle, DateTime? asOfUtc = null, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Resolves a bounded MediaWiki transclusion target after title
+    /// normalization. Namespace 10 delegates to the established template
+    /// resolver; other namespaces are optional and remain missing by default.
+    /// </summary>
+    Task<TwMediaWikiTemplateTarget> ResolveTransclusionAsync(
+        long importBatchId,
+        int sourceNamespaceId,
+        string sourceTitle,
+        DateTime? asOfUtc = null,
+        CancellationToken cancellationToken = default)
+        => sourceNamespaceId == 10
+            ? ResolveTemplateAsync(importBatchId, sourceTitle, asOfUtc, cancellationToken)
+            : Task.FromResult(new TwMediaWikiTemplateTarget(
+                TwMediaWikiTemplateResolutionStatus.Missing,
+                sourceTitle,
+                SourceNamespaceId: sourceNamespaceId.ToString(System.Globalization.CultureInfo.InvariantCulture)));
     Task<string> GetTemplateCacheVersionAsync(long importBatchId, DateTime? asOfUtc = null, CancellationToken cancellationToken = default);
     Task<TwMediaWikiModuleTarget> ResolveModuleAsync(long importBatchId, string sourceTitle, DateTime? asOfUtc = null, CancellationToken cancellationToken = default)
         => Task.FromResult(new TwMediaWikiModuleTarget(TwMediaWikiModuleResolutionStatus.Missing, sourceTitle));

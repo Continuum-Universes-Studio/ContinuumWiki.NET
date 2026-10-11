@@ -1,0 +1,112 @@
+{
+  "ReportVersion": "mediawiki-templatestyles-compatibility-v1",
+  "Milestone": "CW-M5-001",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "FinalClassification": "TemplateStyles core verified; delivery integration blocked.",
+  "ExecutionScope": "Repository implementation and synthetic tests only",
+  "ProductionSafety": {
+    "ProductionMediaWikiModified": false,
+    "ProductionDatabaseModified": false,
+    "HistoricalSourceModified": false,
+    "CargoActivated": false,
+    "LuaExecuted": false,
+    "WorkerConfigurationModified": false,
+    "StrictMigrationPlannerModified": false,
+    "ExistingBudgetsIncreased": false,
+    "RejectingProviderDefaultsPreserved": true
+  },
+  "ModifiedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiTemplateStylesCompatibility.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Plugin/Models/TwMediaWikiRenderSource.cs",
+    "TightWiki.Repository/Helpers/MySqlMediaWikiImportRepository.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-001-TEMPLATESTYLES-COMPATIBILITY.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-templatestyles-compatibility-v1.json"
+  ],
+  "Contract": {
+    "Syntax": "Canonical self-closing templatestyles tag with one src attribute",
+    "SourceResolver": "Existing ITwMediaWikiImportRepository.ResolveTemplateAsync",
+    "HistoricalSelection": "SourceTimestampUtc eligibility; no future revision substitution",
+    "RenderAsset": "Immutable MediaWikiStylesheet collection on MediaWikiWikitextRenderResult",
+    "RegistryScope": "Per render request",
+    "Ordering": "First accepted reference order",
+    "DeduplicationIdentity": "ImportBatchId, SourcePageId, SourceRevisionId, SourceSha256",
+    "HtmlInjection": false,
+    "ExternalIo": false
+  },
+  "SupportedCss": {
+    "ContentModels": ["css", "sanitized-css", "text/css"],
+    "Selectors": ["type", "class", "id", "descendant", "child", "adjacent and general sibling combinators"],
+    "Properties": ["layout", "spacing", "typography", "color", "border", "display", "sizing", "alignment", "overflow"],
+    "ScopeSelector": ".wiki-page-body"
+  },
+  "RejectedCss": [
+    "@import and all at-rules",
+    "url(...) and external resources",
+    "expression(...), JavaScript schemes, behavior, and legacy binding",
+    "CSS var/attr/env indirection",
+    "unsafe properties and values",
+    "!important",
+    "global shell selectors and unsupported selector syntax",
+    "nested CSS and unbounded blocks"
+  ],
+  "Budgets": {
+    "MaxTemplateStylesSourceCharacters": 100000,
+    "MaxTemplateStylesReferences": 32,
+    "MaxTemplateStylesRules": 256,
+    "MaxTemplateStylesSelectors": 512,
+    "MaxTemplateStylesDeclarations": 2048,
+    "MaxTemplateStylesSelectorComplexity": 16,
+    "MaxTemplateStylesOutputCharacters": 200000,
+    "MaxTemplateStylesDependencyDepth": 1
+  },
+  "Diagnostics": [
+    "TemplateStylesMissingSource",
+    "TemplateStylesInvalidSource",
+    "TemplateStylesSourceUnavailable",
+    "TemplateStylesSourceRevisionUnavailable",
+    "TemplateStylesUnsupportedContentModel",
+    "TemplateStylesCssSyntaxInvalid",
+    "TemplateStylesCssSecurityRejected",
+    "TemplateStylesCssResourceLimitExceeded"
+  ],
+  "Delivery": {
+    "Status": "BLOCKED",
+    "Reason": "Current page controller and cache contract consume HtmlResult only; no CSP-approved stylesheet asset consumer exists.",
+    "InlineStyleInjection": false,
+    "CspChanged": false,
+    "RequiredNextStep": "Add a CSP-compatible per-page stylesheet consumer or endpoint for the typed render assets."
+  },
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter FullyQualifiedName~MediaWikiWikitextRendererTests",
+    "FocusedResult": "PASSED: 44 passed, 0 failed, 0 skipped",
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "PASSED: 290 passed, 0 failed, 22 skipped",
+    "ReleaseBuildCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseBuildResult": "PASSED: 0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "SyntheticCoverage": [
+      "self-closing and whitespace/quote attribute parsing",
+      "missing and invalid source references",
+      "unsupported content model",
+      "historical eligible revision",
+      "future revision rejection",
+      "safe selector scoping",
+      "unsafe @import and URL rejection",
+      "malformed CSS",
+      "declaration budget",
+      "stylesheet deduplication and deterministic order",
+      "request isolation",
+      "no inline style injection"
+    ]
+  },
+  "KnownLimitations": [
+    "Typed stylesheet assets are not yet consumed by the MVC page delivery path.",
+    "CSS at-rules, custom properties, attribute selectors, nested CSS, and browser-specific behavior are unsupported.",
+    "This is a bounded native subset, not full MediaWiki TemplateStyles parity."
+  ],
+  "RecommendedNextMilestone": "CW-M5-002 — CSP-compatible delivery of typed per-page stylesheet assets."
+}

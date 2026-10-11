@@ -1,0 +1,113 @@
+{
+  "ReportVersion": "cw-m5-005-template-dependency-resolution-v1",
+  "GeneratedAtUtc": "2026-10-11T19:56:36Z",
+  "RepositoryRevision": "55940f7537668916e9dd7390b20f44c5ff27c6f2",
+  "Outcome": "TEMPLATE_DEPENDENCY_RESOLUTION_PARTIALLY_VERIFIED",
+  "Scope": "Bounded imported-Wikitext template dependency resolution and diagnostic hardening; not historical MediaWiki parity.",
+  "AuditedComponents": [
+    "MediaWikiTemplateExpander title parsing and normalization",
+    "MediaWikiTemplateExpander expansion state and active dependency chain",
+    "MediaWikiExpansionContext historical provenance",
+    "ITwMediaWikiImportRepository.ResolveTemplateAsync",
+    "MySqlMediaWikiImportRepository historical template SQL resolver",
+    "TwMediaWikiTemplateTarget resolution status and source-body contract",
+    "MediaWikiWikitextRenderer diagnostic and cancellation propagation"
+  ],
+  "Findings": [
+    {
+      "Area": "MySQL stored title matching",
+      "Classification": "CONFIRMED_DEFECT_FIXED",
+      "Evidence": "The import schema preserves full OriginalTitle values such as Template:Example, while the expander supplies the namespace-stripped title. The resolver now normalizes explicit Template: input and matches both stored bare and full forms under namespace 10.",
+      "File": "TightWiki.Repository/Helpers/MySqlMediaWikiImportRepository.cs"
+    },
+    {
+      "Area": "Resolver exception handling",
+      "Classification": "CONFIRMED_DEFECT_FIXED",
+      "Evidence": "A synthetic repository exception previously escaped RenderAsync. It now yields sanitized TemplateResolutionFailed, ResolutionFailed dependency evidence, and terminal first-cause preservation.",
+      "File": "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs"
+    },
+    {
+      "Area": "Resolved target without source body or identity",
+      "Classification": "CONFIRMED_DEFECT_FIXED",
+      "Evidence": "A Resolved target with unavailable source data was previously mapped to MissingTemplate. It now yields TemplateSourceUnavailable.",
+      "File": "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs"
+    },
+    {
+      "Area": "Historical timestamp selection",
+      "Classification": "VERIFIED_CORRECT",
+      "Evidence": "Synthetic revisions verify an exact eligible timestamp, future exclusion, and selection by timestamp rather than revision-ID order. MySQL uses the same <= timestamp predicate and deterministic timestamp/target-revision ordering."
+    },
+    {
+      "Area": "Dependency graph and cycles",
+      "Classification": "VERIFIED_CORRECT",
+      "Evidence": "Direct, transitive, diamond, repeated, self, multi-node, and parser-function cycle fixtures terminate deterministically without false repeated-dependency cycles."
+    },
+    {
+      "Area": "Lazy conditional dependency resolution",
+      "Classification": "VERIFIED_CORRECT",
+      "Evidence": "Unselected missing templates and cycles are not requested by #if/#ifeq/#switch fixtures."
+    },
+    {
+      "Area": "Leading-colon and non-Template namespaces",
+      "Classification": "UNSUPPORTED_BEHAVIOR",
+      "Evidence": "The existing bounded subset diagnoses these forms and does not silently reinterpret a main-namespace page or invent aliases."
+    },
+    {
+      "Area": "Deleted/suppressed/no-eligible distinctions",
+      "Classification": "EVIDENCE_INSUFFICIENT",
+      "Evidence": "The current template status contract exposes Restricted but not separate deleted, suppressed, or no-eligible-revision states. The resolver's SQL filters those rows fail-closed without inferring a more specific cause."
+    }
+  ],
+  "CorrectedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiTemplateExpander.cs",
+    "TightWiki.Repository/Helpers/MySqlMediaWikiImportRepository.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-005-TEMPLATE-DEPENDENCY-RESOLUTION.md",
+    "artifacts/validation/mediawiki-template-dependency-resolution-v1.json",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "AddedRegressionTests": [
+    "SanitizesTemplateResolverExceptionsAndDistinguishesUnavailableSourceBodies",
+    "NormalizesSupportedTemplateTitleFormsAndDiagnosesUnsupportedNamespaces",
+    "ResolvesDiamondDependenciesRepeatedlyWithoutFalseCyclesAndKeepsUnselectedCyclesLazy",
+    "HistoricalSelectionUsesTimestampBoundaryRatherThanRevisionIdOrder",
+    "ParserFunctionOperandsUseTheEligibleHistoricalTemplateRevision",
+    "EnforcesDiagnosticCountAndCancellationBounds"
+  ],
+  "Budgets": {
+    "MaxExpansionTimeMilliseconds": 500,
+    "MaxExpansionOperations": 10000,
+    "MaxTemplateExpansionDepth": 16,
+    "MaxDiagnostics": 100,
+    "Changed": false
+  },
+  "Verification": {
+    "FocusedResolverRendererTests": "55 passed, 0 failed",
+    "FullDebugTests": "312 passed, 23 skipped, 0 failed",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASS",
+    "GitDiffCheck": "PASS",
+    "Commands": [
+      "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiWikitextRendererTests'",
+      "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+      "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+      "python3 -m json.tool artifacts/validation/mediawiki-template-dependency-resolution-v1.json",
+      "git diff --check"
+    ]
+  },
+  "SecurityAndEvidence": {
+    "ProductionLua": "DISABLED",
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "CargoProvider": "REJECTING_DEFAULT",
+    "InProcessLua": "NOT_INTRODUCED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "WorkerAndHostSettings": "UNCHANGED",
+    "ProductionMediaWikiAccess": "NONE",
+    "ProductionDatabaseAccess": "NONE",
+    "ReferenceCapturesAndCargoSnapshots": "UNCHANGED",
+    "HistoricalMediaWikiParity": "NOT_CLAIMED",
+    "HistoricalSourceBodies": "INCOMPLETE",
+    "DeletedSuppressedRevisionProvenance": "NOT_DISTINGUISHABLE_BY_CURRENT_STATUS_CONTRACT"
+  },
+  "RecommendedNextMilestone": "Run the corrected resolver against an explicitly authorized disposable MariaDB import containing complete historical template bodies, then reconcile real render provenance separately from worker certification and Cargo parity."
+}
