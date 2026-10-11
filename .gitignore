@@ -158,3 +158,4 @@ TightWiki.Plugin.Example/obj/
 TightWiki.Plugin.Example/bin/
 artifacts/imports/
 artifacts/publish/
+/artifacts/imports/mediawiki/continuumwiki-full-with-files.xml
