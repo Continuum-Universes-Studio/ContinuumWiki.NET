@@ -18,13 +18,16 @@ args=(
     --ro-bind "$dotnet_root" /dotnet
     --ro-bind "$worker_directory" /worker
 )
+if [[ -d /usr/share/icu ]]; then
+    args+=(--ro-bind /usr/share/icu /usr/share/icu)
+fi
 for runtime_library_directory in /lib /lib64 /usr/lib /usr/lib64; do
     if [[ -d "$runtime_library_directory" ]]; then
         args+=(--ro-bind "$runtime_library_directory" "$runtime_library_directory")
     fi
 done
 args+=(
-    --proc /proc --dev /dev --tmpfs /tmp --chdir /worker
+    --proc /proc --remount-ro /proc --dev /dev --tmpfs /tmp --chdir /worker
     --setenv DOTNET_ROOT /dotnet
     --setenv DOTNET_ROOT_X64 /dotnet
     --setenv HOME /tmp
@@ -33,4 +36,4 @@ args+=(
     -- /dotnet/dotnet /worker/ContinuumWiki.ScribuntoWorker.dll
 )
 
-exec /usr/bin/prlimit --as=1073741824 --cpu=2 --nofile=256 /usr/bin/bwrap "${args[@]}"
+exec /usr/bin/prlimit --as=2147483648 --cpu=2 --nofile=256 /usr/bin/bwrap "${args[@]}"

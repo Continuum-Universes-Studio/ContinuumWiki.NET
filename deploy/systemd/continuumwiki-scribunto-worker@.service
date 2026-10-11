@@ -16,7 +16,12 @@ PrivateTmp=yes
 PrivateDevices=yes
 ProtectSystem=strict
 ProtectHome=yes
-ProtectKernelTunables=yes
+# Bubblewrap must mount a fresh procfs after creating its private PID
+# namespace. Enabling systemd's kernel-tunable protection creates locked child
+# mounts below the service's /proc; the kernel rejects that nested procfs mount
+# as too revealing.
+# Bubblewrap owns the final procfs view and remounts it read-only.
+ProtectKernelTunables=no
 ProtectKernelModules=yes
 RestrictSUIDSGID=yes
 RestrictAddressFamilies=AF_UNIX AF_NETLINK

@@ -1,17 +1,18 @@
 {
-  "reportVersion": "cw-m3-005b.5-host-sandbox-v1",
-  "verdict": "HOST_CERTIFICATION_UNAVAILABLE",
+  "reportVersion": "cw-m3-005b.6c-host-sandbox-v1",
+  "verdict": "VERIFIED",
   "worker": {
-    "assembly": "/home/cdjensen94/Projects/ContinuumWiki.NET/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll",
+    "assembly": "/tmp/cw-m3-005b6c-stage.PNTnEL/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll",
     "identity": "systemd User=continuumwiki-scribunto"
   },
-  "cgroupPath": "",
+  "socketPath": "/run/continuumwiki/scribunto-worker.sock",
+  "cgroupPath": "/sys/fs/cgroup/system.slice/cw-m3-005b6c-host-cert-1791686311.service",
   "dotnetRoot": "/opt/dotnet",
   "summary": {
     "total": 20,
-    "passed": 5,
+    "passed": 20,
     "failed": 0,
-    "unavailable": 15
+    "unavailable": 0
   },
   "checks": [
     {
@@ -25,7 +26,7 @@
       "name": "required-tools",
       "required": true,
       "status": "PASS",
-      "evidence": "dotnet bwrap prlimit systemctl systemd-run timeout jq",
+      "evidence": "dotnet bwrap prlimit systemctl systemd-run timeout jq python3",
       "message": "Required host tools are present."
     },
     {
@@ -39,120 +40,120 @@
       "name": "worker-artifacts",
       "required": true,
       "status": "PASS",
-      "evidence": "/home/cdjensen94/Projects/ContinuumWiki.NET/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll",
+      "evidence": "/tmp/cw-m3-005b6c-stage.PNTnEL/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll",
       "message": "Worker, certification runner, and OS probe assemblies are present."
     },
     {
       "name": "unprivileged-launcher",
       "required": true,
       "status": "PASS",
-      "evidence": "uid=1000,gid=1000",
+      "evidence": "uid=427,gid=427",
       "message": "The launcher was not started as root."
+    },
+    {
+      "name": "socket-activation",
+      "required": true,
+      "status": "PASS",
+      "evidence": "{\"protocolVersion\":1,\"correlationId\":\"\",\"status\":\"ProtocolError\",\"text\":null,\"diagnostics\":[{\"code\":\"ProtocolError\",\"message\":\"The protocol omitted a required field.\",\"severity\":\"Error\"}],\"resourceLimitOutcome\":null,\"dependencies\":null} ",
+      "message": "The installed socket worker accepted a half-closed malformed request and returned structured ProtocolError JSON."
+    },
+    {
+      "name": "resource-cgroup",
+      "required": true,
+      "status": "PASS",
+      "evidence": "memory.max=268435456;pids.max=32;cpu.max=100000 100000",
+      "message": "Finite cgroup v2 resource ceilings are configured."
     },
     {
       "name": "worker-cgroup",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "",
-      "message": "Provide an administrator-provisioned dedicated cgroup v2 directory through CW_SCRIBUNTO_WORKER_CGROUP_PATH."
-    },
-    {
-      "name": "memory-cgroup",
-      "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
-    },
-    {
-      "name": "task-cgroup",
-      "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "/sys/fs/cgroup/system.slice/cw-m3-005b6c-host-cert-1791686311.service",
+      "message": "Dedicated cgroup v2 control files are present and writable."
     },
     {
       "name": "namespace-support",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "bwrap --unshare-all",
+      "message": "Bubblewrap namespace setup completed."
     },
     {
       "name": "os-identity",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"identity\",\"Blocked\":false,\"Value\":\"{ uid = 427, gid = 427, root = False }\",\"Error\":null} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-filesystem-read",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"filesystem-read\",\"Blocked\":true,\"Value\":null,\"Error\":\"DirectoryNotFoundException\"} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-filesystem-write",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"filesystem-write\",\"Blocked\":true,\"Value\":null,\"Error\":\"IOException\"} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-network",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"network\",\"Blocked\":true,\"Value\":null,\"Error\":\"SocketException\"} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-environment",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"environment\",\"Blocked\":false,\"Value\":\"\",\"Error\":null} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-process",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"process\",\"Blocked\":true,\"Value\":null,\"Error\":\"Win32Exception\"} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-library",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"library\",\"Blocked\":true,\"Value\":null,\"Error\":\"DllNotFoundException\"} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-memory",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "{\"Name\":\"memory\",\"Blocked\":true,\"Value\":null,\"Error\":\"OutOfMemoryException\"} ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-tasks",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "    Cannot print exception string because Exception.ToString() failed. ",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "os-cpu",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "",
+      "message": "The isolated OS probe was denied."
     },
     {
       "name": "worker-adversarial-suite",
       "required": true,
-      "status": "UNAVAILABLE",
-      "evidence": "worker cgroup unavailable",
-      "message": "Mandatory check was not run because host prerequisites were unavailable."
+      "status": "PASS",
+      "evidence": "/tmp/cw-m3-005b6c-host-sandbox-report-1791686311-runner.json",
+      "message": "The real experimental launcher passed synthetic timeout, recovery, concurrency, API-denial, and output-bound probes."
     }
   ]
 }

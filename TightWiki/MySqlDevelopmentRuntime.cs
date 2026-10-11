@@ -57,6 +57,14 @@ internal static class MySqlDevelopmentRuntime
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddMySqlApplicationPersistence(configuration);
         builder.Services.AddSingleton<ITwMediaWikiImportRepository, MySqlMediaWikiImportRepository>();
+        // The rejecting executor remains the default. Enabling the socket path
+        // requires both operator configuration and independent local evidence.
+        var luaConfiguration = MediaWikiScribuntoExperimentalConfiguration.From(configuration);
+        var luaExecutor = MediaWikiScribuntoHostAuthorization.IsAuthorized(luaConfiguration)
+            ? new MediaWikiScribuntoSocketExecutor(new MediaWikiScribuntoUnixSocketClient(luaConfiguration.SocketPath!, TimeSpan.FromMilliseconds(luaConfiguration.ConnectionTimeoutMilliseconds), TimeSpan.FromMilliseconds(luaConfiguration.ExecutionTimeoutMilliseconds), luaConfiguration.MaxRequestCharacters, luaConfiguration.MaxResponseCharacters)) as IMediaWikiScribuntoExecutor
+            : new RejectingMediaWikiScribuntoExecutor();
+        builder.Services.AddSingleton(luaExecutor);
+        builder.Services.AddSingleton(new MediaWikiWikitextRenderOptions { ScribuntoExecutor = luaExecutor });
         builder.Services.AddSingleton<MediaWikiWikitextRenderer>();
         builder.Services.AddMySqlIdentity(connectionString, options =>
         {

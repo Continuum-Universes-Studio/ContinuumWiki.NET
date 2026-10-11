@@ -33,6 +33,8 @@ public sealed class MediaWikiScribuntoDeploymentConfigurationTests
         Assert.Contains("LimitNOFILE=256", service);
         Assert.Contains("PrivateNetwork=yes", service);
         Assert.Contains("NoNewPrivileges=yes", service);
+        Assert.Contains("ProtectKernelTunables=no", service);
+        Assert.DoesNotContain("ProtectKernelTunables=yes\n", service, StringComparison.Ordinal);
         Assert.Contains("KillMode=control-group", service);
         Assert.DoesNotContain("sudo", service, StringComparison.OrdinalIgnoreCase);
     }
@@ -45,9 +47,11 @@ public sealed class MediaWikiScribuntoDeploymentConfigurationTests
         Assert.Contains("command -v dotnet", launcher);
         Assert.Contains("readlink -f", launcher);
         Assert.Contains("--clearenv", launcher);
+        Assert.Contains("--ro-bind /usr/share/icu /usr/share/icu", launcher);
         Assert.Contains("--ro-bind \"$dotnet_root\" /dotnet", launcher);
         Assert.Contains("--ro-bind \"$worker_directory\" /worker", launcher);
-        Assert.Contains("--as=1073741824", launcher);
+        Assert.Contains("--proc /proc --remount-ro /proc", launcher);
+        Assert.Contains("--as=2147483648", launcher);
         Assert.DoesNotContain("--nproc", launcher, StringComparison.Ordinal);
         Assert.DoesNotContain("/etc", launcher, StringComparison.Ordinal);
         Assert.DoesNotContain("--uid 65534", launcher, StringComparison.Ordinal);
@@ -68,5 +72,30 @@ public sealed class MediaWikiScribuntoDeploymentConfigurationTests
             Assert.Contains(check, harness);
         Assert.Contains("HOST_CERTIFICATION_UNAVAILABLE", harness);
         Assert.Contains("CW_SCRIBUNTO_WORKER_CGROUP_PATH", harness);
+        Assert.Contains("client.shutdown(socket.SHUT_WR)", harness);
+        Assert.Contains("socket-activation", harness);
+    }
+
+    [Fact]
+    public void ProcfsDiagnosticComparesOnlyTheKernelTunablesMaskingCandidate()
+    {
+        var diagnostic = File.ReadAllText(RepositoryPath("scripts/diagnose-moonsharp-procfs.sh"));
+
+        Assert.Contains("--property=\"ProtectKernelTunables=$candidate\"", diagnostic);
+        Assert.Contains("run_candidate yes 1", diagnostic);
+        Assert.Contains("run_candidate no 0", diagnostic);
+        Assert.Contains("VFS: Mount too revealing", diagnostic, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("--proc /proc --remount-ro /proc", diagnostic);
+        Assert.Contains("PROCFS_DIAGNOSTIC_VERIFIED", diagnostic);
+        Assert.Contains("MemoryMax=256M", diagnostic);
+        Assert.Contains("PrivateNetwork=yes", diagnostic);
+    }
+
+    [Fact]
+    public void SocketActivationProbeHalfClosesTheRequest()
+    {
+        var provisioning = File.ReadAllText(RepositoryPath("docs/operations/CONTINUUMWIKI-LUA-SANDBOX-PROVISIONING.md"));
+
+        Assert.Contains("client.shutdown(socket.SHUT_WR)", provisioning);
     }
 }

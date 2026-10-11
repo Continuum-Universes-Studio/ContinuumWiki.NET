@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using TightWiki.Engine.MediaWiki;
 
@@ -22,7 +24,7 @@ static async Task<CertificationReport> RunCertificationAsync(string workerPath, 
         RequireBubblewrap: true,
         MaxConcurrentExecutions: 2,
         WorkerOutputCharacters: 100_000,
-        WorkerMemoryBytes: 1024L * 1024 * 1024,
+        WorkerMemoryBytes: 2048L * 1024 * 1024,
         WorkerCpuSeconds: 2,
         WorkerInputCharacters: 2_000_000,
         WorkerCgroupPath: cgroupPath,
@@ -40,14 +42,14 @@ static async Task<CertificationReport> RunCertificationAsync(string workerPath, 
     probes.Add(await RunProbeAsync(executor, "post-kill-recovery", "return { main = function() return 'recovered' end }", "Succeeded", "recovered"));
 
     var concurrent = await Task.WhenAll(
-        RunProbeAsync(executor, "concurrent-a", "return { main = function() return 'a' end }", "Succeeded", "a"),
-        RunProbeAsync(executor, "concurrent-b", "return { main = function() return 'b' end }", "Succeeded", "b"));
+        RunProbeAsync(executor, "concurrent-a", "return { main = function() return 'a' end }", "Succeeded", "a", useSocket: !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CW_SCRIBUNTO_SOCKET_PATH"))),
+        RunProbeAsync(executor, "concurrent-b", "return { main = function() return 'b' end }", "Succeeded", "b", useSocket: !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CW_SCRIBUNTO_SOCKET_PATH"))));
     probes.AddRange(concurrent);
 
     var failed = probes.Where(probe => !probe.Passed).ToArray();
     var unavailable = failed.Count(probe => probe.Diagnostics.Any(code => code is "WorkerCgroupUnavailable" or "ScribuntoIsolationUnavailable" or "WorkerCgroupNotWritable"));
     return new(
-        "cw-m3-005b.5-host-sandbox-v1",
+        "cw-m3-005b.6c-host-sandbox-v1",
         failed.Length == 0 ? "VERIFIED" : unavailable > 0 ? "HOST_CERTIFICATION_UNAVAILABLE" : "BLOCKED",
         new(probes.Count, probes.Count(probe => probe.Passed), failed.Length, unavailable),
         probes);
@@ -60,7 +62,8 @@ static async Task<ProbeResult> RunProbeAsync(
     string expectedStatus,
     string? expectedText,
     int maxResultCharacters = 100_000,
-    TimeSpan? timeout = null)
+    TimeSpan? timeout = null,
+    bool useSocket = false)
 {
     try
     {
@@ -77,6 +80,8 @@ static async Task<ProbeResult> RunProbeAsync(
             new(MaxResultCharacters: maxResultCharacters, MaxExecutionTime: timeout ?? TimeSpan.FromMilliseconds(500)),
             0,
             []);
+        if (useSocket)
+            return await RunSocketProbeAsync(name, source, expectedStatus, expectedText, maxResultCharacters, timeout ?? TimeSpan.FromMilliseconds(500));
         var host = new CertificationHost(source);
         var result = await executor.ExecuteAsync(invocation, host, context);
         var status = result.Executed ? "Succeeded" : result.Diagnostics.FirstOrDefault()?.Code switch
@@ -91,6 +96,71 @@ static async Task<ProbeResult> RunProbeAsync(
     catch (Exception exception)
     {
         return new(name, false, "Exception", [], null, exception.GetType().Name);
+    }
+}
+
+static async Task<ProbeResult> RunSocketProbeAsync(
+    string name,
+    string source,
+    string expectedStatus,
+    string? expectedText,
+    int maxResultCharacters,
+    TimeSpan timeout)
+{
+    try
+    {
+        var socketPath = Environment.GetEnvironmentVariable("CW_SCRIBUNTO_SOCKET_PATH");
+        if (string.IsNullOrWhiteSpace(socketPath))
+            return new(name, false, "Unavailable", ["SocketPathUnavailable"], null, null);
+        var correlationId = Guid.NewGuid().ToString("N");
+        var request = new MediaWikiScribuntoWorkerRequest(
+            MediaWikiScribuntoWorkerProtocol.CurrentVersion,
+            correlationId,
+            "Module:Certification",
+            "cert-page@cert-revision",
+            "synthetic-certification",
+            "cert-revision",
+            source,
+            "main",
+            [],
+            new Dictionary<string, string>(),
+            new(2_000_000, 64, 4096, 4096, maxResultCharacters, 2_000_000, 8, 2_000_000, 2_000_000, 100_000, 64L * 1024 * 1024, Math.Max(1, (int)timeout.TotalMilliseconds)),
+            MediaWikiScribuntoWorkerProtocol.DefaultCapabilities,
+            [],
+            [],
+            "SyntheticCertification",
+            null,
+            null,
+            []);
+        using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        await socket.ConnectAsync(new UnixDomainSocketEndPoint(socketPath), cancellation.Token);
+        var requestBytes = Encoding.UTF8.GetBytes(MediaWikiScribuntoWorkerProtocol.SerializeRequest(request) + "\n");
+        var sent = 0;
+        while (sent < requestBytes.Length)
+            sent += await socket.SendAsync(requestBytes.AsMemory(sent), SocketFlags.None, cancellation.Token);
+        socket.Shutdown(SocketShutdown.Send);
+        using var responseBuffer = new MemoryStream();
+        var buffer = new byte[16_384];
+        while (true)
+        {
+            var read = await socket.ReceiveAsync(buffer.AsMemory(), SocketFlags.None, cancellation.Token);
+            if (read == 0) break;
+            responseBuffer.Write(buffer, 0, read);
+            if (responseBuffer.Length > 250_000)
+                return new(name, false, "Failed", ["OutputLimitExceeded"], null, null);
+        }
+        var responseText = Encoding.UTF8.GetString(responseBuffer.ToArray()).Trim();
+        if (!MediaWikiScribuntoWorkerProtocol.TryParseResponse(responseText, 100_000, correlationId, out var response, out var code, out _))
+            return new(name, false, "Failed", [code], null, null);
+        var status = response!.Status == "Succeeded" ? "Succeeded" : "Failed";
+        var textMatches = expectedText is null || string.Equals(response.Text, expectedText, StringComparison.Ordinal);
+        return new(name, status == expectedStatus && textMatches, status,
+            response.Diagnostics.Select(value => value.Code).ToArray(), response.Text, null);
+    }
+    catch (Exception exception)
+    {
+        return new(name, false, "Exception", [], null, $"{exception.GetType().Name}: {exception.Message}");
     }
 }
 

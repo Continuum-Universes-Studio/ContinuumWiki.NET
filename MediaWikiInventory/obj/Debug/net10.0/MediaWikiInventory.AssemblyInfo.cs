@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MediaWikiInventory")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+53c95748edb52b32fd9c38c41e4095306358cce2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+80bd62676f18ffe0e6a31c6a944907fcb5871554")]
 [assembly: System.Reflection.AssemblyProductAttribute("MediaWikiInventory")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MediaWikiInventory")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -123,6 +123,8 @@ public sealed class ExperimentalMediaWikiScribuntoExecutor : IMediaWikiScribunto
         CancellationToken cancellationToken)
     {
         var root = bundle.Root;
+        var parentFrameTitle = invocation.TemplateInvocationChain.LastOrDefault();
+        var parentFrameRevisionId = parentFrameTitle is null ? null : context.Page.SourceRevisionId;
         var correlationId = Guid.NewGuid().ToString("N");
         var dependencies = bundle.Dependencies.Select(dependency => new MediaWikiScribuntoWorkerModuleDependency(
             dependency.SourceWiki.Value,
@@ -161,8 +163,8 @@ public sealed class ExperimentalMediaWikiScribuntoExecutor : IMediaWikiScribunto
             dependencies,
             root.Dependencies.Select(value => value.CanonicalTitle).ToArray(),
             invocation.CallingPageTitle,
-            invocation.TemplateInvocationChain.LastOrDefault(),
-            context.Page.SourceRevisionId,
+            parentFrameTitle,
+            parentFrameRevisionId,
             invocation.TemplateInvocationChain);
         var serializedRequest = MediaWikiScribuntoWorkerProtocol.SerializeRequest(request);
         if (serializedRequest.Length > _options.WorkerInputCharacters)
@@ -336,11 +338,13 @@ public sealed class ExperimentalMediaWikiScribuntoExecutor : IMediaWikiScribunto
             }
             AddReadOnlyBind(processStartInfo, dotnetRoot, "/dotnet");
             AddReadOnlyBind(processStartInfo, workerDirectory, "/worker");
+            AddReadOnlyBindIfPresent(processStartInfo, "/usr/share/icu", "/usr/share/icu");
             AddReadOnlyBindIfPresent(processStartInfo, "/lib", "/lib");
             AddReadOnlyBindIfPresent(processStartInfo, "/lib64", "/lib64");
             AddReadOnlyBindIfPresent(processStartInfo, "/usr/lib", "/usr/lib");
             AddReadOnlyBindIfPresent(processStartInfo, "/usr/lib64", "/usr/lib64");
             processStartInfo.ArgumentList.Add("--proc"); processStartInfo.ArgumentList.Add("/proc");
+            processStartInfo.ArgumentList.Add("--remount-ro"); processStartInfo.ArgumentList.Add("/proc");
             processStartInfo.ArgumentList.Add("--dev"); processStartInfo.ArgumentList.Add("/dev");
             processStartInfo.ArgumentList.Add("--tmpfs"); processStartInfo.ArgumentList.Add("/tmp");
             processStartInfo.ArgumentList.Add("--chdir"); processStartInfo.ArgumentList.Add("/worker");

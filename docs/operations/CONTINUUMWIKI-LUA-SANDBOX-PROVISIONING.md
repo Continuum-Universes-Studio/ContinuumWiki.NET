@@ -1,10 +1,10 @@
-# ContinuumWiki Lua Engine host provisioning (CW-M3-005B.6)
+# ContinuumWiki Lua Engine host provisioning (CW-M3-005B.6B/005B.6C)
 
 ## Safety boundary
 
-`CW-M3-005B.6 BLOCKED` until an operator runs the commands below on the
-intended openSUSE Tumbleweed host and the certification report returns
-`VERIFIED`. The commands are intentionally not executed by the application or
+`CW-M3-005B.6C VERIFIED — HOST SANDBOX` on the unrestricted verification host;
+repeat the commands below for each production host and retain its report before
+approval. The commands are intentionally not executed by the application or
 by wiki content. They require explicit administrator approval and should be
 reviewed against the site's actual service account, deployment root, and
 rollback policy first.
@@ -57,6 +57,9 @@ sudo install -d -o continuumwiki-scribunto -g continuumwiki-scribunto -m 0750 \
 sudo install -D -o root -g root -m 0755 \
   scripts/verify-moonsharp-host-sandbox.sh \
   /srv/continuumwiki/current/scripts/verify-moonsharp-host-sandbox.sh
+sudo install -D -o root -g root -m 0755 \
+  scripts/diagnose-moonsharp-procfs.sh \
+  /srv/continuumwiki/current/scripts/diagnose-moonsharp-procfs.sh
 ```
 
 Verify the resulting identity without running Lua. The host UID/GID must be
@@ -119,6 +122,8 @@ systemctl cat continuumwiki-scribunto-worker@.service
 systemctl list-dependencies continuumwiki-scribunto-worker.socket
 systemctl show continuumwiki-scribunto-worker.socket \
   -p User,Group,SocketUser,SocketGroup,Listen,Accept
+systemctl show continuumwiki-scribunto-worker@.service \
+  -p ProtectKernelTunables,ProtectProc,ProcSubset,PrivateNetwork,MemoryMax,TasksMax
 ```
 
 Activate one disposable instance through the socket using only malformed
@@ -132,10 +137,29 @@ with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
     client.settimeout(5)
     client.connect(path)
     client.sendall(b"{}\n")
+    client.shutdown(socket.SHUT_WR)
     print(client.recv(4096).decode("utf-8", "replace"))
 PY
 systemctl list-units 'continuumwiki-scribunto-worker@*.service' --all --no-legend
 ```
+
+The service must not retain `ProtectKernelTunables=yes`: systemd implements
+that setting with locked child mounts below `/proc` (`/proc/sys`, `/proc/acpi`,
+`/proc/irq`, and related paths). The kernel rejects a nested bubblewrap procfs
+mount when those entries are already masked, reporting `VFS: Mount too
+revealing`. After the disposable socket activation above has created an
+instance, compare the candidates without changing global host security:
+
+```bash
+sudo /srv/continuumwiki/current/scripts/diagnose-moonsharp-procfs.sh
+```
+
+The expected evidence is a failing baseline for
+`ProtectKernelTunables=yes`, a successful `PROC_MOUNT_OK` result for
+`ProtectKernelTunables=no`, and the final `PROCFS_DIAGNOSTIC_VERIFIED` marker.
+The corrected worker still creates its private PID namespace in bubblewrap and
+remounts the final `/proc` read-only; disabling the systemd procfs child masks
+does not expose host processes to the worker.
 
 The response should be a structured protocol rejection, and the activated
 instance must show the dedicated `User`/`Group` and fixed resource settings.
@@ -156,7 +180,7 @@ cat "$cgroup_path/cgroup.procs"
 Expected effective values are `memory.max <= 268435456`, `pids.max <= 32`, a
 finite two-field `cpu.max`, `LimitCPU=2`, `LimitNOFILE=256`, and a non-root
 `User`. The worker PID and every child PID must remain in the same intended
-cgroup while active. The fixed launcher retains `RLIMIT_AS=1073741824` as a
+cgroup while active. The fixed launcher retains `RLIMIT_AS=2147483648` as a
 virtual-address ceiling; cgroup `memory.max=268435456` remains the effective
 physical-memory containment. Preserve this command output as certification
 evidence.

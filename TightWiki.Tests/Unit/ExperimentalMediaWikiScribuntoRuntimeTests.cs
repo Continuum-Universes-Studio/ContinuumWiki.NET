@@ -26,6 +26,117 @@ public sealed class ExperimentalMediaWikiScribuntoRuntimeTests
     }
 
     [Fact]
+    public async Task NativeContinuumApiUsesOnlyTypedInvocationSnapshot()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() return cw.args.get('name') .. '|' .. tostring(cw.args.has('name')) .. '|' .. cw.module.name .. '|' .. cw.module.revision .. '|' .. cw.title.normalize(' A_B ') end }",
+            "main", capabilities: ["cw.args", "cw.module", "cw.title"], named: new Dictionary<string, string> { ["name"] = "Continuum" },
+            moduleTitle: "Module:Native", sourceRevisionId: "native-revision", frameTitle: "Article");
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("Continuum|true|Module:Native|native-revision|A B", response.Text);
+    }
+
+    [Fact]
+    public async Task NativeApiCapabilityIsDeniedWhenNotDeclared()
+    {
+        var response = await RunWorkerAsync("return { main = function() return cw.text.trim(' x ') end }", "main", capabilities: ["frame.args"]);
+
+        Assert.False(response.Success);
+        Assert.Equal("LuaRuntimeError", response.ErrorCode);
+    }
+
+    [Fact]
+    public async Task MediaWikiJsonTextApiIsBoundedAndRoundTripsScalars()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() local encoded = mw.text.jsonEncode({z='last', a=2, list={'é', true}}); local value = mw.text.jsonDecode(encoded); return encoded .. '|' .. value.a .. '|' .. value.list[1] .. '|' .. tostring(value.list[2]) end }",
+            "main");
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("{\"a\":2,\"list\":[\"\\u00E9\",true],\"z\":\"last\"}|2|é|true", response.Text);
+    }
+
+    [Fact]
+    public async Task MediaWikiJsonTextApiRejectsInvalidJsonAndUnsupportedValues()
+    {
+        var invalid = await RunWorkerAsync("return { main = function() return mw.text.jsonDecode('{') end }", "main");
+        var unsupported = await RunWorkerAsync("return { main = function() return mw.text.jsonEncode({f=function() end}) end }", "main");
+
+        Assert.False(invalid.Success);
+        Assert.Equal("LuaRuntimeError", invalid.ErrorCode);
+        Assert.False(unsupported.Success);
+        Assert.Equal("LuaRuntimeError", unsupported.ErrorCode);
+    }
+
+    [Fact]
+    public async Task MediaWikiTitleUsesOnlySuppliedFrameContext()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() local current = mw.title; local other = mw.title.new(' Talk_Page '); return current.text .. '|' .. tostring(current.namespace) .. '|' .. tostring(current.exists) .. '|' .. tostring(current.getContent()) .. '|' .. other.text .. '|' .. tostring(other.namespace) end }",
+            "main", capabilities: ["mw.title"], frameTitle: "Main_Page");
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("Main_Page|0|false|nil|Talk Page|0", response.Text);
+    }
+
+    [Fact]
+    public async Task MediaWikiSiteUsesValidatedWikiIdentityOnly()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() return mw.site.name .. '|' .. mw.site.identifier .. '|' .. tostring(mw.site.language) .. '|' .. tostring(mw.site.namespaces.foo) end }",
+            "main", capabilities: ["mw.site"], sourceWikiIdentity: "synthetic-wiki");
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("synthetic-wiki|synthetic-wiki|nil|nil", response.Text);
+    }
+
+    [Fact]
+    public async Task MediaWikiLanguageUsesInvariantUnicodeOperations()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() return tostring(mw.language.getCode()) .. '|' .. mw.language.lc('É✓') .. '|' .. mw.language.uc('é✓') .. '|' .. mw.language.lcfirst('Éclair') .. '|' .. mw.language.ucfirst('éclair') end }",
+            "main", capabilities: ["mw.language"]);
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("nil|é✓|É✓|éclair|Éclair", response.Text);
+    }
+
+    [Fact]
+    public async Task NativePageApiFailsClosedWithoutAnAuthorizedSnapshot()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() return tostring(cw.page.exists('Any_Page')) .. '|' .. tostring(cw.page.metadata('Any_Page')) end }",
+            "main", capabilities: ["cw.page"]);
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("false|nil", response.Text);
+    }
+
+    [Fact]
+    public async Task MediaWikiHtmlElementEncodesTextAndAttributes()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() return mw.html.element('span', '<safe>', {class='notice', title='a&b'}) end }",
+            "main", capabilities: ["mw.html"]);
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("<span class=\"notice\" title=\"a&amp;b\">&lt;safe&gt;</span>", response.Text);
+    }
+
+    [Fact]
+    public async Task MediaWikiHtmlRejectsUnsafeTagsAndAttributes()
+    {
+        var tag = await RunWorkerAsync("return { main = function() return mw.html.element('script', 'x') end }", "main", capabilities: ["mw.html"]);
+        var attribute = await RunWorkerAsync("return { main = function() return mw.html.element('span', 'x', {onclick='bad'}) end }", "main", capabilities: ["mw.html"]);
+
+        Assert.False(tag.Success);
+        Assert.Equal("LuaRuntimeError", tag.ErrorCode);
+        Assert.False(attribute.Success);
+        Assert.Equal("LuaRuntimeError", attribute.ErrorCode);
+    }
+
+    [Fact]
     public async Task DangerousLibrariesAreAbsentAndSeparateWorkersDoNotShareState()
     {
         var first = await RunWorkerAsync(

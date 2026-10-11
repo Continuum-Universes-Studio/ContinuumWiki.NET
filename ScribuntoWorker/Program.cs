@@ -148,6 +148,10 @@ internal static class Program
         var mw = new Table(script);
         if (capabilities.Contains("mw.text", StringComparer.Ordinal)) mw.Set("text", DynValue.NewTable(RegisterTextApi(script)));
         if (capabilities.Contains("mw.ustring", StringComparer.Ordinal)) mw.Set("ustring", DynValue.NewTable(RegisterUStringApi(script)));
+        if (capabilities.Contains("mw.title", StringComparer.Ordinal)) mw.Set("title", DynValue.NewTable(RegisterTitleApi(script, state)));
+        if (capabilities.Contains("mw.site", StringComparer.Ordinal)) mw.Set("site", DynValue.NewTable(RegisterSiteApi(script, state)));
+        if (capabilities.Contains("mw.language", StringComparer.Ordinal)) mw.Set("language", DynValue.NewTable(RegisterLanguageApi(script)));
+        if (capabilities.Contains("mw.html", StringComparer.Ordinal)) mw.Set("html", DynValue.NewTable(RegisterHtmlApi(script)));
         if (capabilities.Contains("module.require", StringComparer.Ordinal))
             script.Globals.Set("require", DynValue.NewCallback((_, args) => RequireModule(state, args)));
         if (capabilities.Contains("mw.loadData", StringComparer.Ordinal))
@@ -155,6 +159,184 @@ internal static class Program
         if (capabilities.Contains("mw.loadJsonData", StringComparer.Ordinal))
             mw.Set("loadJsonData", DynValue.NewCallback((_, args) => LoadJsonData(state, args)));
         script.Globals.Set("mw", DynValue.NewTable(mw));
+
+        var cw = new Table(script);
+        if (capabilities.Contains("cw.text", StringComparer.Ordinal))
+            cw.Set("text", DynValue.NewTable(RegisterContinuumTextApi(script)));
+        if (capabilities.Contains("cw.args", StringComparer.Ordinal))
+        {
+            var args = new Table(script);
+            args.Set("get", DynValue.NewCallback((_, callbackArgs) =>
+            {
+                var key = callbackArgs.AsType(0, "cw.args.get", DataType.String).String;
+                return state.Request.NamedArguments.TryGetValue(key, out var named)
+                    ? DynValue.NewString(named)
+                    : state.Request.PositionalArguments.FirstOrDefault(value => key == "1") is { } positional
+                        ? DynValue.NewString(positional) : DynValue.Nil;
+            }));
+            args.Set("has", DynValue.NewCallback((_, callbackArgs) =>
+            {
+                var key = callbackArgs.AsType(0, "cw.args.has", DataType.String).String;
+                return DynValue.NewBoolean(state.Request.NamedArguments.ContainsKey(key) || key == "1" && state.Request.PositionalArguments.Count > 0);
+            }));
+            cw.Set("args", DynValue.NewTable(args));
+        }
+        if (capabilities.Contains("cw.title", StringComparer.Ordinal))
+        {
+            var title = new Table(script);
+            title.Set("current", DynValue.NewString(state.Request.FrameTitle ?? string.Empty));
+            title.Set("normalize", DynValue.NewCallback((_, callbackArgs) =>
+                DynValue.NewString(callbackArgs.AsType(0, "cw.title.normalize", DataType.String).String.Trim().Replace('_', ' '))));
+            title.Set("namespace", DynValue.NewCallback((_, callbackArgs) =>
+            {
+                var value = callbackArgs.AsType(0, "cw.title.namespace", DataType.String).String;
+                var separator = value.IndexOf(':');
+                return DynValue.NewString(separator > 0 ? value[..separator] : "");
+            }));
+            cw.Set("title", DynValue.NewTable(title));
+        }
+        if (capabilities.Contains("cw.page", StringComparer.Ordinal))
+            cw.Set("page", DynValue.NewTable(RegisterUnavailablePageApi(script)));
+        if (capabilities.Contains("cw.module", StringComparer.Ordinal))
+        {
+            var module = new Table(script);
+            module.Set("name", DynValue.NewString(state.Request.ModuleTitle));
+            module.Set("revision", DynValue.NewString(state.Request.SourceRevisionId ?? string.Empty));
+            var dependencies = new Table(script);
+            foreach (var dependency in state.Request.Dependencies ?? []) dependencies.Set(dependency.CanonicalModuleTitle, DynValue.NewString(dependency.SourceRevisionId));
+            module.Set("dependencies", DynValue.NewTable(dependencies));
+            cw.Set("module", DynValue.NewTable(module));
+        }
+        script.Globals.Set("cw", DynValue.NewTable(cw));
+    }
+
+    private static Table RegisterTitleApi(Script script, ExecutionState state)
+    {
+        var title = new Table(script);
+        var current = state.Request.FrameTitle ?? string.Empty;
+        title.Set("text", DynValue.NewString(current));
+        title.Set("prefixedText", DynValue.NewString(current));
+        title.Set("namespace", DynValue.NewNumber(NamespaceId(current)));
+        title.Set("getContent", DynValue.NewCallback((_, _) => DynValue.Nil));
+        title.Set("exists", DynValue.NewBoolean(false));
+        title.Set("new", DynValue.NewCallback((_, args) =>
+        {
+            var value = args.AsType(0, "mw.title.new", DataType.String).String.Trim().Replace('_', ' ');
+            var result = new Table(script);
+            result.Set("text", DynValue.NewString(value));
+            result.Set("prefixedText", DynValue.NewString(value));
+            result.Set("namespace", DynValue.NewNumber(NamespaceId(value)));
+            result.Set("exists", DynValue.NewBoolean(false));
+            return DynValue.NewTable(result);
+        }));
+        return title;
+    }
+
+    private static Table RegisterSiteApi(Script script, ExecutionState state)
+    {
+        var site = new Table(script);
+        var identity = state.Request.SourceWikiIdentity;
+        site.Set("name", DynValue.NewString(identity));
+        site.Set("identifier", DynValue.NewString(identity));
+        site.Set("language", DynValue.Nil);
+        site.Set("namespaces", DynValue.NewTable(new Table(script)));
+        return site;
+    }
+
+    private static Table RegisterUnavailablePageApi(Script script)
+    {
+        var page = new Table(script);
+        page.Set("exists", DynValue.NewCallback((_, args) =>
+        {
+            args.AsType(0, "cw.page.exists", DataType.String);
+            return DynValue.False;
+        }));
+        page.Set("metadata", DynValue.NewCallback((_, args) =>
+        {
+            args.AsType(0, "cw.page.metadata", DataType.String);
+            return DynValue.Nil;
+        }));
+        return page;
+    }
+
+    private static Table RegisterLanguageApi(Script script)
+    {
+        var language = new Table(script);
+        language.Set("getCode", DynValue.NewCallback((_, _) => DynValue.Nil));
+        language.Set("lc", DynValue.NewCallback((_, args) => DynValue.NewString(args.AsType(0, "mw.language.lc", DataType.String).String.ToLowerInvariant())));
+        language.Set("uc", DynValue.NewCallback((_, args) => DynValue.NewString(args.AsType(0, "mw.language.uc", DataType.String).String.ToUpperInvariant())));
+        language.Set("lcfirst", DynValue.NewCallback((_, args) => DynValue.NewString(ChangeFirstRune(args.AsType(0, "mw.language.lcfirst", DataType.String).String, lower: true))));
+        language.Set("ucfirst", DynValue.NewCallback((_, args) => DynValue.NewString(ChangeFirstRune(args.AsType(0, "mw.language.ucfirst", DataType.String).String, lower: false))));
+        return language;
+    }
+
+    private static Table RegisterHtmlApi(Script script)
+    {
+        var html = new Table(script);
+        html.Set("element", DynValue.NewCallback((_, args) =>
+        {
+            var tag = args.AsType(0, "mw.html.element", DataType.String).String.ToLowerInvariant();
+            if (!AllowedHtmlTags.Contains(tag)) throw new ScriptRuntimeException("mw.html.element received an unsupported tag.");
+            var text = args.Count > 1 && args[1].Type != DataType.Nil
+                ? args.AsType(1, "mw.html.element", DataType.String).String : string.Empty;
+            if (text.Length > 32_768) throw new ScriptRuntimeException("mw.html.element text limit exceeded.");
+            var attributes = args.Count > 2 && args[2].Type != DataType.Nil
+                ? args.AsType(2, "mw.html.element", DataType.Table).Table : null;
+            var renderedAttributes = attributes is null ? string.Empty : RenderHtmlAttributes(attributes);
+            return DynValue.NewString($"<{tag}{renderedAttributes}>{WebUtility.HtmlEncode(text)}</{tag}>");
+        }));
+        return html;
+    }
+
+    private static readonly IReadOnlySet<string> AllowedHtmlTags = new HashSet<string>(StringComparer.Ordinal)
+        { "b", "code", "div", "em", "i", "li", "p", "span", "strong", "sub", "sup", "u", "ul" };
+
+    private static string RenderHtmlAttributes(Table attributes)
+    {
+        var builder = new StringBuilder();
+        foreach (var pair in attributes.Pairs.OrderBy(pair => pair.Key.String, StringComparer.Ordinal))
+        {
+            if (pair.Key.Type != DataType.String || !AllowedHtmlAttributes.Contains(pair.Key.String))
+                throw new ScriptRuntimeException("mw.html.element received an unsupported attribute.");
+            if (pair.Value.Type != DataType.String) throw new ScriptRuntimeException("mw.html.element attributes must be strings.");
+            var value = pair.Value.String;
+            if (value.Length > 4_096) throw new ScriptRuntimeException("mw.html.element attribute limit exceeded.");
+            builder.Append(' ').Append(pair.Key.String).Append("=\"").Append(WebUtility.HtmlEncode(value)).Append("\"");
+        }
+        return builder.ToString();
+    }
+
+    private static readonly IReadOnlySet<string> AllowedHtmlAttributes = new HashSet<string>(StringComparer.Ordinal)
+        { "class", "id", "title" };
+
+    private static string ChangeFirstRune(string value, bool lower)
+    {
+        var first = value.EnumerateRunes().FirstOrDefault();
+        if (first == default) return value;
+        var replacement = (lower ? first.ToString().ToLowerInvariant() : first.ToString().ToUpperInvariant());
+        return replacement + value[first.Utf16SequenceLength..];
+    }
+
+    private static int NamespaceId(string title)
+    {
+        var separator = title.IndexOf(':');
+        return separator > 0 ? 1 : 0;
+    }
+
+    private static Table RegisterContinuumTextApi(Script script)
+    {
+        var text = RegisterTextApi(script);
+        text.Set("replace", DynValue.NewCallback((_, args) =>
+        {
+            var value = args.AsType(0, "cw.text.replace", DataType.String).String;
+            var oldValue = args.AsType(1, "cw.text.replace", DataType.String).String;
+            var replacement = args.AsType(2, "cw.text.replace", DataType.String).String;
+            if (oldValue.Length == 0) throw new ScriptRuntimeException("cw.text.replace requires a non-empty search value.");
+            return DynValue.NewString(value.Replace(oldValue, replacement, StringComparison.Ordinal));
+        }));
+        text.Set("escape", DynValue.NewCallback((_, args) =>
+            DynValue.NewString(WebUtility.HtmlEncode(args.AsType(0, "cw.text.escape", DataType.String).String))));
+        return text;
     }
 
     private static DynValue RequireModule(ExecutionState state, CallbackArguments args)
@@ -353,7 +535,89 @@ internal static class Program
                 _ => string.Join(separator, values.Take(values.Count - 1)) + conjunction + values[^1]
             });
         }));
+        text.Set("jsonEncode", DynValue.NewCallback((_, args) =>
+        {
+            var value = args.AsType(0, "mw.text.jsonEncode", DataType.Table);
+            var json = EncodeJson(value.Table, 0, new HashSet<Table>());
+            if (json.Length > 100_000) throw new ScriptRuntimeException("mw.text.jsonEncode output limit exceeded.");
+            return DynValue.NewString(json);
+        }));
+        text.Set("jsonDecode", DynValue.NewCallback((_, args) =>
+        {
+            var json = args.AsType(0, "mw.text.jsonDecode", DataType.String).String;
+            if (json.Length > 100_000) throw new ScriptRuntimeException("mw.text.jsonDecode input limit exceeded.");
+            try
+            {
+                using var document = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = 16 });
+                return DecodeJson(document.RootElement, script, 0);
+            }
+            catch (JsonException)
+            {
+                throw new ScriptRuntimeException("mw.text.jsonDecode received invalid JSON.");
+            }
+        }));
         return text;
+    }
+
+    private static string EncodeJson(Table table, int depth, HashSet<Table> visiting)
+    {
+        if (depth >= 16 || !visiting.Add(table)) throw new ScriptRuntimeException("mw.text.jsonEncode encountered a recursive or deeply nested table.");
+        try
+        {
+            var entries = table.Pairs.ToArray();
+            var array = entries.Length == 0 || entries.All(pair => pair.Key.Type == DataType.Number && pair.Key.Number == Math.Truncate(pair.Key.Number) && pair.Key.Number >= 1 && pair.Key.Number <= 1024);
+            if (array)
+            {
+                var max = entries.Length == 0 ? 0 : (int)entries.Max(pair => pair.Key.Number);
+                if (max != entries.Length || entries.Any(pair => pair.Key.Number < 1)) throw new ScriptRuntimeException("mw.text.jsonEncode does not accept sparse arrays.");
+                return "[" + string.Join(',', Enumerable.Range(1, max).Select(index => EncodeJsonValue(table.Get(index), depth + 1, visiting))) + "]";
+            }
+            if (entries.Any(pair => pair.Key.Type != DataType.String)) throw new ScriptRuntimeException("mw.text.jsonEncode object keys must be strings.");
+            return "{" + string.Join(',', entries.OrderBy(pair => pair.Key.String, StringComparer.Ordinal).Select(pair => JsonSerializer.Serialize(pair.Key.String) + ":" + EncodeJsonValue(pair.Value, depth + 1, visiting))) + "}";
+        }
+        finally { visiting.Remove(table); }
+    }
+
+    private static string EncodeJsonValue(DynValue value, int depth, HashSet<Table> visiting)
+        => value.Type switch
+        {
+            DataType.Nil => "null",
+            DataType.Boolean => value.Boolean ? "true" : "false",
+            DataType.Number => double.IsFinite(value.Number) ? JsonSerializer.Serialize(value.Number) : throw new ScriptRuntimeException("mw.text.jsonEncode does not accept non-finite numbers."),
+            DataType.String => JsonSerializer.Serialize(value.String),
+            DataType.Table => EncodeJson(value.Table, depth, visiting),
+            _ => throw new ScriptRuntimeException("mw.text.jsonEncode received an unsupported Lua value.")
+        };
+
+    private static DynValue DecodeJson(JsonElement element, Script script, int depth)
+    {
+        if (depth >= 16) throw new ScriptRuntimeException("mw.text.jsonDecode nesting limit exceeded.");
+        return element.ValueKind switch
+        {
+            JsonValueKind.Null => DynValue.Nil,
+            JsonValueKind.True => DynValue.True,
+            JsonValueKind.False => DynValue.False,
+            JsonValueKind.Number when element.TryGetDouble(out var number) && double.IsFinite(number) => DynValue.NewNumber(number),
+            JsonValueKind.String => DynValue.NewString(element.GetString()!),
+            JsonValueKind.Array => DecodeJsonArray(element, script, depth),
+            JsonValueKind.Object => DecodeJsonObject(element, script, depth),
+            _ => throw new ScriptRuntimeException("mw.text.jsonDecode received unsupported JSON.")
+        };
+    }
+
+    private static DynValue DecodeJsonArray(JsonElement element, Script script, int depth)
+    {
+        var table = new Table(script);
+        var index = 1;
+        foreach (var item in element.EnumerateArray()) table.Set(index++, DecodeJson(item, script, depth + 1));
+        return DynValue.NewTable(table);
+    }
+
+    private static DynValue DecodeJsonObject(JsonElement element, Script script, int depth)
+    {
+        var table = new Table(script);
+        foreach (var property in element.EnumerateObject()) table.Set(property.Name, DecodeJson(property.Value, script, depth + 1));
+        return DynValue.NewTable(table);
     }
 
     private static Table RegisterUStringApi(Script script)

@@ -1,31 +1,54 @@
-# ContinuumWiki Lua Engine sandbox security (CW-M3-005B.5/005B.6)
+# ContinuumWiki Lua Engine sandbox security (CW-M3-005B.5/005B.6B/005B.6C)
 
 ## Status and security boundary
 
-`CW-M3-005B.6 BLOCKED`
+`CW-M3-005B.6C VERIFIED — HOST SANDBOX`
 
 The implementation now has a production-shaped, fail-closed launch boundary
-and a repeatable host certification harness. Certification is host-specific:
-the harness must pass actual namespace, cgroup, OS-probe, worker, timeout, and
-recovery checks before the verdict can become `CW-M3-005B.5 VERIFIED — HOST
-SANDBOX`. The known Codex host previously denied bubblewrap's
-`NETLINK_ROUTE` setup and does not provide a delegated worker cgroup, so this
-checkout must not claim host certification from source inspection or a local
-MoonSharp test run.
+and a repeatable host certification harness. The unrestricted host report
+`cw-m3-005b.6c-host-sandbox-v1` passed 20/20 checks through the installed
+socket-activated worker, including the procfs mount, cgroup ceilings, OS
+denials, recovery, and concurrent requests. Certification remains host-specific:
+repeat the report for every deployment host.
 
 The operator-run provisioning and verification procedure is
 `docs/operations/CONTINUUMWIKI-LUA-SANDBOX-PROVISIONING.md`. No system-wide
-installation was performed from this environment because its system/user
-systemd buses are inaccessible and `/sys/fs/cgroup` is read-only here.
+installation or production Lua approval was performed by this change; the
+verification used the already-installed socket and a disposable delegated
+cgroup service.
 
 The subsystem is the **ContinuumWiki Lua Engine**. `Scribunto` is retained in
 protocol, compatibility, and source-contract names only because it is the
 legacy MediaWiki compatibility designation.
 
 The normal application renderer remains
-`RejectingMediaWikiScribuntoExecutor`. No startup registration, production
-Lua activation, production database access, or production MediaWiki access was
-added.
+`RejectingMediaWikiScribuntoExecutor`. The web startup path now has a
+fail-closed selector: it can construct `MediaWikiScribuntoSocketExecutor` only
+after explicit `ContinuumWiki:ExperimentalLua` enablement, the fixed
+`unix-socket` transport, a readable verified host report, a live local socket,
+and restrictive endpoint/parent-directory permissions all pass. Missing or
+invalid evidence selects the rejecting executor. This does not authorize
+production Lua, production database access, or production MediaWiki access.
+
+## Renderer integration path (CW-M3-006A.2)
+
+The existing call chain is:
+
+1. `MediaWikiTemplateExpander` recognizes `#invoke` and parses it through
+   `MediaWikiScribuntoInvocationParser`.
+2. Its existing `ExpansionContext` resolves the historical root module and
+   statically discovered dependency closure through
+   `ITwMediaWikiImportRepository`, preserving source page/revision hashes.
+3. The selected `IMediaWikiScribuntoExecutor` serializes the typed invocation
+   with `MediaWikiScribuntoWorkerProtocol` and sends it over the approved
+   Unix-domain socket. Lua never runs in the ASP.NET process.
+4. The response is validated for protocol version, correlation ID, status,
+   diagnostics, dependencies, and result budget. The returned text is treated
+   as expansion text and re-enters the existing bounded Wikitext parser; it
+   does not become trusted HTML or bypass sanitization.
+
+The worker client enforces request/response limits, connection and total
+execution timeouts, cancellation, newline framing, and socket half-close.
 
 ## Trust model
 
@@ -63,7 +86,12 @@ The administrator-provisioned socket/service pattern is in
 and arguments, a dedicated unprivileged identity, `MemoryMax=256M`,
 `TasksMax=32`, `LimitCPU=2`, `LimitNOFILE=256`, `KillMode=control-group`,
 `Delegate=yes`, `NoNewPrivileges`, private devices/tmp/network, and protected
-system/home paths. Delegation is limited to this dedicated service subtree;
+system/home paths. `ProtectKernelTunables=no` is intentional for this nested
+launcher: systemd's tunables protection masks child mounts below `/proc`, which
+causes the kernel to reject bubblewrap's new private procfs as `VFS: Mount too
+revealing`. Bubblewrap immediately remounts its PID-namespace procfs read-only,
+so the worker retains private process visibility without writable kernel
+tunables. Delegation is limited to this dedicated service subtree;
 the parent systemd limits remain authoritative. Operators must install the fixed launcher and worker paths, provision
 the `continuumwiki-scribunto` identity, and grant only the intended socket and
 cgroup permissions. Wiki requests never reach systemd control APIs.
@@ -76,11 +104,12 @@ integration, but it requires the same delegated cgroup and does not use
 ## Bubblewrap filesystem and environment policy
 
 The sandbox uses `--unshare-all`, `--die-with-parent`, `--new-session`,
-`--clearenv`, private `/proc`, private `/dev`, and a tmpfs `/tmp`. It mounts
+`--clearenv`, private read-only `/proc`, private `/dev`, and a tmpfs `/tmp`. It mounts
 read-only only:
 
 - the dynamically resolved .NET runtime root as `/dotnet`;
 - the worker output directory as `/worker`;
+- the host ICU data directory as `/usr/share/icu` when present;
 - the runtime shared-library directories that exist on the host (`/lib`,
   `/lib64`, `/usr/lib`, and `/usr/lib64`).
 
@@ -109,7 +138,7 @@ checked before stdin is written; structured response validation remains in the
 existing versioned protocol.
 
 The worker has independent Lua instruction/result/input budgets. The host adds
-wall-clock, CPU, a 1 GiB virtual-address ceiling, file-descriptor, concurrency, cgroup memory,
+wall-clock, CPU, a 2 GiB virtual-address ceiling, file-descriptor, concurrency, cgroup memory,
 and cgroup task ceilings. `KillMode=control-group` and the executor's process
 tree kill/reap path prevent orphaned descendants.
 

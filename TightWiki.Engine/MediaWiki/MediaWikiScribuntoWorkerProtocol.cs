@@ -26,10 +26,22 @@ public static class MediaWikiScribuntoWorkerProtocol
         "mw.loadData",
         "mw.loadJsonData",
         "mw.text",
-        "mw.ustring"
+        "mw.ustring",
+        "mw.title",
+        "mw.site",
+        "mw.language",
+        "mw.html",
+        "cw.text",
+        "cw.title",
+        "cw.page",
+        "cw.module",
+        "cw.args"
     };
 
     public static readonly IReadOnlyList<string> DefaultCapabilities =
+        // Keep the default request compatible with the deployed worker. New
+        // compatibility surfaces are explicit opt-ins until that worker is
+        // upgraded; SupportedCapabilities still validates those opt-ins.
         ["frame.args", "frame.title", "frame.parent", "module.require", "mw.loadData", "mw.loadJsonData", "mw.text", "mw.ustring"];
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);

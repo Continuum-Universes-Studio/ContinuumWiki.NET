@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# CW-M3-005B.5 host certification harness. Run only from a permitted Linux
+# CW-M3-005B.6C host certification harness. Run only from a permitted Linux
 # terminal or administrator-provisioned test service. It never contacts
 # MediaWiki/MariaDB and never creates a systemd unit.
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 worker_path="${CW_SCRIBUNTO_WORKER_PATH:-$repo_root/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll}"
 certification_path="${CW_SCRIBUNTO_CERTIFICATION_PATH:-$repo_root/ScribuntoSandboxCertification/bin/Debug/net10.0/ContinuumWiki.ScribuntoSandboxCertification.dll}"
 probe_path="${CW_SCRIBUNTO_PROBE_PATH:-$repo_root/ScribuntoSandboxProbe/bin/Debug/net10.0/ContinuumWiki.ScribuntoSandboxProbe.dll}"
+socket_path="${CW_SCRIBUNTO_SOCKET_PATH:-/run/continuumwiki/scribunto-worker.sock}"
 cgroup_path="${CW_SCRIBUNTO_WORKER_CGROUP_PATH:-}"
 report_path="${CW_SCRIBUNTO_HOST_REPORT:-$repo_root/artifacts/validation/moonsharp-host-sandbox-report-v1.json}"
 memory_limit=268435456
-virtual_address_limit=1073741824
+virtual_address_limit=2147483648
 task_limit=32
 checks_file="$(mktemp "${TMPDIR:-/tmp}/cw-m3-005b5-checks.XXXXXX")"
 probe_output="$(mktemp "${TMPDIR:-/tmp}/cw-m3-005b5-probe.XXXXXX")"
@@ -27,10 +28,10 @@ add_check() {
 write_report() {
     local verdict="$1"
     mkdir -p "$(dirname "$report_path")"
-    jq -s --arg version "cw-m3-005b.5-host-sandbox-v1" \
+    jq -s --arg version "cw-m3-005b.6c-host-sandbox-v1" \
         --arg verdict "$verdict" --arg worker "$worker_path" \
-        --arg cgroup "$cgroup_path" --arg dotnet_root "${dotnet_root:-}" \
-        '{reportVersion:$version,verdict:$verdict,worker:{assembly:$worker,identity:"systemd User=continuumwiki-scribunto"},cgroupPath:$cgroup,dotnetRoot:$dotnet_root,summary:{total:length,passed:(map(select(.status=="PASS"))|length),failed:(map(select(.status=="FAIL"))|length),unavailable:(map(select(.status=="UNAVAILABLE"))|length)},checks:.}' \
+        --arg cgroup "$cgroup_path" --arg socket "$socket_path" --arg dotnet_root "${dotnet_root:-}" \
+        '{reportVersion:$version,verdict:$verdict,worker:{assembly:$worker,identity:"systemd User=continuumwiki-scribunto"},socketPath:$socket,cgroupPath:$cgroup,dotnetRoot:$dotnet_root,summary:{total:length,passed:(map(select(.status=="PASS"))|length),failed:(map(select(.status=="FAIL"))|length),unavailable:(map(select(.status=="UNAVAILABLE"))|length)},checks:.}' \
         "$checks_file" >"$report_path"
 }
 
@@ -48,7 +49,7 @@ if [[ "$(uname -s)" != "Linux" ]]; then
 fi
 add_check linux true PASS "$(uname -s)" "Linux host detected."
 
-required_tools=(dotnet bwrap prlimit systemctl systemd-run timeout jq)
+required_tools=(dotnet bwrap prlimit systemctl systemd-run timeout jq python3)
 missing_tools=()
 for tool in "${required_tools[@]}"; do
     command -v "$tool" >/dev/null 2>&1 || missing_tools+=("$tool")
@@ -85,6 +86,37 @@ if [[ "$(id -u)" == 0 ]]; then
 fi
 add_check unprivileged-launcher true PASS "uid=$(id -u),gid=$(id -g)" "The launcher was not started as root."
 
+if [[ ! -S "$socket_path" ]]; then
+    add_check socket-activation true UNAVAILABLE "$socket_path" "The installed worker socket was not available."
+else
+    set +e
+    python3 - "$socket_path" >"$probe_output" 2>&1 <<'PY'
+import socket
+import sys
+
+path = sys.argv[1]
+with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+    client.settimeout(10)
+    client.connect(path)
+    client.sendall(b"{}\n")
+    client.shutdown(socket.SHUT_WR)
+    chunks = []
+    while True:
+        chunk = client.recv(65536)
+        if not chunk:
+            break
+        chunks.append(chunk)
+sys.stdout.buffer.write(b"".join(chunks))
+PY
+    socket_status=$?
+    set -e
+    if [[ $socket_status -eq 0 ]] && jq -e '.status == "ProtocolError" and (.diagnostics | length) > 0' "$probe_output" >/dev/null 2>&1; then
+        add_check socket-activation true PASS "$(tr '\n' ' ' <"$probe_output" | cut -c1-500)" "The installed socket worker accepted a half-closed malformed request and returned structured ProtocolError JSON."
+    else
+        add_check socket-activation true FAIL "$(tr '\n' ' ' <"$probe_output" | cut -c1-500)" "The installed socket worker did not complete the half-close protocol path."
+    fi
+fi
+
 if [[ -z "$cgroup_path" || ! -d "$cgroup_path" ]]; then
     add_check worker-cgroup true UNAVAILABLE "$cgroup_path" "Provide an administrator-provisioned dedicated cgroup v2 directory through CW_SCRIBUNTO_WORKER_CGROUP_PATH."
     mark_worker_checks_unavailable "worker cgroup unavailable"
@@ -119,7 +151,17 @@ if [[ ! -w "$cgroup_path/cgroup.procs" ]]; then
 fi
 add_check worker-cgroup true PASS "$cgroup_path" "Dedicated cgroup v2 control files are present and writable."
 
-if ! bwrap --unshare-all --die-with-parent --ro-bind "$dotnet_root" /dotnet --proc /proc --dev /dev --tmpfs /tmp --clearenv --setenv DOTNET_ROOT /dotnet -- /dotnet/dotnet --info >"$probe_output" 2>&1; then
+namespace_args=(
+    --unshare-all --die-with-parent --clearenv
+    --ro-bind /usr/bin/true /true
+    --ro-bind-try /lib /lib
+    --ro-bind-try /lib64 /lib64
+    --ro-bind-try /usr/lib /usr/lib
+    --ro-bind-try /usr/lib64 /usr/lib64
+    --proc /proc --dev /dev --tmpfs /tmp
+    -- /true
+)
+if ! bwrap "${namespace_args[@]}" >"$probe_output" 2>&1; then
     probe_error="$(tr '\n' ' ' <"$probe_output" | cut -c1-500)"
     if grep -Eqi 'operation not permitted|permission denied|eagain|netlink_route' "$probe_output"; then
         add_check namespace-support true UNAVAILABLE "$probe_error" "The host denied the namespace primitive; no certification claim is made."
@@ -138,6 +180,7 @@ probe_args=(
     --ro-bind "$dotnet_root" /dotnet
     --ro-bind "$probe_dir" /probe
     --ro-bind "$repo_root/ScribuntoWorker/bin/Debug/net10.0" /worker
+    --ro-bind-try /usr/share/icu /usr/share/icu
     --ro-bind-try /lib /lib
     --ro-bind-try /lib64 /lib64
     --ro-bind-try /usr/lib /usr/lib
@@ -168,9 +211,17 @@ run_os_probe() {
     wait "$pid"
     local status=$?
     set -e
-    local blocked="false"
-    if [[ $status -eq 0 ]] && jq -e '.blocked == true' "$probe_output" >/dev/null 2>&1; then blocked="true"; fi
-    if [[ "$blocked" == true || ( "$expected_kill" == true && $status -ne 0 && $status -ne 124 ) ]]; then
+    local passed="false"
+    if [[ "$name" == identity ]]; then
+        if [[ $status -eq 1 ]] && jq -e '.Blocked == false and (.Value | contains("root = False"))' "$probe_output" >/dev/null 2>&1; then passed="true"; fi
+    elif [[ "$name" == environment ]]; then
+        if [[ $status -eq 1 ]] && jq -e '.Blocked == false and .Value == ""' "$probe_output" >/dev/null 2>&1; then passed="true"; fi
+    elif [[ "$expected_kill" == true ]]; then
+        if [[ $status -ne 0 && $status -ne 124 ]] || jq -e '.Blocked == true' "$probe_output" >/dev/null 2>&1; then passed="true"; fi
+    elif [[ $status -eq 0 ]] && jq -e '.Blocked == true' "$probe_output" >/dev/null 2>&1; then
+        passed="true"
+    fi
+    if [[ "$passed" == true ]]; then
         add_check "os-$name" true PASS "$(tr '\n' ' ' <"$probe_output" | cut -c1-500)" "The isolated OS probe was denied."
     else
         add_check "os-$name" true FAIL "$(tr '\n' ' ' <"$probe_output" | cut -c1-500)" "The forbidden OS operation was not proven blocked."
@@ -189,7 +240,7 @@ run_os_probe tasks true
 run_os_probe cpu true
 
 set +e
-CW_SECRET_PROBE="synthetic-secret" dotnet "$certification_path" --worker "$worker_path" --cgroup "$cgroup_path" --report "${report_path%.json}-runner.json" >"$probe_output" 2>&1
+CW_SECRET_PROBE="synthetic-secret" CW_SCRIBUNTO_SOCKET_PATH="$socket_path" dotnet "$certification_path" --worker "$worker_path" --cgroup "$cgroup_path" --report "${report_path%.json}-runner.json" >"$probe_output" 2>&1
 runner_status=$?
 set -e
 if [[ $runner_status -eq 0 ]] && jq -e '.verdict == "VERIFIED"' "${report_path%.json}-runner.json" >/dev/null 2>&1; then
@@ -203,9 +254,9 @@ else
     fi
 fi
 
-if jq -e 'any(.[]; .required and .status == "FAIL")' "$checks_file" >/dev/null; then
+if jq -s -e 'any(.[]; .required and .status == "FAIL")' "$checks_file" >/dev/null; then
     verdict=BLOCKED
-elif jq -e 'any(.[]; .required and .status == "UNAVAILABLE")' "$checks_file" >/dev/null; then
+elif jq -s -e 'any(.[]; .required and .status == "UNAVAILABLE")' "$checks_file" >/dev/null; then
     verdict=HOST_CERTIFICATION_UNAVAILABLE
 else
     verdict=VERIFIED

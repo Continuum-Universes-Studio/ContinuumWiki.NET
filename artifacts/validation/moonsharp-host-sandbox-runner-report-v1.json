@@ -1,0 +1,115 @@
+{
+  "reportVersion": "cw-m3-005b.6c-host-sandbox-v1",
+  "verdict": "VERIFIED",
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "unavailable": 0
+  },
+  "probes": [
+    {
+      "name": "success-control",
+      "passed": true,
+      "status": "Succeeded",
+      "diagnostics": [
+        "ScribuntoWorkerCompleted",
+        "ScribuntoWorkerCompleted"
+      ],
+      "text": "ok",
+      "error": null
+    },
+    {
+      "name": "environment-sanitization",
+      "passed": true,
+      "status": "Succeeded",
+      "diagnostics": [
+        "ScribuntoWorkerCompleted",
+        "ScribuntoWorkerCompleted"
+      ],
+      "text": "nil|nil|nil",
+      "error": null
+    },
+    {
+      "name": "filesystem-api-denial",
+      "passed": true,
+      "status": "Failed",
+      "diagnostics": [
+        "LuaRuntimeError"
+      ],
+      "text": null,
+      "error": null
+    },
+    {
+      "name": "network-api-denial",
+      "passed": true,
+      "status": "Failed",
+      "diagnostics": [
+        "UndeclaredModuleDependency"
+      ],
+      "text": null,
+      "error": null
+    },
+    {
+      "name": "malformed-input-recovery",
+      "passed": true,
+      "status": "Failed",
+      "diagnostics": [
+        "LuaSyntaxError"
+      ],
+      "text": null,
+      "error": null
+    },
+    {
+      "name": "bounded-result",
+      "passed": true,
+      "status": "Failed",
+      "diagnostics": [
+        "ResultLimitExceeded"
+      ],
+      "text": null,
+      "error": null
+    },
+    {
+      "name": "wall-clock-termination",
+      "passed": true,
+      "status": "Failed",
+      "diagnostics": [
+        "InstructionLimitExceeded"
+      ],
+      "text": null,
+      "error": null
+    },
+    {
+      "name": "post-kill-recovery",
+      "passed": true,
+      "status": "Succeeded",
+      "diagnostics": [
+        "ScribuntoWorkerCompleted",
+        "ScribuntoWorkerCompleted"
+      ],
+      "text": "recovered",
+      "error": null
+    },
+    {
+      "name": "concurrent-a",
+      "passed": true,
+      "status": "Succeeded",
+      "diagnostics": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "text": "a",
+      "error": null
+    },
+    {
+      "name": "concurrent-b",
+      "passed": true,
+      "status": "Succeeded",
+      "diagnostics": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "text": "b",
+      "error": null
+    }
+  ]
+}
