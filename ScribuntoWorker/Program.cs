@@ -76,6 +76,11 @@ internal static class Program
                     return DynValue.NewTable(parent);
                 }));
             }
+            if (request.Capabilities.Contains("frame.callParserFunction", StringComparer.Ordinal))
+            {
+                frame.Set("callParserFunction", DynValue.NewCallback((_, _) =>
+                    throw new ScriptRuntimeException("The bounded parser-function bridge rejected the requested parser function; Cargo and extension parser functions are not enabled.")));
+            }
 
             var result = ResumeBounded(state, exported, DynValue.NewTable(frame));
             if (!result.Success) return Failure(request.CorrelationId, result.ErrorCode!, result.ErrorMessage!);
@@ -149,6 +154,15 @@ internal static class Program
         if (capabilities.Contains("mw.text", StringComparer.Ordinal)) mw.Set("text", DynValue.NewTable(RegisterTextApi(script)));
         if (capabilities.Contains("mw.ustring", StringComparer.Ordinal)) mw.Set("ustring", DynValue.NewTable(RegisterUStringApi(script)));
         if (capabilities.Contains("mw.title", StringComparer.Ordinal)) mw.Set("title", DynValue.NewTable(RegisterTitleApi(script, state)));
+            if (capabilities.Contains("mw.ext.cargo", StringComparer.Ordinal))
+            {
+                var ext = new Table(script);
+                var cargo = new Table(script);
+                cargo.Set("query", DynValue.NewCallback((_, _) =>
+                    throw new ScriptRuntimeException("CargoProviderUnavailable: no authorized historical Cargo dataset is configured.")));
+                ext.Set("cargo", DynValue.NewTable(cargo));
+                mw.Set("ext", DynValue.NewTable(ext));
+            }
         if (capabilities.Contains("mw.site", StringComparer.Ordinal)) mw.Set("site", DynValue.NewTable(RegisterSiteApi(script, state)));
         if (capabilities.Contains("mw.language", StringComparer.Ordinal)) mw.Set("language", DynValue.NewTable(RegisterLanguageApi(script)));
         if (capabilities.Contains("mw.html", StringComparer.Ordinal)) mw.Set("html", DynValue.NewTable(RegisterHtmlApi(script)));
@@ -217,6 +231,7 @@ internal static class Program
         title.Set("text", DynValue.NewString(current));
         title.Set("prefixedText", DynValue.NewString(current));
         title.Set("namespace", DynValue.NewNumber(NamespaceId(current)));
+        title.Set("getCurrentTitle", DynValue.NewCallback((_, _) => DynValue.NewTable(title)));
         title.Set("getContent", DynValue.NewCallback((_, _) => DynValue.Nil));
         title.Set("exists", DynValue.NewBoolean(false));
         title.Set("new", DynValue.NewCallback((_, args) =>
@@ -735,6 +750,7 @@ internal static class Program
         if (message.Contains("malformed or exceeded", StringComparison.OrdinalIgnoreCase)) return ("MalformedJsonData", "The bundled JSON data was malformed or exceeded its bounds.");
         if (message.Contains("dependency depth", StringComparison.OrdinalIgnoreCase)) return ("DependencyDepthExceeded", "The module dependency depth exceeded its configured limit.");
         if (message.Contains("mw.text.split pattern", StringComparison.OrdinalIgnoreCase) || message.Contains("mw.ustring.find pattern", StringComparison.OrdinalIgnoreCase)) return ("UnsupportedApi", message);
+        if (message.Contains("parser-function bridge", StringComparison.OrdinalIgnoreCase)) return ("UnsupportedParserFunction", "The requested parser function is not enabled in the bounded worker bridge.");
         if (exception is SyntaxErrorException) return ("LuaSyntaxError", message);
         return ("LuaRuntimeError", message);
     }

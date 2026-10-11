@@ -1,0 +1,38 @@
+{
+  "ReportVersion": "cw-m3-006c.2-comparison-v1",
+  "Status": "PARTIAL",
+  "SourceInvocationInventory": "mediawiki-full-invocation-inventory-v1.json",
+  "SourceInvocationInventorySha256": "5a6d6ad13e9b0f3315053db8168bbbfbf6bc3d0983cd9bd835d4c9a956a38afd",
+  "RealInvocationSites": 2187,
+  "DocumentationExamples": 31,
+  "CorpusCases": 8,
+  "ReferenceCaptures": 0,
+  "ExactMatches": 0,
+  "SemanticMatches": 0,
+  "PartialMatches": 0,
+  "Unsupported": 0,
+  "Failed": 0,
+  "NotEvaluated": 8,
+  "WorkerProvenance": "VERIFIED",
+  "StorageBackedImport": "VERIFIED",
+  "SocketIntegration": "2 passed, 0 failed, 0 skipped",
+  "FocusedInventoryTests": "3 passed, 0 failed, 0 skipped",
+  "FullRegression": "238 passed, 0 failed, 22 skipped",
+  "ReleaseBuild": "PASSED",
+  "ReleasePublish": "PASSED (386 files; /tmp/continuumwiki-publish.wfLPUx)",
+  "SecurityCertification": "NOT_VERIFIED_IN_THIS_RUN; prior root execution is not valid dedicated-identity certification",
+  "ProductionMutation": "NONE",
+  "Corpus": "mediawiki-compatibility-corpus-v1.json",
+  "RequiredReferenceEvidence": [
+    "Approved HTTPS MediaWiki origin or reviewed offline reference artifacts",
+    "Per-case requested and rendered revision identity",
+    "Raw API response hash and rendered output",
+    "MediaWiki version/provenance and warnings"
+  ],
+  "Notes": [
+    "Successful worker execution is not treated as parity.",
+    "Template-mediated cases require template context; standalone module calls are not equivalent.",
+    "Unsupported API observations are static inventory evidence until a reference comparison is captured.",
+    "CW-M3-006D must not begin from this report."
+  ]
+}

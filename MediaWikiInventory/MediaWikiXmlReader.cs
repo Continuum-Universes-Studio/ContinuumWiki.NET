@@ -196,7 +196,7 @@ public sealed class MediaWikiXmlStream : IDisposable
         if (contributor.Kind == MediaWikiContributorKind.Missing)
             warnings.Add(new("MissingContributor", "The revision has no contributor element; missing attribution is preserved.", "revision"));
         if (text is null) warnings.Add(new("MissingWikitext", "The revision has no text element; empty content is preserved with WikitextPresent=false.", "revision"));
-        foreach (var element in revision.Elements().Where(e => e.Name.LocalName is not ("id" or "parentid" or "timestamp" or "contributor" or "comment" or "model" or "format" or "text" or "sha1" or "minor")))
+        foreach (var element in revision.Elements().Where(e => e.Name.LocalName is not ("id" or "parentid" or "timestamp" or "contributor" or "comment" or "model" or "format" or "text" or "sha1" or "minor" or "origin")))
         {
             unsupported.Add(new(element.Name.LocalName, element.ToString(SaveOptions.DisableFormatting), "revision/" + element.Name.LocalName));
             warnings.Add(new("UnsupportedXmlElement", $"Unsupported revision element <{element.Name.LocalName}> was preserved.", "revision"));

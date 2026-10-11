@@ -5,11 +5,76 @@ using MediaWikiImport;
 using MediaWikiInventory;
 using MySqlConnector;
 using TightWiki.Repository.Helpers;
+using TightWiki.Engine.MediaWiki;
+using TightWiki.Plugin.Models;
+using TightWiki.Library;
+using TightWiki.Plugin;
 
 namespace TightWiki.Tests.Integration;
 
 public sealed class MediaWikiImportIntegrationTests
 {
+    [MySqlFact]
+    public async Task DisposableModuleImportResolvesHistoricalRevisionsAndUsesTheRealRenderRepository()
+    {
+        var source = Environment.GetEnvironmentVariable("CONTINUUMWIKI_MYSQL_TEST_CONNECTION")
+            ?? throw new InvalidOperationException("MySQL test connection is missing.");
+        var databaseName = $"cw_m3_006c_{Guid.NewGuid():N}";
+        var server = new MySqlConnectionStringBuilder(source) { Database = string.Empty };
+        await using (var connection = new MySqlConnection(server.ConnectionString))
+        {
+            await connection.OpenAsync();
+            await connection.ExecuteAsync($"CREATE DATABASE `{databaseName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
+        }
+
+        try
+        {
+            var targetConnection = new MySqlConnectionStringBuilder(source) { Database = databaseName };
+            var factory = new MySqlDatabaseConnectionFactory(targetConnection.ConnectionString);
+            await new MySqlSchemaInitializer().InitializeAsync(factory);
+            var executor = new MediaWikiImportExecutor(factory,
+                new MediaWikiImportTargetConfiguration(targetConnection.ConnectionString, databaseName, "disposable-mariadb"));
+            await executor.InitializeImportSchemaAsync();
+            var input = Fixture("scribunto-import-fixture.xml");
+            var plan = MediaWikiImportPlanner.Create(input, NamespaceMappingConfiguration.Defaults);
+            var imported = await executor.ImportAsync(plan, input, NamespaceMappingConfiguration.Defaults);
+
+            var repository = new MySqlMediaWikiImportRepository(factory);
+            var historical = await repository.ResolveModuleAsync(imported.ImportBatchId, "Module:Historical", DateTime.Parse("2025-02-01T00:00:00Z"));
+            var current = await repository.ResolveModuleAsync(imported.ImportBatchId, "Module:Historical", DateTime.Parse("2025-04-01T00:00:00Z"));
+            Assert.Equal("1271", historical.SourceRevisionId);
+            Assert.Equal("1272", current.SourceRevisionId);
+            Assert.NotEqual(historical.Body, current.Body);
+
+            var article = await repository.ResolvePageAsync(imported.ImportBatchId, "Compatibility Article");
+            Assert.NotNull(article);
+            var renderSource = await repository.GetRenderSourceAsync(article!.TargetPageId, 1);
+            Assert.Equal(imported.ImportBatchId, renderSource.ImportBatchId);
+            Assert.Equal("1001", renderSource.SourceRevisionId);
+
+            var socketPath = Environment.GetEnvironmentVariable("CW_SCRIBUNTO_SOCKET_PATH");
+            if (!string.IsNullOrWhiteSpace(socketPath))
+            {
+                var renderer = new MediaWikiWikitextRenderer(repository, new TwConfiguration { BasePath = "/wiki" }, new MediaWikiWikitextRenderOptions
+                {
+                    MaxExpansionOperations = 100_000,
+                    MaxExpansionOutputCharacters = 100_000,
+                    ScribuntoExecutor = new MediaWikiScribuntoSocketExecutor(new MediaWikiScribuntoUnixSocketClient(socketPath, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)))
+                });
+                var result = await renderer.RenderAsync("{{#invoke:Compatibility|main|  positional  |empty=|unicode=é✓中}}", renderSource);
+                Assert.True(result.HtmlResult.Contains("positional|true|3", StringComparison.Ordinal),
+                    $"HTML={result.HtmlResult}\nDiagnostics={string.Join("; ", result.Diagnostics.Select(value => value.Code + ":" + value.Message))}\nDependencies={string.Join("; ", (result.ScribuntoDependencies ?? []).Select(value => value.Name + ":" + value.Status + ":" + value.SourceRevisionId))}");
+                Assert.Contains(result.ScribuntoDependencies ?? [], value => value.Name == "Module:Compatibility" && value.SourceRevisionId == "1011");
+            }
+        }
+        finally
+        {
+            await using var cleanup = new MySqlConnection(server.ConnectionString);
+            await cleanup.OpenAsync();
+            await cleanup.ExecuteAsync($"DROP DATABASE IF EXISTS `{databaseName}`;");
+        }
+    }
+
     [MySqlFact]
     public async Task DisposableMariaDbMediaImportPreservesBinaryHistoryReferencesAndRetryGuard()
     {

@@ -22,12 +22,14 @@ public static class MediaWikiScribuntoWorkerProtocol
         "frame.args",
         "frame.title",
         "frame.parent",
+        "frame.callParserFunction",
         "module.require",
         "mw.loadData",
         "mw.loadJsonData",
         "mw.text",
         "mw.ustring",
         "mw.title",
+        "mw.ext.cargo",
         "mw.site",
         "mw.language",
         "mw.html",
@@ -42,7 +44,7 @@ public static class MediaWikiScribuntoWorkerProtocol
         // Keep the default request compatible with the deployed worker. New
         // compatibility surfaces are explicit opt-ins until that worker is
         // upgraded; SupportedCapabilities still validates those opt-ins.
-        ["frame.args", "frame.title", "frame.parent", "module.require", "mw.loadData", "mw.loadJsonData", "mw.text", "mw.ustring"];
+        ["frame.args", "frame.title", "frame.parent", "frame.callParserFunction", "module.require", "mw.loadData", "mw.loadJsonData", "mw.text", "mw.ustring", "mw.title", "mw.ext.cargo"];
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 

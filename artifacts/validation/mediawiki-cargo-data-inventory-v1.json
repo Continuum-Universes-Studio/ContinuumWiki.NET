@@ -1,0 +1,55 @@
+{
+  "ReportVersion": "cw-m3.3-cargo-data-inventory-v1",
+  "Status": "AUTHENTIC_SCHEMA_METADATA_CAPTURED_HISTORICAL_ROWS_UNAVAILABLE",
+  "InventoryPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-data-inventory-v1.tsv",
+  "InventorySha256Verified": true,
+  "InventoryBytes": 4309,
+  "DatabaseIdentity": "REDACTED_FROM_OPERATOR_REPORT",
+  "EffectiveCargoPrefix": "cargo__",
+  "Credentials": "NOT_RECORDED",
+  "MetadataCaptured": ["table_name", "engine", "table_rows_estimate", "create_time"],
+  "ColumnsAndIndexes": {
+    "ColumnsPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-columns-v1.tsv",
+    "ColumnsSha256": "ade3431abf2cc321e333eac35c858d25f8c97a52e0379436aa52917cda1ebc4f",
+    "ColumnsBytes": 10734,
+    "ColumnsSidecar": "ABSENT",
+    "IndexesPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-indexes-v1.tsv",
+    "IndexesSha256": "952e50120fa88ed06bb163209afadfed99ec867a8d6dd69de5ea113c166beaeb",
+    "IndexesBytes": 25486,
+    "IndexesSidecar": "ABSENT",
+    "SchemaHeaders": {
+      "Columns": ["TABLE_NAME", "ORDINAL_POSITION", "COLUMN_NAME", "COLUMN_TYPE", "IS_NULLABLE", "COLUMN_KEY", "EXTRA"],
+      "Indexes": ["TABLE_NAME", "INDEX_NAME", "NON_UNIQUE", "SEQ_IN_INDEX", "COLUMN_NAME", "INDEX_TYPE"]
+    },
+    "BaseTablesVerified": ["cargo__Characters", "cargo__Divines", "cargo__Species", "cargo__Subvariants", "cargo__Variants"],
+    "ColumnInventorySha256Verified": true,
+    "IndexInventorySha256Verified": true,
+    "SchemaReconciliation": {
+      "cargo__Characters": {"ColumnRows": 56, "PrimaryKey": "_ID", "NullableNonIdColumns": 55},
+      "cargo__Divines": {"ColumnRows": 30, "PrimaryKey": "_ID", "NullableNonIdColumns": 29},
+      "cargo__Species": {"ColumnRows": 51, "PrimaryKey": "_ID", "NullableNonIdColumns": 50},
+      "cargo__Subvariants": {"ColumnRows": 39, "PrimaryKey": "_ID", "NullableNonIdColumns": 38},
+      "cargo__Variants": {"ColumnRows": 48, "PrimaryKey": "_ID", "NullableNonIdColumns": 47},
+      "FieldTypeNullabilitySource": "The complete field names, MariaDB types, nullability, keys, and ordinal positions are preserved in ColumnsPath; complete index names, uniqueness, sequence, columns, and index types are preserved in IndexesPath."
+    },
+    "BaseTableColumnSummary": {
+      "cargo__Variants": {"Name": "varchar(300) NULL indexed", "Species": "varchar(300) NULL indexed", "GeneticAncestor": "NOT_A_BASE_COLUMN; helper_table=cargo__Variants__GeneticAncestor"},
+      "cargo__Subvariants": {"Name": "varchar(300) NULL indexed", "Species": "varchar(300) NULL indexed", "GeneticAncestor": "varchar(300) NULL indexed"},
+      "cargo__Divines": {"Name": "varchar(300) NULL indexed", "Father": "varchar(300) NULL indexed", "Mother": "varchar(300) NULL indexed", "Children": "NOT_A_BASE_COLUMN; no corresponding helper table observed", "Spouses": "NOT_A_BASE_COLUMN; helper_table=cargo__Divines__Spouses", "Consorts": "NOT_A_BASE_COLUMN; helper_table=cargo__Divines__Consorts", "Companions": "NOT_A_BASE_COLUMN; helper_table=cargo__Divines__Companions", "NotableDivineSiblings": "NOT_A_BASE_COLUMN; helper_table=cargo__Divines__NotableDivineSiblings", "NotableDivineOffspring": "NOT_A_BASE_COLUMN; helper_table=cargo__Divines__NotableDivineOffspring"},
+      "cargo__Characters": {"Name": "varchar(300) NULL indexed", "Father": "varchar(300) NULL indexed", "Mother": "varchar(300) NULL indexed", "FamilyRelationshipFields": "base columns are __full text fields or helper-backed; exact query join/result adapter is not established"},
+      "cargo__Species": {"Name": "varchar(300) NULL indexed"}
+    },
+    "HelperIndexEvidence": "Index inventory includes helper tables for Variants.GeneticAncestor, Divines list fields, and Characters relationship fields; no helper-table row values were queried.",
+    "Nullability": "All audited non-_ID base fields are nullable; _ID is NOT NULL PRIMARY KEY.",
+    "IndexRowCount": 384,
+    "ColumnRowCount": 224
+  },
+  "RequiredBaseTables": {"cargo__Characters": 83, "cargo__Divines": 68, "cargo__Species": 56, "cargo__Subvariants": 0, "cargo__Variants": 39},
+  "HelperTables": {"cargo_backlinks": 46, "cargo_pages": 315, "cargo_tables": 8},
+  "RequiredCargoSurfaces": ["Variants", "Subvariants", "Divines", "Characters"],
+  "RowCountConfidence": "ENGINE_ESTIMATE_ONLY",
+  "RequiredFieldStatus": "SCALAR_FIELDS_VERIFIED; MULTIVALUE_FIELDS_HELPER_BACKED_OR_UNRESOLVED",
+  "HistoricalAvailability": "NOT_ESTABLISHED; create_time is current-schema metadata, not revision history",
+  "Acquisition": "SCHEMA_METADATA_ONLY; private Cargo rows were not exported or queried; TSV sidecars for columns/indexes were absent, so direct hashes are recorded above",
+  "Security": {"ReadOnlyWorkflow": true, "PasswordInReport": false, "WorkerDatabaseAccess": false, "WritesAttempted": false}
+}

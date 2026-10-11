@@ -1,0 +1,238 @@
+{
+  "ReportVersion": "cw-m3-006c-v1",
+  "SourceExportSha256": "5a6d6ad13e9b0f3315053db8168bbbfbf6bc3d0983cd9bd835d4c9a956a38afd",
+  "ExecutionMode": "disposable-imported",
+  "ReferenceStatus": "NOT_EVALUATED",
+  "StorageImportStatus": "VERIFIED",
+  "Cases": [
+    {
+      "CaseId": "real-module-01",
+      "ModuleTitle": "Module:CargoSanitizer",
+      "Category": "simple-formatting",
+      "Status": "NOT_EVALUATED",
+      "Invocation": "#invoke:Module:CargoSanitizer|cleanList",
+      "ExpectedOutputProvenance": null,
+      "ActualOutput": null,
+      "Diagnostics": [
+        "ReferenceOutputMissing",
+        "RealInvocationMissing"
+      ],
+      "Notes": "The module has no selected invocation and no independent MediaWiki reference output; storage import alone cannot classify compatibility."
+    },
+    {
+      "CaseId": "real-module-02",
+      "ModuleTitle": "Module:Arguments",
+      "Category": "nested-dependency",
+      "Status": "NOT_EVALUATED",
+      "Invocation": null,
+      "ExpectedOutputProvenance": null,
+      "ActualOutput": null,
+      "Diagnostics": [
+        "ReferenceOutputMissing",
+        "RealInvocationMissing"
+      ],
+      "Notes": "The module has no selected invocation and no independent MediaWiki reference output; storage import alone cannot classify compatibility."
+    },
+    {
+      "CaseId": "real-module-03",
+      "ModuleTitle": "Module:Arguments/doc",
+      "Category": "data-or-unicode",
+      "Status": "NOT_EVALUATED",
+      "Invocation": null,
+      "ExpectedOutputProvenance": null,
+      "ActualOutput": null,
+      "Diagnostics": [
+        "ReferenceOutputMissing",
+        "RealInvocationMissing"
+      ],
+      "Notes": "The module has no selected invocation and no independent MediaWiki reference output; storage import alone cannot classify compatibility."
+    },
+    {
+      "CaseId": "real-module-04",
+      "ModuleTitle": "Module:CharacterFamily",
+      "Category": "unsupported-api",
+      "Status": "UNSUPPORTED",
+      "Invocation": "#invoke:Module:CharacterFamily|twin",
+      "ExpectedOutputProvenance": null,
+      "ActualOutput": null,
+      "Diagnostics": [
+        "UnsupportedApi:mw.ext"
+      ],
+      "Notes": "The module has no selected invocation and no independent MediaWiki reference output; storage import alone cannot classify compatibility."
+    }
+  ],
+  "UnevaluatedModules": [
+    "Module:Check for unknown parameters",
+    "Module:Dialogue",
+    "Module:DivineFamily",
+    "Module:DivineFamily/doc",
+    "Module:DivineMeta",
+    "Module:DivineTree",
+    "Module:Message box",
+    "Module:Namespace detect",
+    "Module:Namespace detect/config",
+    "Module:Namespace detect/data",
+    "Module:Pagetype",
+    "Module:Pagetype/config",
+    "Module:Pagetype/disambiguation",
+    "Module:Pagetype/rfd",
+    "Module:Pagetype/setindex",
+    "Module:Pagetype/softredirect",
+    "Module:Params",
+    "Module:Params/doc",
+    "Module:Quote",
+    "Module:SDcat",
+    "Module:SEO",
+    "Module:SpeciesVariants",
+    "Module:String",
+    "Module:Wikitext Parsing",
+    "Module:Yesno",
+    "Module:Yesno/doc"
+  ],
+  "Gaps": [
+    {
+      "ModuleTitle": "Module:Arguments",
+      "Classification": "Invocation input missing",
+      "RequiredCorrection": "Capture and review a real invocation with arguments and an independent MediaWiki reference before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Arguments",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'libraryUtil' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Arguments/doc",
+      "Classification": "Invocation input missing",
+      "RequiredCorrection": "Capture and review a real invocation with arguments and an independent MediaWiki reference before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Arguments/doc",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Example' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:CharacterFamily",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Check for unknown parameters",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'If preview' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Check for unknown parameters",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Dialogue",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Dev:Dialogue' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:DivineFamily",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:DivineMeta",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:DivineTree",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Message box",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Category handler' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Message box",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Namespace detect",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Dev:Namespace detect' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Namespace detect/config",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Dev:Namespace detect/config' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Namespace detect/data",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Dev:Namespace detect/data' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Pagetype",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Pagetype/' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Params",
+      "Classification": "Dynamic dependency",
+      "RequiredCorrection": "Resolve through an approved contextual dependency snapshot.",
+      "Priority": "medium"
+    },
+    {
+      "ModuleTitle": "Module:Params",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency '' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Quote",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'Dev:Quote' before execution.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:SEO",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:SpeciesVariants",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:String",
+      "Classification": "Unsupported API",
+      "RequiredCorrection": "Document or implement a bounded API adapter; do not expand worker capabilities.",
+      "Priority": "high"
+    },
+    {
+      "ModuleTitle": "Module:Wikitext Parsing",
+      "Classification": "Missing dependency",
+      "RequiredCorrection": "Import or explicitly classify dependency 'strict' before execution.",
+      "Priority": "high"
+    }
+  ]
+}

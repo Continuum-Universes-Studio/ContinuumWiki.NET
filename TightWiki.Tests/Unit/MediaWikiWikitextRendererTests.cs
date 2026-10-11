@@ -94,6 +94,23 @@ public sealed class MediaWikiWikitextRendererTests
     }
 
     [Fact]
+    public async Task ReexpandsLuaReturnedWikitextThroughTheBoundedRenderer()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Templates["Inner"] = Template("Inner", "Expanded {{{value}}}");
+        var renderer = new MediaWikiWikitextRenderer(repository, new TwConfiguration(), new MediaWikiWikitextRenderOptions
+        {
+            ScribuntoExecutor = new ReturnedWikitextExecutor()
+        });
+
+        var result = await renderer.RenderAsync("{{#invoke:Returned|render|value=Continuum}}", ImportedSource(repository));
+
+        Assert.Contains("Expanded Continuum", result.HtmlResult);
+        Assert.DoesNotContain("{{Inner", result.HtmlResult);
+        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == "UnsupportedParserFunction");
+    }
+
+    [Fact]
     public async Task PreservesEmptyParametersAndBalancedLinksAndAppliesInclusionRules()
     {
         var repository = new FakeMediaWikiImportRepository();
@@ -399,7 +416,7 @@ public sealed class MediaWikiWikitextRendererTests
 
         var result = await renderer.RenderAsync("{{#invoke:Unsafe|run}} {{#time:%Q|@0}} {{padleft:x|999|0}}", ImportedSource());
 
-        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsupportedExtensionFunction");
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "ScribuntoExecutionRejected");
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsupportedTimeFormat");
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "InvalidPaddingWidth");
         Assert.Contains("Unsupported MediaWiki construct", result.HtmlResult);
@@ -413,6 +430,20 @@ public sealed class MediaWikiWikitextRendererTests
 
     private static TwMediaWikiTemplateTarget Template(string title, string body, string revision = "t1")
         => new(TwMediaWikiTemplateResolutionStatus.Resolved, title, title, revision, 1, body);
+
+    private sealed class ReturnedWikitextExecutor : IMediaWikiScribuntoExecutor
+    {
+        public Task<MediaWikiScribuntoExecutionResult> ExecuteAsync(
+            MediaWikiScribuntoInvocation invocation,
+            IMediaWikiScribuntoExecutionHost host,
+            MediaWikiScribuntoExecutionContext context,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(new MediaWikiScribuntoExecutionResult(
+                "{{Inner|value=" + invocation.NamedArguments["value"] + "}}",
+                [],
+                [new MediaWikiScribuntoDependency("module", invocation.Module.CanonicalTitle, "module-rev-1", "Succeeded")],
+                true));
+    }
 
     private sealed class FakeMediaWikiImportRepository : ITwMediaWikiImportRepository
     {

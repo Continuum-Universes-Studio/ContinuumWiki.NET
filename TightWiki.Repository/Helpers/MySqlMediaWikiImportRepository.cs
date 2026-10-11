@@ -177,7 +177,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
             INNER JOIN PageRevision PR ON PR.PageId = R.TargetPageId AND PR.Revision = R.TargetRevision
             INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
             WHERE P.ImportBatchId = @ImportBatchId AND P.SourceNamespaceId = '828'
-              AND REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle AND P.IsRedirect = FALSE
+              AND TRIM(SUBSTRING_INDEX(REPLACE(P.OriginalTitle, '_', ' '), ':', -1)) = @SourceTitle AND P.IsRedirect = FALSE
               AND R.IsDeleted = FALSE AND B.Status = 'Completed'
               AND (@AsOfUtc IS NULL OR R.SourceTimestamp IS NULL OR R.SourceTimestamp <= @AsOfUtc)
             ORDER BY R.SourceTimestamp DESC, R.TargetRevision DESC;
@@ -188,7 +188,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         var exists = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition("""
             SELECT COUNT(*) FROM MediaWikiImportPage P INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
             WHERE P.ImportBatchId = @ImportBatchId AND P.SourceNamespaceId = '828'
-              AND REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle AND B.Status = 'Completed';
+              AND TRIM(SUBSTRING_INDEX(REPLACE(P.OriginalTitle, '_', ' '), ':', -1)) = @SourceTitle AND B.Status = 'Completed';
             """, new { ImportBatchId = importBatchId, SourceTitle = normalized }, cancellationToken: cancellationToken));
         return exists > 0 ? new(TwMediaWikiModuleResolutionStatus.Restricted, normalized) : new(TwMediaWikiModuleResolutionStatus.Missing, normalized);
     }

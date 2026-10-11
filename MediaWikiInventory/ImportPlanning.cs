@@ -8,6 +8,16 @@ namespace MediaWikiInventory;
 
 public enum PlanFindingSeverity { Informational, Warning, Blocking }
 public enum ImportDisposition { Ready, ReadyWithWarnings, Blocked }
+public enum MediaWikiImportPolicy { Strict, DisposableDiagnosticRendering }
+
+public static class MediaWikiImportPolicyRules
+{
+    public static bool IsAllowedDiagnosticFinding(PlanFinding finding)
+        => finding.Code == "UnsupportedExtensionTag"
+           && (finding.Message.Contains("<templatedata>", StringComparison.OrdinalIgnoreCase)
+               || finding.Message.Contains("<mermaid>", StringComparison.OrdinalIgnoreCase)
+               || finding.Message.Contains("<templatestyles>", StringComparison.OrdinalIgnoreCase));
+}
 
 public sealed record PlanFinding(PlanFindingSeverity Severity, string Code, string Message,
     string? SourcePageId = null, string? SourceRevisionId = null);
@@ -158,6 +168,10 @@ public static class MediaWikiImportPlanner
     private static readonly Regex Redirect = new(@"^\s*#redirect\s*\[\[([^\]]+)\]\]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly HashSet<string> NonExtensionTags = new(StringComparer.OrdinalIgnoreCase)
         { "ref", "references", "br", "nowiki", "pre", "includeonly", "noinclude", "onlyinclude", "div", "span", "table", "tr", "td", "th", "p", "gallery" };
+    private static readonly HashSet<string> PortableInfoboxSchemaTags = new(StringComparer.OrdinalIgnoreCase)
+        { "infobox", "title", "default", "group", "header", "data", "audio", "panel", "section", "label", "image", "caption", "format" };
+    private static readonly HashSet<string> UnsupportedCustomParserFunctions = new(StringComparer.OrdinalIgnoreCase)
+        { "cuinfobox" };
 
     public static MediaWikiImportPlan Create(string inputPath, NamespaceMappingConfiguration mapping)
         => Create(inputPath, mapping, null, null);
@@ -231,11 +245,18 @@ public static class MediaWikiImportPlanner
             {
                 var revisionFindings = revision.Warnings.Select(w => new PlanFinding(PlanFindingSeverity.Warning, w.Code, w.Message, page.SourcePageId, revision.SourceRevisionId)).ToList();
                 revisionFindings.AddRange(revision.UnsupportedElements.Select(e => new PlanFinding(PlanFindingSeverity.Blocking, "UnsupportedXmlElement", $"Preserved unsupported XML element <{e.Name}>.", page.SourcePageId, revision.SourceRevisionId)));
-                if (!string.IsNullOrEmpty(revision.ContentModel) && !string.Equals(revision.ContentModel, "wikitext", StringComparison.OrdinalIgnoreCase))
+                var moduleContentModel = page.SourceNamespaceId == "828" && revision.ContentModel is not null
+                    && (string.Equals(revision.ContentModel, "Scribunto", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(revision.ContentModel, "Json", StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(revision.ContentModel)
+                    && !string.Equals(revision.ContentModel, "wikitext", StringComparison.OrdinalIgnoreCase)
+                    && !moduleContentModel)
                     revisionFindings.Add(new(PlanFindingSeverity.Blocking, "UnsupportedContentModel", $"Content model '{revision.ContentModel}' is not the supported Wikitext model.", page.SourcePageId, revision.SourceRevisionId));
                 if (revision.Contributor.Kind == MediaWikiContributorKind.Missing)
                     revisionFindings.Add(new(PlanFindingSeverity.Warning, "UnresolvedContributor", "Contributor metadata is missing; no login identity will be created.", page.SourcePageId, revision.SourceRevisionId));
-                var dependencies = Analyze(revision.Wikitext, page.SourcePageId, revision.SourceRevisionId);
+                var dependencies = moduleContentModel
+                    ? AnalyzeModule(revision.Wikitext, page.SourcePageId, revision.SourceRevisionId)
+                    : Analyze(revision.Wikitext, page.SourcePageId, revision.SourceRevisionId);
                 revisionFindings.AddRange(dependencies.Findings);
                 findings.AddRange(revisionFindings);
                 plannedRevisions.Add(new(revision.SourceRevisionId, ordinal, revision.ParentRevisionId, revision.Timestamp, revision.Comment,
@@ -258,7 +279,7 @@ public static class MediaWikiImportPlanner
                 pageFindings, DetermineDisposition(pageFindings)));
             findings.AddRange(pageFindings);
         }
-        ResolveModuleDependencyClosure(pages);
+        ResolveModuleDependencyClosure(pages, findings);
         ResolveMissingDependencies(pages, known, findings);
         ResolveModuleCycles(pages, findings);
         DetectSourceIdentityConflicts(pages, findings);
@@ -287,12 +308,10 @@ public static class MediaWikiImportPlanner
         }
     }
 
-    private static void ResolveModuleDependencyClosure(List<PlannedPage> pages)
+    private static void ResolveModuleDependencyClosure(List<PlannedPage> pages, List<PlanFinding> findings)
     {
-        var modulePages = pages.Where(page => page.SourceNamespaceId == "828")
-            .ToDictionary(page => DependencyKey(page.OriginalTitle), StringComparer.OrdinalIgnoreCase);
-        var templates = pages.Where(page => page.SourceNamespaceId == "10")
-            .ToDictionary(page => DependencyKey(page.OriginalTitle), StringComparer.OrdinalIgnoreCase);
+        var modulePages = BuildDependencyIndex(pages.Where(page => page.SourceNamespaceId == "828"), "Module", findings);
+        var templates = BuildDependencyIndex(pages.Where(page => page.SourceNamespaceId == "10"), "Template", findings);
         for (var pageIndex = 0; pageIndex < pages.Count; pageIndex++)
         {
             var page = pages[pageIndex];
@@ -315,6 +334,29 @@ public static class MediaWikiImportPlanner
             }).ToArray();
             pages[pageIndex] = page with { Revisions = revisions };
         }
+    }
+
+    private static Dictionary<string, PlannedPage> BuildDependencyIndex(
+        IEnumerable<PlannedPage> pages,
+        string dependencyKind,
+        List<PlanFinding> findings)
+    {
+        var index = new Dictionary<string, PlannedPage>(StringComparer.OrdinalIgnoreCase);
+        foreach (var group in pages.GroupBy(page => DependencyKey(page.OriginalTitle), StringComparer.OrdinalIgnoreCase))
+        {
+            var candidates = group.OrderBy(page => page.SourcePageId, StringComparer.Ordinal).ToArray();
+            var selected = candidates[0];
+            index[group.Key] = selected;
+            if (candidates.Length <= 1) continue;
+
+            var titles = string.Join(", ", candidates.Select(page => $"'{page.OriginalTitle}' (page {page.SourcePageId})"));
+            var finding = new PlanFinding(
+                PlanFindingSeverity.Blocking,
+                "DependencyKeyCollision",
+                $"{dependencyKind} dependency key '{group.Key}' resolves to multiple source pages: {titles}.");
+            findings.Add(finding);
+        }
+        return index;
     }
 
     private static void ResolveModuleCycles(List<PlannedPage> pages, List<PlanFinding> findings)
@@ -408,26 +450,52 @@ public static class MediaWikiImportPlanner
 
     private static MediaWikiDependencyReport Analyze(string text, string pageId, string revisionId)
     {
-        var templates = Template.Matches(text).Select(m => m.Groups[1].Value.Trim()).Where(x => x.Length > 0 && !IsSupportedMagicWord(x)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
+        var templates = Template.Matches(text).Select(m => m.Groups[1].Value.Trim()).Where(x => x.Length > 0 && x != ":" && !IsSupportedMagicWord(x)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
         var parserFunctions = ParserFunction.Matches(text).Select(m => m.Groups[1].Value.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
         var scribunto = MediaWikiScribuntoScanner.Scan(text, pageId, revisionId);
         var modules = scribunto.Dependencies.Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
         var categories = Category.Matches(text).Select(m => m.Groups[1].Value.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
         var files = File.Matches(text).Select(m => m.Groups[1].Value.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
         var links = Link.Matches(text).Select(m => m.Groups[1].Value.Trim()).Where(x => !x.StartsWith("Category:", StringComparison.OrdinalIgnoreCase) && !x.StartsWith("File:", StringComparison.OrdinalIgnoreCase) && !x.StartsWith("Image:", StringComparison.OrdinalIgnoreCase)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
-        var extensions = Tag.Matches(text).Select(m => m.Groups[1].Value).Where(x => !NonExtensionTags.Contains(x)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
+        var extensions = Tag.Matches(text)
+            .Where(match => !NonExtensionTags.Contains(match.Groups[1].Value)
+                && !IsPortableInfoboxSchemaTag(text, match.Index, match.Groups[1].Value))
+            .Select(m => m.Groups[1].Value)
+            .Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase).ToArray();
         var findings = new List<PlanFinding> { new(PlanFindingSeverity.Warning, "HeuristicDependencyScan", "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.", pageId, revisionId) };
         findings.AddRange(scribunto.Findings);
+        findings.AddRange(parserFunctions.Where(function => UnsupportedCustomParserFunctions.Any(custom =>
+                function.Equals(custom, StringComparison.OrdinalIgnoreCase)
+                || function.StartsWith(custom + ":", StringComparison.OrdinalIgnoreCase)))
+            .Select(function => new PlanFinding(PlanFindingSeverity.Blocking, "UnsupportedCustomParserFunction",
+                $"Custom parser function '#{function}' is provided by an external MediaWiki extension and is not executed by ContinuumWiki.", pageId, revisionId)));
         findings.AddRange(extensions.Select(tag => new PlanFinding(PlanFindingSeverity.Blocking, "UnsupportedExtensionTag", $"Extension or unknown tag <{tag}> was found and is preserved but not executable.", pageId, revisionId)));
         return new(templates, parserFunctions, modules, categories, links, files, Reference.Matches(text).Count, extensions, findings,
             scribunto.Invocations, scribunto.Dependencies, scribunto.UncertainDependencies, []);
     }
 
+    private static MediaWikiDependencyReport AnalyzeModule(string text, string pageId, string revisionId)
+    {
+        var scan = MediaWikiScribuntoScanner.Scan(text, pageId, revisionId);
+        var findings = new List<PlanFinding> { new(PlanFindingSeverity.Warning, "HeuristicLuaDependencyScan", "Lua dependency extraction uses bounded lexical scanning; runtime loading remains authoritative.", pageId, revisionId) };
+        findings.AddRange(scan.Findings);
+        return new([], [], scan.Dependencies, [], [], [], 0, [], findings,
+            scan.Invocations, scan.Dependencies, scan.UncertainDependencies, []);
+    }
+
     private static string? ExtractRedirectTarget(string? text) => text is null ? null : Redirect.Match(text) is { Success: true } match ? match.Groups[1].Value.Trim() : null;
+    private static bool IsPortableInfoboxSchemaTag(string text, int offset, string tag)
+    {
+        if (!PortableInfoboxSchemaTags.Contains(tag)) return false;
+        if (tag.Equals("infobox", StringComparison.OrdinalIgnoreCase)) return true;
+        var open = text.LastIndexOf("<infobox", offset, StringComparison.OrdinalIgnoreCase);
+        var close = text.LastIndexOf("</infobox", offset, StringComparison.OrdinalIgnoreCase);
+        return open >= 0 && open > close;
+    }
     private static bool IsSupportedMagicWord(string value)
     {
         var name = value.Split(':', 2)[0].Trim().ToUpperInvariant();
-        return name is "PAGENAME" or "PAGENAMEE" or "FULLPAGENAME" or "FULLPAGENAMEE" or "BASEPAGENAME" or "BASEPAGENAMEE" or "SUBPAGENAME" or "SUBPAGENAMEE" or "ROOTPAGENAME" or "ROOTPAGENAMEE" or "NAMESPACE" or "NAMESPACENUMBER" or "TALKPAGENAME" or "TALKPAGENAMEE" or "SUBJECTPAGENAME" or "SUBJECTPAGENAMEE" or "SITENAME" or "CONTENTLANGUAGE" or "REVISIONID" or "REVISIONTIMESTAMP" or "REVISIONYEAR" or "REVISIONMONTH" or "REVISIONDAY" or "CURRENTYEAR" or "CURRENTMONTH" or "CURRENTDAY" or "CURRENTDAY2" or "CURRENTTIME" or "CURRENTTIMESTAMP" or "LOCALYEAR" or "LOCALMONTH" or "LOCALDAY" or "LOCALDAY2" or "LOCALTIME" or "LOCALTIMESTAMP" or "LC" or "UC" or "LCFIRST" or "UCFIRST" or "PADLEFT" or "PADRIGHT" or "FORMATNUM";
+        return name is "PAGENAME" or "PAGENAMEE" or "FULLPAGENAME" or "FULLPAGENAMEE" or "BASEPAGENAME" or "BASEPAGENAMEE" or "SUBPAGENAME" or "SUBPAGENAMEE" or "ROOTPAGENAME" or "ROOTPAGENAMEE" or "NAMESPACE" or "NAMESPACENUMBER" or "TALKPAGENAME" or "TALKPAGENAMEE" or "SUBJECTPAGENAME" or "SUBJECTPAGENAMEE" or "SITENAME" or "CONTENTLANGUAGE" or "REVISIONID" or "REVISIONTIMESTAMP" or "REVISIONYEAR" or "REVISIONMONTH" or "REVISIONDAY" or "CURRENTYEAR" or "CURRENTMONTH" or "CURRENTDAY" or "CURRENTDAY2" or "CURRENTTIME" or "CURRENTTIMESTAMP" or "LOCALYEAR" or "LOCALMONTH" or "LOCALDAY" or "LOCALDAY2" or "LOCALTIME" or "LOCALTIMESTAMP" or "LC" or "UC" or "LCFIRST" or "UCFIRST" or "PADLEFT" or "PADRIGHT" or "FORMATNUM" or "FULLURL" or "LOCALURL";
     }
     private static string SourceKey(string namespaceId, string title) => namespaceId + "\u001f" + title.Normalize(NormalizationForm.FormC);
     private static string DependencyKey(string title) => title.StartsWith("Template:", StringComparison.OrdinalIgnoreCase) || title.StartsWith("Module:", StringComparison.OrdinalIgnoreCase) ? title[(title.IndexOf(':') + 1)..].Trim() : title.Trim();

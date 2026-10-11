@@ -13,6 +13,13 @@ public sealed class ExperimentalMediaWikiScribuntoRuntimeTests
         AppContext.BaseDirectory, "../../../../ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll"));
 
     [Fact]
+    public void SocketDefaultCapabilitiesIncludeImplementedTitleContext()
+    {
+        Assert.Contains("mw.title", MediaWikiScribuntoWorkerProtocol.DefaultCapabilities);
+        Assert.Contains("mw.title", MediaWikiScribuntoWorkerProtocol.SupportedCapabilities);
+    }
+
+    [Fact]
     public async Task SyntheticInvocationSupportsNamedPositionalArgumentsAndRestrictedApi()
     {
         var response = await RunWorkerAsync(
@@ -78,6 +85,28 @@ public sealed class ExperimentalMediaWikiScribuntoRuntimeTests
 
         Assert.True(response.Success, response.ErrorMessage);
         Assert.Equal("Main_Page|0|false|nil|Talk Page|0", response.Text);
+    }
+
+    [Fact]
+    public async Task DefaultSocketCapabilitiesExposeTitleContextUsedByImportedModules()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function() return mw.title.getCurrentTitle().text end }",
+            "main", frameTitle: "Template:Species");
+
+        Assert.True(response.Success, response.ErrorMessage);
+        Assert.Equal("Template:Species", response.Text);
+    }
+
+    [Fact]
+    public async Task ParserFunctionBridgeFailsClosedForUnsupportedCargo()
+    {
+        var response = await RunWorkerAsync(
+            "return { main = function(frame) return frame:callParserFunction{ name = '#cargo_query', args = {'tables=Variants'} } end }",
+            "main");
+
+        Assert.False(response.Success);
+        Assert.Equal("UnsupportedParserFunction", response.ErrorCode);
     }
 
     [Fact]

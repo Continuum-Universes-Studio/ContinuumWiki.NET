@@ -1,0 +1,27 @@
+{
+  "ReportVersion": "cw-m3-006c.2-gap-inventory-v1",
+  "Status": "OPEN",
+  "Gaps": [
+    {
+      "GapId": "reference-capture-unavailable",
+      "Category": "Unknown",
+      "Priority": "blocking",
+      "AffectedFixtures": 8,
+      "RequiredAction": "Capture each corpus page revision from the approved MediaWiki renderer."
+    },
+    {
+      "GapId": "dedicated-identity-sandbox-certification",
+      "Category": "Capability denial",
+      "Priority": "high",
+      "AffectedFixtures": 8,
+      "RequiredAction": "Run host sandbox certification as continuumwiki-scribunto; root execution is invalid evidence."
+    },
+    {
+      "GapId": "unsupported-mediawiki-apis",
+      "Category": "Missing mw.* API",
+      "Priority": "review",
+      "AffectedFixtures": 8,
+      "RequiredAction": "Compare only after reference capture; preserve intentional rejection behavior."
+    }
+  ]
+}

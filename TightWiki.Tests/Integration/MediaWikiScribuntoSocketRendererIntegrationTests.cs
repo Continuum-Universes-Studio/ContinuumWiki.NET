@@ -20,6 +20,7 @@ public sealed class MediaWikiScribuntoSocketRendererIntegrationTests
         {
             MaxExpansionOperations = 100_000,
             MaxExpansionOutputCharacters = 100_000,
+            MaxExpansionTime = TimeSpan.FromSeconds(2),
             ScribuntoExecutor = new MediaWikiScribuntoSocketExecutor(new MediaWikiScribuntoUnixSocketClient(socketPath!, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)))
         });
         var source = new TwMediaWikiRenderSource(TwPageSourceFormat.ImportedMediaWiki, 77, "page-1", "page-rev-2", "Greetings", SourceNamespaceId: "0", SourceWikiIdentity: "synthetic-wiki", ContentModel: "wikitext");
@@ -45,6 +46,7 @@ public sealed class MediaWikiScribuntoSocketRendererIntegrationTests
         {
             MaxExpansionOperations = 100_000,
             MaxExpansionOutputCharacters = 100_000,
+            MaxExpansionTime = TimeSpan.FromSeconds(2),
             ScribuntoExecutor = new MediaWikiScribuntoSocketExecutor(new MediaWikiScribuntoUnixSocketClient(socketPath!, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2)))
         });
         var source = new TwMediaWikiRenderSource(TwPageSourceFormat.ImportedMediaWiki, 77, "page-1", "page-rev-2", "MediaWikiExample", SourceNamespaceId: "0", SourceWikiIdentity: "synthetic-wiki", ContentModel: "wikitext");

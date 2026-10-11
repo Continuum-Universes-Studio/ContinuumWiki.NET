@@ -17,6 +17,69 @@ public static class PlannerCli
         if (args[0].Equals("validate", StringComparison.OrdinalIgnoreCase)) return Validate(args[1..]);
         if (args[0].Equals("preview", StringComparison.OrdinalIgnoreCase) && args.Length == 2)
             return WriteJson(MediaWikiImportPreview.Create(args[1]), null);
+        if (args[0].Equals("modules", StringComparison.OrdinalIgnoreCase))
+        {
+            var options = Options(args[1..]);
+            if (!options.TryGetValue("input", out var input)) { Usage(); return 2; }
+            var report = MediaWikiModuleInventory.Read(input);
+            if (options.TryGetValue("output", out var output))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+                File.WriteAllText(output, JsonSerializer.Serialize(report, MediaWikiModuleInventory.JsonOptions()) + Environment.NewLine);
+            }
+            else Console.WriteLine(JsonSerializer.Serialize(report, MediaWikiModuleInventory.JsonOptions()));
+            return 0;
+        }
+        if (args[0].Equals("invocations", StringComparison.OrdinalIgnoreCase))
+        {
+            var options = Options(args[1..]);
+            if (!options.TryGetValue("input", out var input)) { Usage(); return 2; }
+            var report = MediaWikiInvocationInventory.Read(input);
+            var json = MediaWikiInvocationInventory.Serialize(report) + Environment.NewLine;
+            if (options.TryGetValue("output", out var output))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+                File.WriteAllText(output, json);
+            }
+            else Console.Write(json);
+            return 0;
+        }
+        if (args[0].Equals("compatibility", StringComparison.OrdinalIgnoreCase))
+        {
+            var options = Options(args[1..]);
+            if (!options.TryGetValue("input", out var input)) { Usage(); return 2; }
+            var storageStatus = "NOT_RUN";
+            if (options.TryGetValue("import-report", out var importReport) && File.Exists(importReport))
+            {
+                using var document = JsonDocument.Parse(File.ReadAllText(importReport));
+                storageStatus = document.RootElement.TryGetProperty("Verdict", out var verdict) ? verdict.GetString() ?? "UNKNOWN" : "UNKNOWN";
+            }
+            var report = MediaWikiModuleCompatibilityReportBuilder.Create(MediaWikiModuleInventory.Read(input), storageStatus);
+            var json = MediaWikiModuleCompatibilityReportBuilder.Serialize(report) + Environment.NewLine;
+            if (options.TryGetValue("output", out var output))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+                File.WriteAllText(output, json);
+            }
+            else Console.Write(json);
+            return 0;
+        }
+        if (args[0].Equals("select-modules", StringComparison.OrdinalIgnoreCase))
+        {
+            var options = Options(args[1..]);
+            if (!options.TryGetValue("input", out var input) || !options.TryGetValue("output", out var output) || !options.TryGetValue("titles", out var titles)) { Usage(); return 2; }
+            var selected = MediaWikiModuleSubset.Write(input, output, titles.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToHashSet(StringComparer.OrdinalIgnoreCase));
+            Console.WriteLine($"Derived offline module export written to {output}; modules={selected.Count}.");
+            return 0;
+        }
+        if (args[0].Equals("select-compatibility", StringComparison.OrdinalIgnoreCase))
+        {
+            var options = Options(args[1..]);
+            if (!options.TryGetValue("input", out var input) || !options.TryGetValue("corpus", out var corpus) || !options.TryGetValue("output", out var output)) { Usage(); return 2; }
+            var selected = MediaWikiCompatibilitySubset.Write(input, corpus, output);
+            Console.WriteLine($"Derived compatibility export written to {output}; pages={selected.Pages}, revisions={selected.Revisions}.");
+            return 0;
+        }
         if (args.Length == 1)
             return WriteJson(InventoryReport.Read(args[0]), null);
         Usage();
@@ -84,5 +147,5 @@ public static class PlannerCli
     };
 
     private static void Usage() => Console.Error.WriteLine(
-        "Usage: MediaWikiInventory <export.xml> | preview <export.xml> | plan --input <export.xml> --output <plan.json> [--mapping <mapping.json>] [--media-manifest <manifest.json> --media-root <directory>] | validate --plan <plan.json> --input <export.xml> [--mapping <mapping.json>] [--media-manifest <manifest.json> --media-root <directory>]");
+        "Usage: MediaWikiInventory <export.xml> | modules --input <export.xml> [--output <report.json>] | invocations --input <export.xml> [--output <report.json>] | compatibility --input <export.xml> [--output <report.json>] [--import-report <reconciliation.json>] | select-modules --input <export.xml> --output <subset.xml> --titles <comma-separated-titles> | select-compatibility --input <export.xml> --corpus <corpus.json> --output <subset.xml> | preview <export.xml> | plan --input <export.xml> --output <plan.json> [--mapping <mapping.json>] [--media-manifest <manifest.json> --media-root <directory>] | validate --plan <plan.json> --input <export.xml> [--mapping <mapping.json>] [--media-manifest <manifest.json> --media-root <directory>]");
 }

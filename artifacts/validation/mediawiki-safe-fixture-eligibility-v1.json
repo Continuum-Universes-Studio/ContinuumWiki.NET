@@ -1,0 +1,181 @@
+{
+  "DiagnosticEligibleCount": 6,
+  "Policies": {
+    "DiagnosticImport": "May only target a disposable database, preserve source verbatim, and never alter production readiness.",
+    "Runtime": "Requires a complete safe import and authorized socket worker; no execution is inferred from eligibility.",
+    "StrictMigration": "Any planner blocking finding remains a mandatory rejection."
+  },
+  "ReportVersion": "cw-m3-006c.9-safe-fixture-eligibility-v1",
+  "Rows": [
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Deferred: current strict harness rejects blocking rendering diagnostics.",
+      "DiagnosticImportEligibility": "ELIGIBLE_IN_DISPOSABLE_POLICY",
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "MissingDependencies": [],
+      "PageTitle": "Template:Species",
+      "PlannerBlockingCodes": [
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "RenderingLimitations": [
+        "templatedata"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "SAFE_CANDIDATE",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Deferred: current strict harness rejects blocking rendering diagnostics.",
+      "DiagnosticImportEligibility": "ELIGIBLE_IN_DISPOSABLE_POLICY",
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "MissingDependencies": [],
+      "PageTitle": "Template:Character2",
+      "PlannerBlockingCodes": [
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "RenderingLimitations": [
+        "templatedata"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "SAFE_CANDIDATE",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Deferred: current strict harness rejects blocking rendering diagnostics.",
+      "DiagnosticImportEligibility": "ELIGIBLE_IN_DISPOSABLE_POLICY",
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "MissingDependencies": [],
+      "PageTitle": "Template:Divine",
+      "PlannerBlockingCodes": [
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "RenderingLimitations": [
+        "templatedata"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "SAFE_CANDIDATE",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Deferred: current strict harness rejects blocking rendering diagnostics.",
+      "DiagnosticImportEligibility": "ELIGIBLE_IN_DISPOSABLE_POLICY",
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "MissingDependencies": [],
+      "PageTitle": "Template:Divine",
+      "PlannerBlockingCodes": [
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "RenderingLimitations": [
+        "templatedata"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "SAFE_CANDIDATE",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Deferred: current strict harness rejects blocking rendering diagnostics.",
+      "DiagnosticImportEligibility": "ELIGIBLE_IN_DISPOSABLE_POLICY",
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "MissingDependencies": [],
+      "PageTitle": "Jovan",
+      "PlannerBlockingCodes": [
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "RenderingLimitations": [
+        "mermaid"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "SAFE_CANDIDATE",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Blocked by unresolved dependency or source safety finding.",
+      "DiagnosticImportEligibility": "INELIGIBLE",
+      "FixtureId": "mw-invoke-075b2608d7c07c57",
+      "MissingDependencies": [
+        "Module:Category handler",
+        "Module:libraryUtil",
+        "Module:strict"
+      ],
+      "PageTitle": "Template:Mbox",
+      "PlannerBlockingCodes": [
+        "MissingModuleDependency"
+      ],
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "RenderingLimitations": [],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "BLOCKED",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Deferred: current strict harness rejects blocking rendering diagnostics.",
+      "DiagnosticImportEligibility": "ELIGIBLE_IN_DISPOSABLE_POLICY",
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "MissingDependencies": [],
+      "PageTitle": "Template:Species",
+      "PlannerBlockingCodes": [
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "RenderingLimitations": [
+        "templatedata"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "SAFE_CANDIDATE",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ActualWorkerExecution": false,
+      "ComparisonPerformed": false,
+      "Decision": "Blocked by unresolved dependency or source safety finding.",
+      "DiagnosticImportEligibility": "INELIGIBLE",
+      "FixtureId": "mw-invoke-72066581f5f001e8",
+      "MissingDependencies": [
+        "Module:Extension",
+        "Module:Template translation"
+      ],
+      "PageTitle": "Template:Extension",
+      "PlannerBlockingCodes": [
+        "MissingModuleDependency",
+        "MissingTemplateDependency",
+        "UnsupportedExtensionTag"
+      ],
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "RenderingLimitations": [
+        "abbr",
+        "caption",
+        "code",
+        "languages",
+        "li",
+        "sup",
+        "syntaxhighlight",
+        "templatestyles",
+        "translate",
+        "tvar",
+        "ul"
+      ],
+      "RuntimeExecutionEligibility": "NOT_ATTEMPTED",
+      "SourcePersistenceSafety": "BLOCKED",
+      "StrictMigrationImportEligibility": "INELIGIBLE"
+    }
+  ],
+  "StrictEligibleCount": 0
+}

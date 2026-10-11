@@ -1,0 +1,1089 @@
+{
+  "FixtureCount": 8,
+  "Fixtures": [
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "GroundedMissingModuleDependencyTitles": [],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "9603",
+          "9907"
+        ],
+        "SelectedRevisionIds": [
+          "9603",
+          "9907"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [],
+      "Modules": [
+        "CargoSanitizer",
+        "SpeciesVariants"
+      ],
+      "Outcome": "UNSUPPORTED",
+      "PageTitle": "Template:Species",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9907"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9907"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9907"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9907"
+        }
+      ],
+      "RawInvocation": "{{#invoke:CargoSanitizer|cleanList|{{{eye_colors|}}}}",
+      "RequestedRevisionId": "9907",
+      "SourcePageId": "34",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "Documentation"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "templatedata"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "GroundedMissingModuleDependencyTitles": [],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "9456"
+        ],
+        "SelectedRevisionIds": [
+          "9456"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [],
+      "Modules": [
+        "CharacterFamily"
+      ],
+      "Outcome": "UNSUPPORTED",
+      "PageTitle": "Template:Character2",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "790",
+          "SourceRevisionId": "9456"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "790",
+          "SourceRevisionId": "9456"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "790",
+          "SourceRevisionId": "9456"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "790",
+          "SourceRevisionId": "9456"
+        }
+      ],
+      "RawInvocation": "{{#invoke:CharacterFamily|children}}",
+      "RequestedRevisionId": "9456",
+      "SourcePageId": "790",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "Documentation"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "templatedata"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "GroundedMissingModuleDependencyTitles": [],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "9468",
+          "9469"
+        ],
+        "SelectedRevisionIds": [
+          "9468",
+          "9469"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [],
+      "Modules": [
+        "DivineFamily"
+      ],
+      "Outcome": "UNSUPPORTED",
+      "PageTitle": "Template:Divine",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9468"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9468"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9468"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9468"
+        }
+      ],
+      "RawInvocation": "{{#invoke:DivineFamily|siblings}}",
+      "RequestedRevisionId": "9468",
+      "SourcePageId": "520",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "Documentation"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "templatedata"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "GroundedMissingModuleDependencyTitles": [],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "9468",
+          "9469"
+        ],
+        "SelectedRevisionIds": [
+          "9468",
+          "9469"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [],
+      "Modules": [
+        "DivineFamily",
+        "DivineMeta"
+      ],
+      "Outcome": "UNSUPPORTED",
+      "PageTitle": "Template:Divine",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9469"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9469"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9469"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "520",
+          "SourceRevisionId": "9469"
+        }
+      ],
+      "RawInvocation": "{{#invoke:DivineMeta|universes}}",
+      "RequestedRevisionId": "9469",
+      "SourcePageId": "520",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "Documentation"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "templatedata"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "GroundedMissingModuleDependencyTitles": [],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "9482"
+        ],
+        "SelectedRevisionIds": [
+          "9482"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [],
+      "Modules": [
+        "DivineFamily",
+        "DivineMeta",
+        "DivineTree"
+      ],
+      "Outcome": "UNSUPPORTED",
+      "PageTitle": "Jovan",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "534",
+          "SourceRevisionId": "9482"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "534",
+          "SourceRevisionId": "9482"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <mermaid> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "534",
+          "SourceRevisionId": "9482"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <mermaid> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "534",
+          "SourceRevisionId": "9482"
+        }
+      ],
+      "RawInvocation": "{{#invoke:DivineTree|renderLocal}}",
+      "RequestedRevisionId": "9482",
+      "SourcePageId": "534",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "Divine"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "mermaid"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-075b2608d7c07c57",
+      "GroundedMissingModuleDependencyTitles": [
+        "Module:Category handler",
+        "Module:libraryUtil",
+        "Module:strict"
+      ],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "6208"
+        ],
+        "SelectedRevisionIds": [
+          "6208"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [
+        {
+          "Condition": "MessageBox:renderCategories only after categories are added",
+          "DependencyTitle": "Module:Category handler",
+          "Expression": "require('Module:Category handler')._main{",
+          "ImportingModule": "Module:Message box",
+          "ImportingRevisionId": "6209",
+          "Mode": "conditional",
+          "Reachability": "not established from the captured {{#invoke:Message box|mbox}} arguments",
+          "SourceLine": 466
+        },
+        {
+          "Condition": null,
+          "DependencyTitle": "Module:libraryUtil",
+          "Expression": "local libraryUtil = require('libraryUtil')",
+          "ImportingModule": "Module:Arguments",
+          "ImportingRevisionId": "6203",
+          "Mode": "unconditional",
+          "Reachability": "reachable through the captured Template:Mbox -> Message box dependency closure",
+          "SourceLine": 5
+        },
+        {
+          "Condition": null,
+          "DependencyTitle": "Module:strict",
+          "Expression": "require('strict')",
+          "ImportingModule": "Module:Message box",
+          "ImportingRevisionId": "6209",
+          "Mode": "unconditional",
+          "Reachability": "reachable when the captured Template:Mbox invocation loads Message box",
+          "SourceLine": 1
+        }
+      ],
+      "Modules": [
+        "Arguments",
+        "Category handler",
+        "libraryUtil",
+        "Message box",
+        "strict",
+        "Yesno"
+      ],
+      "Outcome": "BLOCKED",
+      "PageTitle": "Template:Mbox",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "1234",
+          "SourceRevisionId": "6208"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "1234",
+          "SourceRevisionId": "6208"
+        },
+        {
+          "Code": "MissingModuleDependency",
+          "Message": "Module dependency 'Category handler' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1234",
+          "SourceRevisionId": "6208"
+        },
+        {
+          "Code": "MissingModuleDependency",
+          "Message": "Module dependency 'libraryUtil' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1234",
+          "SourceRevisionId": "6208"
+        },
+        {
+          "Code": "MissingModuleDependency",
+          "Message": "Module dependency 'strict' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1234",
+          "SourceRevisionId": "6208"
+        }
+      ],
+      "RawInvocation": "{{#invoke:Message box|mbox}}",
+      "RequestedRevisionId": "6208",
+      "SourcePageId": "1234",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "documentation"
+      ],
+      "UnsupportedExtensionTagNames": [],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "GroundedMissingModuleDependencyTitles": [],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "9603",
+          "9907"
+        ],
+        "SelectedRevisionIds": [
+          "9603",
+          "9907"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [],
+      "Modules": [
+        "SpeciesVariants"
+      ],
+      "Outcome": "UNSUPPORTED",
+      "PageTitle": "Template:Species",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9603"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9603"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9603"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatedata> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "34",
+          "SourceRevisionId": "9603"
+        }
+      ],
+      "RawInvocation": "{{#invoke:SpeciesVariants|infobox|species={{PAGENAME}}}}",
+      "RequestedRevisionId": "9603",
+      "SourcePageId": "34",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "Documentation"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "templatedata"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": []
+    },
+    {
+      "ClassificationNotes": [
+        "MissingModuleDependency findings are direct module references absent from the export.",
+        "MissingTemplateDependency findings remain heuristic lexical candidates and are not treated as grounded titles."
+      ],
+      "FixtureId": "mw-invoke-72066581f5f001e8",
+      "GroundedMissingModuleDependencyTitles": [
+        "Module:Extension",
+        "Module:Template translation"
+      ],
+      "HistoricalRevisionContext": {
+        "AllRequestedRevisionsPresent": true,
+        "Conflict": false,
+        "RequestedRevisionIdsForSourcePage": [
+          "7245"
+        ],
+        "SelectedRevisionIds": [
+          "7245"
+        ]
+      },
+      "LuaCompatibilityStatus": "NOT_RUN",
+      "MissingDependencyProvenance": [
+        {
+          "Condition": "invocations occur in #if/#ifeq branches and table cells",
+          "DependencyTitle": "Module:Extension",
+          "Expression": "{{#invoke:Extension|...}}",
+          "ImportingPage": "Template:Extension",
+          "ImportingRevisionId": "7245",
+          "Mode": "conditional-per-template-branch",
+          "Reachability": "directly present in the captured Template:Extension revision; branch reachability depends on template arguments",
+          "SourceLines": [
+            9,
+            45,
+            80,
+            91,
+            98,
+            108,
+            118,
+            143,
+            149,
+            164,
+            200,
+            241,
+            268,
+            273,
+            284,
+            289,
+            303,
+            347,
+            353,
+            359,
+            412,
+            414
+          ]
+        },
+        {
+          "Condition": null,
+          "DependencyTitle": "Module:Template translation",
+          "Expression": "{{#invoke:Template translation|renderTranslatedTemplate|template=Template:Extension|noshift=1}}",
+          "ImportingPage": "Template:Extension",
+          "ImportingRevisionId": "7245",
+          "Mode": "direct-in-template-source",
+          "Reachability": "present in the captured Template:Extension source; not proven executable without rendering that fixture",
+          "SourceLine": 416
+        }
+      ],
+      "Modules": [
+        "Extension",
+        "String",
+        "Template translation"
+      ],
+      "Outcome": "BLOCKED",
+      "PageTitle": "Template:Extension",
+      "PlannerFindings": [
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "HeuristicDependencyScan",
+          "Message": "Dependency extraction uses bounded lexical scanning, not a complete MediaWiki parser; results require compatibility review.",
+          "Severity": "Warning",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingModuleDependency",
+          "Message": "Module dependency 'Extension' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingModuleDependency",
+          "Message": "Module dependency 'Template translation' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency '$IP' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency '</nowiki>''#name:'' ... <nowiki>' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency '<tvar name=1>ll' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency '<tvar name=1>tmpl' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency '<tvar name=2>ll' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency '<tvar name=3>ll' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'anchor' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Class doclink' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Clear' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'DEFAULTSORT:' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'dir' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Extension/CreateExtensionInputBox' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Foreach' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Git file' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'int' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'intricate template' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'll' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'localized link' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'lua' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Manual' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'NAME' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'ns:102' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'pagelang' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'para' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Ptag' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'tag' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'translatable' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'Uses TemplateStyles' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'visible anchor' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "MissingTemplateDependency",
+          "Message": "Template dependency 'WikimediaDownload' is not present in the export.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <abbr> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <caption> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <code> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <languages> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <li> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <sup> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <syntaxhighlight> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatestyles> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <translate> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <tvar> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <ul> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <abbr> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <caption> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <code> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <languages> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <li> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <sup> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <syntaxhighlight> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <templatestyles> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <translate> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <tvar> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        },
+        {
+          "Code": "UnsupportedExtensionTag",
+          "Message": "Extension or unknown tag <ul> was found and is preserved but not executable.",
+          "Severity": "Blocking",
+          "SourcePageId": "1389",
+          "SourceRevisionId": "7245"
+        }
+      ],
+      "RawInvocation": "{{#invoke:String|replace|{{PAGENAME:{{translatable}}}}| |}}",
+      "RequestedRevisionId": "7245",
+      "SourcePageId": "1389",
+      "SourcePagePresent": true,
+      "SourceRevisionPresent": true,
+      "Templates": [
+        "$IP",
+        "</nowiki>''#name:'' ... <nowiki>",
+        "<tvar name=1>ll",
+        "<tvar name=1>tmpl",
+        "<tvar name=2>ll",
+        "<tvar name=3>ll",
+        "anchor",
+        "Class doclink",
+        "Clear",
+        "DEFAULTSORT:",
+        "dir",
+        "Documentation",
+        "Extension",
+        "Extension/CreateExtensionInputBox",
+        "Extension/doc",
+        "Foreach",
+        "Git file",
+        "int",
+        "intricate template",
+        "ll",
+        "localized link",
+        "lua",
+        "Manual",
+        "NAME",
+        "ns:102",
+        "pagelang",
+        "para",
+        "Ptag",
+        "tag",
+        "tl",
+        "translatable",
+        "Uses TemplateStyles",
+        "visible anchor",
+        "WikimediaDownload"
+      ],
+      "UnsupportedExtensionTagNames": [
+        "abbr",
+        "caption",
+        "code",
+        "languages",
+        "li",
+        "sup",
+        "syntaxhighlight",
+        "templatestyles",
+        "translate",
+        "tvar",
+        "ul"
+      ],
+      "UnverifiedHeuristicTemplateDependencyCandidates": [
+        "$IP",
+        "</nowiki>",
+        "<tvar name=1>ll",
+        "<tvar name=1>tmpl",
+        "<tvar name=2>ll",
+        "<tvar name=3>ll",
+        "anchor",
+        "Class doclink",
+        "Clear",
+        "DEFAULTSORT:",
+        "dir",
+        "Extension/CreateExtensionInputBox",
+        "Foreach",
+        "Git file",
+        "int",
+        "intricate template",
+        "ll",
+        "localized link",
+        "lua",
+        "Manual",
+        "NAME",
+        "ns:102",
+        "pagelang",
+        "para",
+        "Ptag",
+        "tag",
+        "translatable",
+        "Uses TemplateStyles",
+        "visible anchor",
+        "WikimediaDownload"
+      ]
+    }
+  ],
+  "PlanDisposition": "Blocked",
+  "PlannedPages": 28,
+  "PlannedRevisions": 135,
+  "ReportVersion": "cw-m3-006c.5-fixture-blockers-v1"
+}

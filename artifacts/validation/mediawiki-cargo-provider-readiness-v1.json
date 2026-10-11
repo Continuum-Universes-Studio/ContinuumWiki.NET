@@ -1,0 +1,28 @@
+{
+  "ReportVersion": "cw-m3.3-cargo-provider-readiness-v1",
+  "Status": "SCHEMA_RECONCILED_READONLY_PROVIDER_NOT_READY_HISTORICAL_DATA_UNVERIFIED",
+  "InventorySha256Verified": true,
+  "PositiveProviderEnabled": false,
+  "SchemaVerifiedProviderImplementation": {
+    "Type": "SchemaVerifiedMediaWikiCargoQueryProvider",
+    "HostSideOnly": true,
+    "DefaultActivation": "REJECTING_PROVIDER",
+    "CurrentDatasetUse": "Requires explicit dataset identity and source-wiki identity; no historical fixture fallback",
+    "SupportedQuerySubset": "Allowlisted scalar base-table fields with parameterized equality, inequality, contains, starts-with, null predicates, bounded sorting, pagination, row/output/time budgets",
+    "HelperFieldPolicy": "Explicitly rejected until a typed helper-table join contract is approved",
+    "DirectWorkerDatabaseAccess": false
+  },
+  "EffectiveCargoPrefix": "cargo__",
+  "RequiredSurfaces": {
+    "Variants": {"Table": "cargo__Variants", "EstimatedRows": 39, "RequiredFields": ["Name", "Species", "GeneticAncestor"], "ScalarFields": {"Name": "VERIFIED", "Species": "VERIFIED", "GeneticAncestor": "HELPER_TABLE_cargo__Variants__GeneticAncestor"}, "Indexes": ["Name", "Species", "_ID", "_pageID", "_pageNamespace", "_pageName", "_pageTitle"], "Readiness": "SCHEMA_VERIFIED_QUERY_ADAPTER_REQUIRED"},
+    "Subvariants": {"Table": "cargo__Subvariants", "EstimatedRows": 0, "RequiredFields": ["Name", "Species", "GeneticAncestor"], "ScalarFields": {"Name": "VERIFIED", "Species": "VERIFIED", "GeneticAncestor": "VERIFIED"}, "Indexes": ["Name", "Species", "GeneticAncestor", "_ID", "_pageID", "_pageNamespace", "_pageName", "_pageTitle"], "Readiness": "SCHEMA_VERIFIED_EMPTY_ENGINE_ESTIMATE"},
+    "Divines": {"Table": "cargo__Divines", "EstimatedRows": 68, "RequiredFields": ["Name", "Father", "Mother", "Children", "Spouses", "Consorts", "Companions", "NotableDivineSiblings", "NotableDivineOffspring"], "ScalarFields": {"Name": "VERIFIED", "Father": "VERIFIED", "Mother": "VERIFIED"}, "HelperFields": {"Spouses": "cargo__Divines__Spouses", "Consorts": "cargo__Divines__Consorts", "Companions": "cargo__Divines__Companions", "NotableDivineSiblings": "cargo__Divines__NotableDivineSiblings", "NotableDivineOffspring": "cargo__Divines__NotableDivineOffspring"}, "MissingFields": ["Children"], "Readiness": "SCHEMA_VERIFIED_TYPED_HELPER_JOIN_REQUIRED"},
+    "Characters": {"Table": "cargo__Characters", "EstimatedRows": 83, "RequiredFields": ["Family and relationship fields observed in historical Lua"], "ScalarFields": {"Name": "VERIFIED", "Father": "VERIFIED", "Mother": "VERIFIED"}, "HelperFieldEvidence": ["Children", "FullSiblings", "HalfSiblings", "StepSiblings", "SocialRelatives", "NotableRelatives", "Partners", "Lovers", "DivineSpouse"], "Readiness": "SCHEMA_VERIFIED_TYPED_HELPER_JOIN_OR_FULL_FIELD_ADAPTER_REQUIRED"}
+  },
+  "AuditedQueryCorrelation": {"CargoQueryCalls": 11, "BaseTablesPresent": ["Variants", "Subvariants", "Divines", "Characters"], "MissingBaseTables": [], "MissingColumns": ["Divines.Children"], "HelperBackedRequirements": ["Variants.GeneticAncestor", "Divines.Spouses", "Divines.Consorts", "Divines.Companions", "Divines.NotableDivineSiblings", "Divines.NotableDivineOffspring", "Characters relationship fields"], "QueryShapes": {"ScalarNameSpeciesAncestor": "schema-present but helper-backed ancestor requires typed resolver", "ScalarDivineParent": "schema-present", "ListRelationships": "requires bounded helper-table join/result-shape adapter", "DynamicWhereAndOrderBy": "requires identifier/value allowlisting; no arbitrary SQL"}, "IncompatibleRequirements": ["No historical row snapshot tied to audited revisions", "No established typed join contract for helper-backed fields", "No Children helper table observed for cargo__Divines"]},
+  "SchemaEvidence": {"ColumnsPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-columns-v1.tsv", "ColumnsSha256": "ade3431abf2cc321e333eac35c858d25f8c97a52e0379436aa52917cda1ebc4f", "IndexesPath": "/home/cdjensen94/continuumwiki-validation/mediawiki-cargo-indexes-v1.tsv", "IndexesSha256": "952e50120fa88ed06bb163209afadfed99ec867a8d6dd69de5ea113c166beaeb", "ColumnsSidecar": "ABSENT", "IndexesSidecar": "ABSENT", "ColumnRows": 224, "IndexRows": 384, "AllRequiredBaseTablesPresent": true},
+  "HistoricalProvenance": "UNVERIFIED",
+  "CurrentToHistoricalFallback": "REJECTED",
+  "MissingEvidence": ["versioned row snapshot", "fixture-correlated historical snapshot", "typed helper-table join/result contract", "historical source configuration and timestamps", "independently captured Cargo query results"],
+  "Security": {"ArbitrarySql": "REJECTED", "LuaDatabaseAccess": "REJECTED", "Writes": "REJECTED", "RejectingProviderDefault": true}
+}

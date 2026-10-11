@@ -1,0 +1,112 @@
+{
+  "AttemptedFixtureCount": 6,
+  "ComparedFixtureCount": 0,
+  "Fixtures": [
+    {
+      "ComparisonArtifact": null,
+      "ComparisonClassification": "NOT_EVALUATED",
+      "ContinuumOutputArtifact": null,
+      "Diagnostics": [
+        "ScribuntoWorkerUnavailable",
+        "SocketPermissionDenied"
+      ],
+      "ExecutionStatus": "WORKER_UNAVAILABLE",
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "ImportBatchId": 1,
+      "ImportStatus": "VERIFIED",
+      "PageTitle": "Template:Species",
+      "WorkerExecutionAttempted": true,
+      "WorkerProvenance": "authorized Unix-domain socket inaccessible to this execution environment"
+    },
+    {
+      "ComparisonArtifact": null,
+      "ComparisonClassification": "NOT_EVALUATED",
+      "ContinuumOutputArtifact": null,
+      "Diagnostics": [
+        "ScribuntoWorkerUnavailable",
+        "SocketPermissionDenied"
+      ],
+      "ExecutionStatus": "WORKER_UNAVAILABLE",
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "ImportBatchId": 1,
+      "ImportStatus": "VERIFIED",
+      "PageTitle": "Template:Character2",
+      "WorkerExecutionAttempted": true,
+      "WorkerProvenance": "authorized Unix-domain socket inaccessible to this execution environment"
+    },
+    {
+      "ComparisonArtifact": null,
+      "ComparisonClassification": "NOT_EVALUATED",
+      "ContinuumOutputArtifact": null,
+      "Diagnostics": [
+        "ScribuntoWorkerUnavailable",
+        "SocketPermissionDenied"
+      ],
+      "ExecutionStatus": "WORKER_UNAVAILABLE",
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "ImportBatchId": 1,
+      "ImportStatus": "VERIFIED",
+      "PageTitle": "Template:Divine",
+      "WorkerExecutionAttempted": true,
+      "WorkerProvenance": "authorized Unix-domain socket inaccessible to this execution environment"
+    },
+    {
+      "ComparisonArtifact": null,
+      "ComparisonClassification": "NOT_EVALUATED",
+      "ContinuumOutputArtifact": null,
+      "Diagnostics": [
+        "ScribuntoWorkerUnavailable",
+        "SocketPermissionDenied"
+      ],
+      "ExecutionStatus": "WORKER_UNAVAILABLE",
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "ImportBatchId": 1,
+      "ImportStatus": "VERIFIED",
+      "PageTitle": "Template:Divine",
+      "WorkerExecutionAttempted": true,
+      "WorkerProvenance": "authorized Unix-domain socket inaccessible to this execution environment"
+    },
+    {
+      "ComparisonArtifact": null,
+      "ComparisonClassification": "NOT_EVALUATED",
+      "ContinuumOutputArtifact": null,
+      "Diagnostics": [
+        "ScribuntoWorkerUnavailable",
+        "SocketPermissionDenied"
+      ],
+      "ExecutionStatus": "WORKER_UNAVAILABLE",
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "ImportBatchId": 1,
+      "ImportStatus": "VERIFIED",
+      "PageTitle": "Jovan",
+      "WorkerExecutionAttempted": true,
+      "WorkerProvenance": "authorized Unix-domain socket inaccessible to this execution environment"
+    },
+    {
+      "ComparisonArtifact": null,
+      "ComparisonClassification": "NOT_EVALUATED",
+      "ContinuumOutputArtifact": null,
+      "Diagnostics": [
+        "ScribuntoWorkerUnavailable",
+        "SocketPermissionDenied"
+      ],
+      "ExecutionStatus": "WORKER_UNAVAILABLE",
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "ImportBatchId": 1,
+      "ImportStatus": "VERIFIED",
+      "PageTitle": "Template:Species",
+      "WorkerExecutionAttempted": true,
+      "WorkerProvenance": "authorized Unix-domain socket inaccessible to this execution environment"
+    }
+  ],
+  "ImportReconciliation": {
+    "ImportBatchId": 1,
+    "ImportedPageCount": 19,
+    "ImportedRevisionCount": 123,
+    "SourcePageCount": 19,
+    "SourceRevisionCount": 123,
+    "Verdict": "VERIFIED"
+  },
+  "RenderedFixtureCount": 0,
+  "ReportVersion": "cw-m3-006c.9-execution-v1"
+}

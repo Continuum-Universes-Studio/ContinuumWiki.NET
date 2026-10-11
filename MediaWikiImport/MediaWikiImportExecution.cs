@@ -98,6 +98,19 @@ public sealed class MediaWikiImportPreflightException(IReadOnlyList<string> diag
 
 public sealed class MediaWikiImportPlanStaleException(string message) : InvalidOperationException(message);
 
+public static class MediaWikiDiagnosticAuthorization
+{
+    public static bool IsAuthorized(string? marker)
+        => string.Equals(marker, "1", StringComparison.Ordinal);
+
+    public static bool IsDisposableTarget(MediaWikiImportTargetConfiguration target)
+    {
+        var database = new MySqlConnectionStringBuilder(target.ConnectionString).Database;
+        return target.Purpose.Equals("disposable-mariadb", StringComparison.OrdinalIgnoreCase)
+            && database.StartsWith("cw_m3_", StringComparison.Ordinal);
+    }
+}
+
 /// <summary>
 /// Executes a validated MediaWiki plan against an explicitly named disposable
 /// MariaDB target. It never creates historical login accounts: all source
@@ -126,14 +139,27 @@ public sealed class MediaWikiImportExecutor
         NamespaceMappingConfiguration mapping,
         string? mediaManifestPath = null,
         string? mediaRoot = null,
+        MediaWikiImportPolicy policy = MediaWikiImportPolicy.Strict,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(plan);
         ArgumentNullException.ThrowIfNull(mapping);
         var diagnostics = new List<string>();
-        diagnostics.AddRange(ImportPlanValidator.Validate(plan, inputPath, mapping, mediaManifestPath, mediaRoot).Select(finding => finding.Code + ": " + finding.Message));
-        if (plan.OverallDisposition == ImportDisposition.Blocked)
+        var validationFindings = ImportPlanValidator.Validate(plan, inputPath, mapping, mediaManifestPath, mediaRoot)
+            .Concat(plan.Findings)
+            .Distinct()
+            .Where(finding => policy != MediaWikiImportPolicy.DisposableDiagnosticRendering
+                || !MediaWikiImportPolicyRules.IsAllowedDiagnosticFinding(finding))
+            .ToArray();
+        diagnostics.AddRange(validationFindings
+            .Where(finding => finding.Severity == PlanFindingSeverity.Blocking)
+            .Select(finding => finding.Code + ": " + finding.Message));
+        if (plan.OverallDisposition == ImportDisposition.Blocked
+            && validationFindings.Any(finding => finding.Severity == PlanFindingSeverity.Blocking))
             diagnostics.Add("The import plan has a blocking disposition.");
+        if (policy == MediaWikiImportPolicy.DisposableDiagnosticRendering
+            && !MediaWikiDiagnosticAuthorization.IsDisposableTarget(_target))
+            diagnostics.Add("Disposable diagnostic rendering policy requires an explicitly named cw_m3_ database with disposable-mariadb purpose.");
         if (!_target.Purpose.Equals(DisposablePurpose, StringComparison.OrdinalIgnoreCase))
             diagnostics.Add($"Target purpose must be '{DisposablePurpose}'.");
         if ((plan.Source.SourceWikiIdentity ?? string.Empty).Length > 512)
@@ -211,10 +237,11 @@ public sealed class MediaWikiImportExecutor
         NamespaceMappingConfiguration mapping,
         string? mediaManifestPath = null,
         string? mediaRoot = null,
+        MediaWikiImportPolicy policy = MediaWikiImportPolicy.Strict,
         CancellationToken cancellationToken = default)
     {
         await InitializeImportSchemaAsync(cancellationToken);
-        var preflight = await PreflightAsync(plan, inputPath, mapping, mediaManifestPath, mediaRoot, cancellationToken);
+        var preflight = await PreflightAsync(plan, inputPath, mapping, mediaManifestPath, mediaRoot, policy, cancellationToken);
         if (!preflight.IsReady) throw new MediaWikiImportPreflightException(preflight.Diagnostics);
 
         var batchId = await CreateBatchAsync(plan, cancellationToken);

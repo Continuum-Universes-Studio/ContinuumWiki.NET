@@ -49,7 +49,7 @@ public static class Program
     private static async Task<int> PreflightAsync(IReadOnlyDictionary<string, string> options)
     {
         var (service, plan, input, mapping, mediaManifest, mediaRoot) = await CreateContextAsync(options);
-        var result = await service.PreflightAsync(plan, input, mapping, mediaManifest, mediaRoot);
+        var result = await service.PreflightAsync(plan, input, mapping, mediaManifest, mediaRoot, ParsePolicy(options));
         Console.WriteLine(JsonSerializer.Serialize(result, JsonOptions()));
         return result.IsReady ? 0 : 3;
     }
@@ -67,7 +67,7 @@ public static class Program
     private static async Task<int> ImportAsync(IReadOnlyDictionary<string, string> options)
     {
         var (service, plan, input, mapping, mediaManifest, mediaRoot) = await CreateContextAsync(options);
-        var result = await service.ImportAsync(plan, input, mapping, mediaManifest, mediaRoot);
+        var result = await service.ImportAsync(plan, input, mapping, mediaManifest, mediaRoot, ParsePolicy(options));
         var output = options.GetValueOrDefault("reconciliation-output");
         var json = JsonSerializer.Serialize(result.Reconciliation, JsonOptions());
         if (string.IsNullOrWhiteSpace(output)) Console.WriteLine(json);
@@ -133,6 +133,14 @@ public static class Program
         return result;
     }
 
+    private static MediaWikiImportPolicy ParsePolicy(IReadOnlyDictionary<string, string> options)
+        => options.TryGetValue("diagnostic-policy", out var value)
+            ? value.Equals("disposable-rendering", StringComparison.OrdinalIgnoreCase)
+                && MediaWikiDiagnosticAuthorization.IsAuthorized(Environment.GetEnvironmentVariable("CW_M3_006C_DIAGNOSTIC"))
+                ? MediaWikiImportPolicy.DisposableDiagnosticRendering
+                : throw new ArgumentException("Disposable diagnostic policy requires CW_M3_006C_DIAGNOSTIC=1 and the disposable-rendering policy name.")
+            : MediaWikiImportPolicy.Strict;
+
     private static JsonSerializerOptions JsonOptions() => new()
     {
         WriteIndented = true,
@@ -148,5 +156,5 @@ public static class Program
     }
 
     private static void Usage() => Console.Error.WriteLine(
-        "Usage: MediaWikiImport provision|preflight|import|reconcile|status --input <export.xml> --plan <plan.json> --target-config <target.json> [--mapping <mapping.json>] [--media-manifest <manifest.json> --media-root <directory>] [--batch <id>] [--reconciliation-output <report.json>]");
+        "Usage: MediaWikiImport provision|preflight|import|reconcile|status --input <export.xml> --plan <plan.json> --target-config <target.json> [--diagnostic-policy disposable-rendering] [--mapping <mapping.json>] [--media-manifest <manifest.json> --media-root <directory>] [--batch <id>] [--reconciliation-output <report.json>]");
 }

@@ -1,0 +1,46 @@
+{
+  "ReportVersion": "cw-m3-006c-real-socket-v1",
+  "ExecutionMode": "authorized-unix-socket",
+  "SocketPath": "/run/continuumwiki/scribunto-worker.sock",
+  "WorkerLifecycle": "REACHED_AND_RESPONDED",
+  "StorageImportStatus": "VERIFIED",
+  "RealModuleCases": "NOT_EVALUATED",
+  "ProbeFixture": "MediaWikiInventory/Fixtures/scribunto-import-fixture.xml",
+  "ProbeModule": "Module:Compatibility",
+  "ProbeStatus": "PASSED",
+  "StorageBackedRender": {
+    "Status": "PASSED",
+    "ExitStatus": 0,
+    "Tests": 1,
+    "Failed": 0,
+    "Skipped": 0,
+    "Classification": "EXECUTION_SMOKE_ONLY"
+  },
+  "SocketIntegrationSuite": {
+    "Status": "PASSED",
+    "Tests": 2,
+    "Failed": 0,
+    "Skipped": 0
+  },
+  "ProbeDiagnostics": [
+    "UnsupportedExtensionFunction:#invoke",
+    "UnsupportedParserFunction:#invoke",
+    "InstructionLimitExceeded",
+    "UnsupportedParserFunction:#invoke was recognized but not evaluated"
+  ],
+  "DependencyDiagnostics": [
+    "Module:Compatibility:ExecutionFailed:1011"
+  ],
+  "Evidence": [
+    "The worker accepted the malformed socket request and returned a structured protocol response.",
+    "The storage-backed historical-resolution/render test passed 1 test with 0 failures and 0 skips.",
+    "The existing socket-backed integration suite passed 2 tests with 0 failures and 0 skips.",
+    "The disposable MariaDB import completed with VERIFIED before the socket probe.",
+    "The probe and integration fixtures are synthetic and are not evidence of parity for any real exported module.",
+    "Independent MediaWiki reference output was not supplied; no exact, equivalent, or partial parity classification is made."
+  ],
+  "DeploymentParity": "VERIFIED",
+  "DeploymentParityEvidence": "All 42 worker publish files passed SHA-256 verification; deployed worker DLL and fixed launcher matched the reviewed manifests.",
+  "SecurityBoundary": "PRESERVED",
+  "ProductionMutation": "NONE_REPORTED"
+}

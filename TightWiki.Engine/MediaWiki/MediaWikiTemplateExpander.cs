@@ -225,9 +225,7 @@ internal sealed class MediaWikiTemplateExpander(
         {
             if (function == "invoke")
             {
-                context.AddDiagnostic("UnsupportedExtensionFunction", "MediaWiki extension parser function '#invoke' is not enabled.", offset, original.Length);
-                context.AddDiagnostic("UnsupportedParserFunction", "MediaWiki parser function '#invoke' is not supported.", offset, original.Length);
-                return await ExpandScribuntoInvocationAsync(head, rawArguments, original, context, templateStack, offset);
+                return await ExpandScribuntoInvocationAsync(head, rawArguments, original, context, templateStack, depth, offset);
             }
             context.AddUnsupported("unsupported-extension-parser-function");
             context.AddDiagnostic("UnsupportedExtensionFunction", $"MediaWiki extension parser function '#{function}' is not enabled.", offset, original.Length);
@@ -315,6 +313,7 @@ internal sealed class MediaWikiTemplateExpander(
         string original,
         ExpansionContext context,
         IReadOnlyList<string> templateStack,
+        int depth,
         int offset)
     {
         var body = string.Join('|', new[] { head }.Concat(rawArguments));
@@ -341,7 +340,25 @@ internal sealed class MediaWikiTemplateExpander(
         foreach (var diagnostic in execution.Diagnostics) context.AddDiagnostic(diagnostic.Code, diagnostic.Message, diagnostic.Offset, diagnostic.Length, diagnostic.Severity);
         foreach (var dependency in execution.Dependencies) context.ScribuntoDependencies.Add(dependency);
         if (!execution.Executed) context.AddUnsupported("scribunto-execution-rejected");
-        return execution.Text ?? original;
+        if (!execution.Executed || execution.Text is null) return original;
+
+        // Lua output is Wikitext, not trusted HTML. Re-enter the same bounded
+        // expander so templates, parser functions, and nested #invoke calls
+        // share the outer operation budget and recursion context.
+        var invocationKey = $"invoke:{invocation.Module.CanonicalTitle}:{invocation.ExportedFunction}";
+        if (templateStack.Contains(invocationKey, StringComparer.Ordinal))
+        {
+            context.AddUnsupported("recursive-scribunto-invocation");
+            context.AddDiagnostic("RecursiveScribuntoInvocation", $"Recursive MediaWiki #invoke call '{invocationKey}' was stopped.", offset, original.Length, MediaWikiDiagnosticSeverity.Error);
+            return original;
+        }
+
+        return await ExpandTextAsync(
+            execution.Text,
+            context,
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            templateStack.Append(invocationKey).ToArray(),
+            depth + 1);
     }
 
     private async Task<(bool Handled, string Value)> ExpandSpecialInvocationAsync(

@@ -1,0 +1,598 @@
+{
+  "ReportVersion": "cw-m3-006c.2-invocations-v1",
+  "SourcePath": "continuumwiki-modules.xml",
+  "SourceSha256": "6b196f19f6d5134c1b89004779ac69d1f4c9ec3dcec1cb4867b094a2533619ad",
+  "InvocationCount": 31,
+  "Invocations": [
+    {
+      "FixtureId": "mw-invoke-288acecfd06a960d",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "Example",
+      "Function": "main",
+      "PositionalArguments": [],
+      "NamedArguments": {},
+      "SourceOffset": 1959,
+      "RawInvocation": "{{#invoke:Example|main}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-60347dedc76fdaa7",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "Example",
+      "Function": "main",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "arg1": "value1",
+        "arg2": "value2"
+      },
+      "SourceOffset": 2052,
+      "RawInvocation": "{{#invoke:Example|main|arg1=value1|arg2=value2}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-9ec3b6a596148377",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "ExampleArgs",
+      "Function": "main",
+      "PositionalArguments": [
+        "''firstInvokeArg''"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 8818,
+      "RawInvocation": "{{#invoke:ExampleArgs|main|''firstInvokeArg''}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-45aa06b1d4575c15",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "ExampleArgs",
+      "Function": "main",
+      "PositionalArguments": [
+        "''firstInvokeArg''"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 9103,
+      "RawInvocation": "{{#invoke:ExampleArgs|main|''firstInvokeArg''}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-22521b5fa34e3158",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "Side box",
+      "Function": "main",
+      "PositionalArguments": [],
+      "NamedArguments": {},
+      "SourceOffset": 12598,
+      "RawInvocation": "{{#invoke:Side box|main}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-2f78e1a0ec7a706a",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "Side box",
+      "Function": "main",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "text": "Some text"
+      },
+      "SourceOffset": 13024,
+      "RawInvocation": "{{#invoke:Side box|main|text=Some text}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-5215e5800732aabf",
+      "PageTitle": "Module:Arguments/doc",
+      "SourcePageId": "1231",
+      "SourceRevisionId": "6205",
+      "RevisionTimestamp": "2025-10-27T13:47:57+00:00",
+      "ModuleTitle": "Side box",
+      "Function": "main",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "text": "Some text"
+      },
+      "SourceOffset": 13261,
+      "RawInvocation": "{{#invoke:Side box|main|text=Some text}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-bafd13e6276a96f7",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "father",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 1921,
+      "RawInvocation": "{{#invoke:DivineFamily|father|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-2be7502a1f21fe49",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "mother",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 1989,
+      "RawInvocation": "{{#invoke:DivineFamily|mother|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-3f0e689bc2934631",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "spouses",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2101,
+      "RawInvocation": "{{#invoke:DivineFamily|spouses|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-f6980969d8d618ec",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "consorts",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2170,
+      "RawInvocation": "{{#invoke:DivineFamily|consorts|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-4c1c91ac3efff98a",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "companions",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2240,
+      "RawInvocation": "{{#invoke:DivineFamily|companions|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-335b215804b6b8d3",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "children",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2366,
+      "RawInvocation": "{{#invoke:DivineFamily|children|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-771c28d2f6e8bdef",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "siblings",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2436,
+      "RawInvocation": "{{#invoke:DivineFamily|siblings|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-462d01a832aeb857",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "notablesiblings",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2554,
+      "RawInvocation": "{{#invoke:DivineFamily|notablesiblings|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-255ae8b60386d42d",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "notablechildren",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{{divine_name|{{PAGENAME}}}}"
+      },
+      "SourceOffset": 2631,
+      "RawInvocation": "{{#invoke:DivineFamily|notablechildren|page={{{divine_name|{{PAGENAME}}}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-f752217a8bb32767",
+      "PageTitle": "Module:DivineFamily/doc",
+      "SourcePageId": "2264",
+      "SourceRevisionId": "10768",
+      "RevisionTimestamp": "2026-04-22T13:56:20+00:00",
+      "ModuleTitle": "DivineFamily",
+      "Function": "debug",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "page": "{{PAGENAME}}"
+      },
+      "SourceOffset": 2744,
+      "RawInvocation": "{{#invoke:DivineFamily|debug|page={{PAGENAME}}}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-c98610d219d56243",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "len",
+      "PositionalArguments": [
+        "target_string",
+        ""
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 1023,
+      "RawInvocation": "{{#invoke:String|len|target_string|}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-1ec22c2e63f0650f",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "len",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "s": "target_string"
+      },
+      "SourceOffset": 1064,
+      "RawInvocation": "{{#invoke:String|len|s=target_string}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-cdf7eb6e7629d3bb",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "sub",
+      "PositionalArguments": [
+        "target_string",
+        "start_index",
+        "end_index"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 1533,
+      "RawInvocation": "{{#invoke:String|sub|target_string|start_index|end_index}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-a1d81c2b779ac877",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "sub",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "s": "target_string",
+        "i": "start_index",
+        "j": "end_index"
+      },
+      "SourceOffset": 1595,
+      "RawInvocation": "{{#invoke:String|sub|s=target_string|i=start_index|j=end_index}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-813e077e07bccd30",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "match",
+      "PositionalArguments": [
+        "source_string",
+        "pattern_string",
+        "start_index",
+        "match_number",
+        "plain_flag",
+        "nomatch_output"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 5977,
+      "RawInvocation": "{{#invoke:String|match|source_string|pattern_string|start_index|match_number|plain_flag|nomatch_output}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-bc469aa126dc7a38",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "match",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "s": "source_string",
+        "pattern": "pattern_string",
+        "start": "start_index\n    ",
+        "match": "match_number",
+        "plain": "plain_flag",
+        "nomatch": "nomatch_output"
+      },
+      "SourceOffset": 6085,
+      "RawInvocation": "{{#invoke:String|match|s=source_string|pattern=pattern_string|start=start_index\n    |match=match_number|plain=plain_flag|nomatch=nomatch_output}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-9129bd685c1e5a5a",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "pos",
+      "PositionalArguments": [
+        "target_string",
+        "index_value"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 8526,
+      "RawInvocation": "{{#invoke:String|pos|target_string|index_value}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-0d3b857331864f11",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "pos",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "target": "target_string",
+        "pos": "index_value"
+      },
+      "SourceOffset": 8578,
+      "RawInvocation": "{{#invoke:String|pos|target=target_string|pos=index_value}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-069b70cd443b0093",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "find",
+      "PositionalArguments": [
+        "source_str",
+        "target_string",
+        "start_index",
+        "plain_flag"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 10747,
+      "RawInvocation": "{{#invoke:String|find|source_str|target_string|start_index|plain_flag}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-e6707b1554ef5683",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "find",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "source": "source_str",
+        "target": "target_str",
+        "start": "start_index",
+        "plain": "plain_flag"
+      },
+      "SourceOffset": 10822,
+      "RawInvocation": "{{#invoke:String|find|source=source_str|target=target_str|start=start_index|plain=plain_flag}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-a54b9a12623053d9",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "replace",
+      "PositionalArguments": [
+        "source_str",
+        "pattern_string",
+        "replace_string",
+        "replacement_count",
+        "plain_flag"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 12417,
+      "RawInvocation": "{{#invoke:String|replace|source_str|pattern_string|replace_string|replacement_count|plain_flag}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-c7d749c52aeb9bf4",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "replace",
+      "PositionalArguments": [],
+      "NamedArguments": {
+        "source": "source_string",
+        "pattern": "pattern_string",
+        "replace": "replace_string",
+        "count": "replacement_count",
+        "plain": "plain_flag"
+      },
+      "SourceOffset": 12517,
+      "RawInvocation": "{{#invoke:String|replace|source=source_string|pattern=pattern_string|replace=replace_string|\n   count=replacement_count|plain=plain_flag}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-c63bc82c45bf14c7",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "escapePattern",
+      "PositionalArguments": [
+        "pattern_string"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 14386,
+      "RawInvocation": "{{#invoke:String|escapePattern|pattern_string}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    },
+    {
+      "FixtureId": "mw-invoke-4e6827ccec9913cd",
+      "PageTitle": "Module:String",
+      "SourcePageId": "1222",
+      "SourceRevisionId": "6195",
+      "RevisionTimestamp": "2025-10-27T13:27:31+00:00",
+      "ModuleTitle": "String",
+      "Function": "join",
+      "PositionalArguments": [
+        "sep",
+        "one",
+        "two",
+        "three"
+      ],
+      "NamedArguments": {},
+      "SourceOffset": 15717,
+      "RawInvocation": "{{#invoke:String|join|sep|one|two|three}}",
+      "ContextKind": "module-documentation",
+      "UsageDisposition": "DocumentationExample",
+      "DependencyDisposition": "RequiresRevisionAwareResolution"
+    }
+  ],
+  "Diagnostics": []
+}

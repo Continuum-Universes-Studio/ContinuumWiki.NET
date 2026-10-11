@@ -1,4 +1,5 @@
 using System.Text.Json;
+using MediaWikiImport;
 using MediaWikiInventory;
 
 namespace TightWiki.Tests.Unit;
@@ -93,6 +94,66 @@ public sealed class MediaWikiImportPlanningTests
             Assert.Equal("Blocked", json.RootElement.GetProperty("OverallDisposition").GetString());
         }
         finally { File.Delete(output); File.Delete(secondOutput); }
+    }
+
+    [Fact]
+    public void PlannerClassifiesContinuumInfoboxAsUnsupportedCustomParserFunction()
+    {
+        var input = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(input, """<?xml version="1.0"?><mediawiki version="0.11"><siteinfo><namespaces><namespace key="0" /></namespaces></siteinfo><page><title>Infobox case</title><ns>0</ns><id>1</id><revision><id>11</id><timestamp>2026-01-01T00:00:00Z</timestamp><model>wikitext</model><text>{{#cuinfobox:species|name=Example}}</text></revision></page></mediawiki>""");
+            var plan = MediaWikiImportPlanner.Create(input, NamespaceMappingConfiguration.Defaults);
+            var finding = plan.Findings.First(value => value.Code == "UnsupportedCustomParserFunction");
+            Assert.Contains("#cuinfobox", finding.Message);
+            Assert.DoesNotContain(plan.Findings, value => value.Code == "MissingModuleDependency");
+        }
+        finally { File.Delete(input); }
+    }
+
+    [Fact]
+    public void PlannerDoesNotTreatPortableInfoboxSchemaTagsAsExtensionTags()
+    {
+        var input = Path.GetTempFileName();
+        try
+        {
+            File.WriteAllText(input, """<?xml version="1.0"?><mediawiki version="0.11"><siteinfo><namespaces><namespace key="0" /></namespaces></siteinfo><page><title>Schema case</title><ns>0</ns><id>1</id><revision><id>11</id><timestamp>2026-01-01T00:00:00Z</timestamp><model>wikitext</model><text>&lt;infobox&gt;&lt;group&gt;&lt;header&gt;Audio&lt;/header&gt;&lt;data source="x"&gt;&lt;default&gt;Default&lt;/default&gt;&lt;format&gt;Value&lt;/format&gt;&lt;audio source="audio" /&gt;&lt;/data&gt;&lt;/group&gt;&lt;/infobox&gt;&lt;custom-extension&gt;x&lt;/custom-extension&gt;</text></revision></page></mediawiki>""");
+            var plan = MediaWikiImportPlanner.Create(input, NamespaceMappingConfiguration.Defaults);
+            Assert.DoesNotContain(plan.Findings, value => value.Code == "UnsupportedExtensionTag" && value.Message.Contains("<infobox>"));
+            Assert.DoesNotContain(plan.Findings, value => value.Code == "UnsupportedExtensionTag" && value.Message.Contains("<audio>"));
+            Assert.Contains(plan.Findings, value => value.Code == "UnsupportedExtensionTag" && value.Message.Contains("<custom-extension>"));
+        }
+        finally { File.Delete(input); }
+    }
+
+    [Fact]
+    public void DiagnosticPolicyAllowsOnlyAuditedRenderingTagsAndNeverMissingDependencies()
+    {
+        Assert.True(MediaWikiImportPolicyRules.IsAllowedDiagnosticFinding(
+            new(PlanFindingSeverity.Blocking, "UnsupportedExtensionTag", "Extension or unknown tag <templatedata> was found.")));
+        Assert.True(MediaWikiImportPolicyRules.IsAllowedDiagnosticFinding(
+            new(PlanFindingSeverity.Blocking, "UnsupportedExtensionTag", "Extension or unknown tag <mermaid> was found.")));
+        Assert.True(MediaWikiImportPolicyRules.IsAllowedDiagnosticFinding(
+            new(PlanFindingSeverity.Blocking, "UnsupportedExtensionTag", "Extension or unknown tag <templatestyles> was found.")));
+        Assert.False(MediaWikiImportPolicyRules.IsAllowedDiagnosticFinding(
+            new(PlanFindingSeverity.Blocking, "UnsupportedExtensionTag", "Extension or unknown tag <syntaxhighlight> was found.")));
+        Assert.False(MediaWikiImportPolicyRules.IsAllowedDiagnosticFinding(
+            new(PlanFindingSeverity.Blocking, "MissingModuleDependency", "Module dependency 'Example' is not present in the export.")));
+    }
+
+    [Fact]
+    public void DiagnosticAuthorizationRequiresHarnessMarkerAndDisposableTargetIdentity()
+    {
+        Assert.True(MediaWikiDiagnosticAuthorization.IsAuthorized("1"));
+        Assert.False(MediaWikiDiagnosticAuthorization.IsAuthorized(null));
+        Assert.False(MediaWikiDiagnosticAuthorization.IsAuthorized("true"));
+
+        var disposable = new MediaWikiImportTargetConfiguration(
+            "Server=127.0.0.1;Database=cw_m3_test;User ID=root;Password=not-used;",
+            "cw_m3_test", "disposable-mariadb");
+        var production = disposable with { DatabaseName = "continuumwiki", ConnectionString = disposable.ConnectionString.Replace("cw_m3_test", "continuumwiki") };
+        Assert.True(MediaWikiDiagnosticAuthorization.IsDisposableTarget(disposable));
+        Assert.False(MediaWikiDiagnosticAuthorization.IsDisposableTarget(production));
     }
 
     private static string Fixture(string name)

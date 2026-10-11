@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo><sitename>Continuum Offline Scribunto Fixture</sitename><base>https://synthetic.invalid/wiki</base><generator>MediaWiki 1.42</generator><case>first-letter</case>
+    <namespaces><namespace key="0" case="first-letter" /><namespace key="828" case="first-letter">Module</namespace></namespaces>
+  </siteinfo>
+  <page><title>Compatibility Article</title><ns>0</ns><id>100</id>
+    <revision><id>1001</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>wikitext</model><text>{{#invoke:Compatibility|main|  positional  |empty=|unicode=é✓中}}</text></revision>
+  </page>
+  <page><title>Compatibility</title><ns>828</ns><id>101</id>
+    <revision><id>1011</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model><text>return { main = function(frame) return mw.text.trim(frame.args[1]) .. '|' .. tostring(frame.args.empty == '') .. '|' .. mw.ustring.len(frame.args.unicode) end }</text></revision>
+  </page>
+  <page><title>Historical</title><ns>828</ns><id>127</id>
+    <revision><id>1271</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model><text>return { main = function() return 'old' end }</text></revision>
+    <revision><id>1272</id><timestamp>2025-03-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model><text>return { main = function() return 'new' end }</text></revision>
+  </page>
+</mediawiki>

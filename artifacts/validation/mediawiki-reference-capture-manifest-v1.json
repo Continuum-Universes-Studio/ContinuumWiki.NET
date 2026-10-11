@@ -1,0 +1,18 @@
+{
+  "ReportVersion": "cw-m3-006c.2-reference-manifest-v1",
+  "Corpus": "mediawiki-compatibility-corpus-v1.json",
+  "ExpectedFixtureCount": 8,
+  "CapturedFixtureCount": 0,
+  "Status": "NOT_EVALUATED",
+  "CaptureMethod": "scripts/capture-mediawiki-reference.py via scripts/capture-mediawiki-corpus.sh",
+  "Requirements": [
+    "Operator-supplied approved HTTPS origin",
+    "Historical oldid matching each corpus SourceRevisionId",
+    "Raw response SHA-256 and rendered revision identity",
+    "Private output reviewed before any repository publication"
+  ],
+  "Notes": [
+    "No MediaWiki reference output is present in this repository.",
+    "No compatibility classification is inferred from missing captures."
+  ]
+}

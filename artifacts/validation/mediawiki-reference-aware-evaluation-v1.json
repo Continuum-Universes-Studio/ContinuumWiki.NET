@@ -1,0 +1,234 @@
+{
+  "Evaluations": [
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": false,
+      "DiagnosticRuntimeEligibility": "BLOCKED_BY_MISSING_DEPENDENCY",
+      "FixtureId": "mw-invoke-075b2608d7c07c57",
+      "NegativeTestEvidence": true,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Mbox",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [
+          "Module:Category handler",
+          "Module:libraryUtil",
+          "Module:strict"
+        ],
+        "MissingDependencyProvenance": [],
+        "Outcome": "BLOCKED"
+      },
+      "RawApiResponseSha256": "faed5d67c61406977f1d2e4f73590ebb89c95cb47fa7a8b3ccfcf8c6d0b86b41",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "ReferenceErrors": [
+        "Lua error in package.lua at line 80: module 'Module:Message box/configuration' not found."
+      ],
+      "ReferenceFileSha256": "2bc1afa08c54b4eefbc95da1ad4cbd2c6c9b0e00d18a7391e9a1396fb54c188f",
+      "RenderedRevisionId": 6208,
+      "RequestedRevisionId": 6208,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": true,
+      "DiagnosticRuntimeEligibility": "CANDIDATE",
+      "FixtureId": "mw-invoke-0aacc6fd104a1bc6",
+      "NegativeTestEvidence": false,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Species",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [],
+        "MissingDependencyProvenance": [],
+        "Outcome": "UNSUPPORTED"
+      },
+      "RawApiResponseSha256": "41c5457502d5076683913209181ecd64422e98b60b928dc11e086eb69fdf1e9c",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "ReferenceErrors": [],
+      "ReferenceFileSha256": "d41145d0729f05b5c083f23edaf1a8df5d4af1416dddd5aa8b0392926b68b224",
+      "RenderedRevisionId": 9603,
+      "RequestedRevisionId": 9603,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": true,
+      "DiagnosticRuntimeEligibility": "CANDIDATE",
+      "FixtureId": "mw-invoke-5c66128828b0dd24",
+      "NegativeTestEvidence": false,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Jovan",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [],
+        "MissingDependencyProvenance": [],
+        "Outcome": "UNSUPPORTED"
+      },
+      "RawApiResponseSha256": "4688028831ec522c171bfafbedaed6a332df9709ffcdc2dbe20c32f752b842c6",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "ReferenceErrors": [],
+      "ReferenceFileSha256": "570c118d1a8781d48b89b06bec3f346d7c24a4cbef333d11bc09b6082cfe9f11",
+      "RenderedRevisionId": 9482,
+      "RequestedRevisionId": 9482,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": false,
+      "DiagnosticRuntimeEligibility": "BLOCKED_BY_MISSING_DEPENDENCY",
+      "FixtureId": "mw-invoke-72066581f5f001e8",
+      "NegativeTestEvidence": true,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Extension",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [
+          "Module:Extension",
+          "Module:Template translation"
+        ],
+        "MissingDependencyProvenance": [],
+        "Outcome": "BLOCKED"
+      },
+      "RawApiResponseSha256": "106ff0224a3326080b0fe6a33ad86bfad0dc594c5d29f1610a679d09e2f7a4e0",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_ERROR",
+      "ReferenceErrors": [
+        "Page <a href=\"/index.php?title=Template:Infobox/styles.css&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Template:Infobox/styles.css (page does not exist)\">Template:Infobox/styles.css</a> has no content.",
+        "Page <a href=\"/index.php?title=Template:Extension/status.css&amp;action=edit&amp;redlink=1\" class=\"new\" title=\"Template:Extension/status.css (page does not exist)\">Template:Extension/status.css</a> has no content.",
+        "Script error: No such module \"Template translation\"."
+      ],
+      "ReferenceFileSha256": "3c4af03b178b532b212b508aa5960cb11c928ded884a6e5861af12d72ba062b8",
+      "RenderedRevisionId": 7245,
+      "RequestedRevisionId": 7245,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": true,
+      "DiagnosticRuntimeEligibility": "CANDIDATE",
+      "FixtureId": "mw-invoke-79af37a81a16b674",
+      "NegativeTestEvidence": false,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Species",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [],
+        "MissingDependencyProvenance": [],
+        "Outcome": "UNSUPPORTED"
+      },
+      "RawApiResponseSha256": "cfb3ab5800a04676466945625c533e86b5437d5ee1861d3c97d6cd99fa178dd0",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "ReferenceErrors": [],
+      "ReferenceFileSha256": "17d4d146c49b36b2298437b3cd427720fef294f8df2cf6a19d6ea27ca5c9c873",
+      "RenderedRevisionId": 9907,
+      "RequestedRevisionId": 9907,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": true,
+      "DiagnosticRuntimeEligibility": "CANDIDATE",
+      "FixtureId": "mw-invoke-8d5e90707608a71b",
+      "NegativeTestEvidence": false,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Divine",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [],
+        "MissingDependencyProvenance": [],
+        "Outcome": "UNSUPPORTED"
+      },
+      "RawApiResponseSha256": "03f34faef785e5cf84a2808eeecd9a43bac6ad2fbce977b110b07def5ecd1042",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "ReferenceErrors": [],
+      "ReferenceFileSha256": "c87d53a11139a9d0f217087347e1c3d7db475a6a5eb23e119ce91be0322c26a6",
+      "RenderedRevisionId": 9469,
+      "RequestedRevisionId": 9469,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": true,
+      "DiagnosticRuntimeEligibility": "CANDIDATE",
+      "FixtureId": "mw-invoke-e5edab96328f070f",
+      "NegativeTestEvidence": false,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Divine",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [],
+        "MissingDependencyProvenance": [],
+        "Outcome": "UNSUPPORTED"
+      },
+      "RawApiResponseSha256": "0dd10de62d91160a572c54bfa75d77c558edff70076237bebdd3052073d2dc9d",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "ReferenceErrors": [],
+      "ReferenceFileSha256": "10fb8f69a96ed9e1e12acce9109c8451114a64d51778de49d183d88cd86480d5",
+      "RenderedRevisionId": 9468,
+      "RequestedRevisionId": 9468,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    },
+    {
+      "ComparisonPerformed": false,
+      "DependencyIndependent": true,
+      "DiagnosticRuntimeEligibility": "CANDIDATE",
+      "FixtureId": "mw-invoke-f9451d8b2558c7b8",
+      "NegativeTestEvidence": false,
+      "Notes": [
+        "Reference-side errors are diagnostic evidence, not successful compatibility matches.",
+        "Strict migration-import readiness remains independent of reference behavior."
+      ],
+      "PageTitle": "Template:Character2",
+      "PlannerCorrelation": {
+        "GroundedMissingModuleDependencyTitles": [],
+        "MissingDependencyProvenance": [],
+        "Outcome": "UNSUPPORTED"
+      },
+      "RawApiResponseSha256": "3af235831766d447a0cca35dd8f687838526d31171ee66760a111acc7df39ebe",
+      "RawApiResponseSha256Recorded": true,
+      "ReferenceBehavior": "REFERENCE_SUCCESS",
+      "ReferenceErrors": [],
+      "ReferenceFileSha256": "61bb6821ca5921955fc6c5c9556cfb4188327a4483eeb31e83d2d12121c57134",
+      "RenderedRevisionId": 9456,
+      "RequestedRevisionId": 9456,
+      "SourceAvailability": "AVAILABLE",
+      "StrictImportEligibility": "INELIGIBLE"
+    }
+  ],
+  "FixtureCount": 8,
+  "Policy": {
+    "ComparisonSuccess": "Requires actual ContinuumWiki output and comparison; matching errors are not parity.",
+    "DiagnosticEvaluation": "Reference errors are valid negative-test evidence; they never relax import gates.",
+    "StrictImportReadiness": "Planner blocking findings remain mandatory."
+  },
+  "ReferenceErrorCount": 2,
+  "ReferenceSuccessCount": 6,
+  "ReportVersion": "cw-m3-006c.8-reference-aware-evaluation-v1"
+}

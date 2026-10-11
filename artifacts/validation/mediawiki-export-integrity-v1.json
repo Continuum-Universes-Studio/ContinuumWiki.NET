@@ -1,0 +1,27 @@
+{
+  "ReportVersion": "cw-m3-006c-v1",
+  "Files": [
+    {
+      "Path": "artifacts/imports/mediawiki/continuumwiki-modules.xml",
+      "ByteLength": 656598,
+      "Sha256": "6b196f19f6d5134c1b89004779ac69d1f4c9ec3dcec1cb4867b094a2533619ad",
+      "XmlStatus": "VALID"
+    },
+    {
+      "Path": "artifacts/imports/mediawiki/continuumwiki-full-with-files.xml",
+      "ByteLength": 2209336932,
+      "Sha256": "5a6d6ad13e9b0f3315053db8168bbbfbf6bc3d0983cd9bd835d4c9a956a38afd",
+      "XmlStatus": "VALID_WITH_XML_HUGE"
+    },
+    {
+      "Path": "artifacts/imports/mediawiki/continuumwiki-full.xml",
+      "ByteLength": 0,
+      "Sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "XmlStatus": "INVALID_EMPTY"
+    }
+  ],
+  "Notes": [
+    "The standard xmllint parser rejected the large full-with-files text node for its default resource limit; xmllint --huge validated it successfully.",
+    "The zero-byte full.xml was not used as an import source."
+  ]
+}

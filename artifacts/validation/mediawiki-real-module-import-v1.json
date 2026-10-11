@@ -1,0 +1,15 @@
+{
+  "ImportBatchId": 1,
+  "Verdict": "VERIFIED",
+  "SourcePageCount": 19,
+  "ImportedPageCount": 19,
+  "SourceRevisionCount": 123,
+  "ImportedRevisionCount": 123,
+  "Differences": [],
+  "DeterministicHash": "f2d7023ea2bfd055db6e62bbd4ec59f137e3abb3f1269379735061afafceeda4",
+  "SourceMediaCount": 0,
+  "ImportedMediaCount": 0,
+  "SourceMediaRevisionCount": 0,
+  "ImportedMediaRevisionCount": 0,
+  "IsSuccessful": true
+}

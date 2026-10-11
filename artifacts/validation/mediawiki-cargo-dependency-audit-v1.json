@@ -1,0 +1,123 @@
+{
+  "ReportVersion": "cw-m3-006f.1-cargo-dependency-audit-v1",
+  "AuditStatus": "COMPLETE_WITH_UNRESOLVED_PROVENANCE",
+  "SourceExport": "artifacts/imports/mediawiki/continuumwiki-modules.xml",
+  "ReferenceDirectory": "/home/cdjensen94/continuumwiki-validation/references",
+  "ContinuumOutputDirectory": "/home/cdjensen94/continuumwiki-validation/continuum-outputs",
+  "ComparisonDirectory": "/home/cdjensen94/continuumwiki-validation/comparisons",
+  "ObservedParserFunctions": {
+    "#cargo_query": { "OccurrencesInModuleExport": 11, "Classification": "DATA_READ" },
+    "#cargo_declare": { "OccurrencesInModuleExport": 0, "Classification": "NOT_OBSERVED" },
+    "#cargo_store": { "OccurrencesInModuleExport": 0, "Classification": "NOT_OBSERVED_IN_LUA_EXPORT" },
+    "#cargo_compound_query": { "OccurrencesInModuleExport": 0, "Classification": "NOT_OBSERVED" }
+  },
+  "CargoDependentHistoricalRevisions": [
+    {
+      "Module": "Module:SpeciesVariants",
+      "Revisions": [9602, 9658],
+      "Fixtures": ["mw-invoke-0aacc6fd104a1bc6", "mw-invoke-79af37a81a16b674"],
+      "CallSites": [
+        { "RevisionId": 9602, "Function": "p.infobox", "Line": 49, "Signature": "frame:callParserFunction{name='#cargo_query', args=queryArgs}" },
+        { "RevisionId": 9602, "Function": "p.infobox", "Line": 61, "Signature": "mw.ext.cargo.query('Variants', 'Name', {where=buildWhere(species), orderBy='Name'})" },
+        { "RevisionId": 9658, "Function": "p.subvariants", "Line": 54, "Signature": "frame:callParserFunction{name='#cargo_query', args=queryArgs}" },
+        { "RevisionId": 9658, "Function": "p.infobox", "Line": 96, "Signature": "mw.ext.cargo.query('Variants', 'Name', {where=buildSpeciesWhere(species), orderBy='Name'})" }
+      ],
+      "Tables": ["Variants", "Subvariants"],
+      "Fields": ["Name", "Species", "GeneticAncestor"],
+      "ResultShape": "Array of row tables; infobox consumes row.Name and tests #results; parser-function form supplies named query arguments.",
+      "DynamicInputs": ["species", "ancestor", "default", "where expression constructed by buildWhere/buildSpeciesWhere"],
+      "Reachability": "Fixture-dependent; infobox and subvariants exports select different paths.",
+      "DataProvenance": "UNKNOWN; XML contains Lua and Wikitext, not Cargo-owned rows."
+    },
+    {
+      "Module": "Module:DivineTree",
+      "Revisions": [9481],
+      "Fixtures": ["mw-invoke-8d5e90707608a71b", "mw-invoke-5c66128828b0dd24"],
+      "CallSites": [
+        { "RevisionId": 9481, "Function": "exported tree functions", "Line": 11, "Signature": "mw.ext.cargo.query(tables, fields, {where=where})" },
+        { "RevisionId": 9481, "Function": "tree/root and children paths", "Line": 33, "Signature": "cargoQuery('Divines', 'Name, Father, Mother, Children', where)" },
+        { "RevisionId": 9481, "Function": "children/allChildren paths", "Line": 78, "Signature": "cargoQuery(...); exact arguments are data-dependent" }
+      ],
+      "Tables": ["Divines"],
+      "Fields": ["Name", "Father", "Mother", "Children"],
+      "ResultShape": "Array of row tables consumed as named fields; list-valued fields are split on semicolons.",
+      "DynamicInputs": ["page/name and relationship where clauses"],
+      "Reachability": "Conditional on the selected tree export and page data.",
+      "DataProvenance": "UNKNOWN; no Cargo table export identified."
+    },
+    {
+      "Module": "Module:DivineFamily",
+      "Revisions": [9467],
+      "Fixtures": ["mw-invoke-8d5e90707608a71b", "mw-invoke-e5edab96328f070f", "mw-invoke-5c66128828b0dd24"],
+      "CallSites": [
+        { "RevisionId": 9467, "Function": "exported family functions", "Line": 15, "Signature": "mw.ext.cargo.query(tables, fields, options)" },
+        { "RevisionId": 9467, "Function": "family paths", "Line": 54, "Signature": "cargoQuery(...); options.where is assigned when supplied" }
+      ],
+      "Tables": ["Divines", "Characters"],
+      "Fields": ["Name", "Father", "Mother", "Spouses", "Consorts", "Companions", "NotableDivineSiblings", "NotableDivineOffspring"],
+      "ResultShape": "Array of row tables; fields are iterated and list-valued strings are split.",
+      "DynamicInputs": ["pageName, name, father, mother, and escaped where clauses"],
+      "Reachability": "Conditional relationship lookups; actual branches depend on invocation arguments and query rows.",
+      "DataProvenance": "UNKNOWN; no historical Cargo snapshot is present in the module export."
+    },
+    {
+      "Module": "Module:DivineMeta",
+      "Revisions": [9469],
+      "Fixtures": ["mw-invoke-8d5e90707608a71b"],
+      "CallSites": [
+        { "RevisionId": 9469, "Function": "metadata lookup", "Line": 45, "Signature": "mw.ext.cargo.query(tables, fields, {where=where})" },
+        { "RevisionId": 9469, "Function": "metadata export", "Line": 56, "Signature": "cargoQuery(...); exact values are invocation-dependent" }
+      ],
+      "Tables": ["Divines"],
+      "Fields": ["Name and metadata fields selected by the historical revision"],
+      "ResultShape": "Array of row tables consumed by named field lookup.",
+      "DynamicInputs": ["where clause built from invocation/page values"],
+      "Reachability": "Conditional and fixture-dependent.",
+      "DataProvenance": "UNKNOWN."
+    },
+    {
+      "Module": "Module:CharacterFamily",
+      "Revisions": [9455],
+      "Fixtures": ["mw-invoke-f9451d8b2558c7b8"],
+      "CallSites": [
+        { "RevisionId": 9455, "Function": "family exports", "Line": 11, "Signature": "mw.ext.cargo.query(unpack(queryArgs))" },
+        { "RevisionId": 9455, "Function": "family lookup paths", "Line": 31, "Signature": "cargoQuery({...}); query arguments are assembled at runtime" }
+      ],
+      "Tables": ["Characters"],
+      "Fields": ["Family and relationship fields consumed by makeList"],
+      "ResultShape": "Array of row tables converted to list items.",
+      "DynamicInputs": ["page/character name and runtime query argument table"],
+      "Reachability": "Conditional on the selected exported function.",
+      "DataProvenance": "UNKNOWN."
+    }
+  ],
+  "SourceDataAvailability": {
+    "MediaWikiXml": "Contains page/module Wikitext and historical Lua revisions; does not establish Cargo-owned table rows.",
+    "CargoTables": "NOT_FOUND_IN_REPOSITORY_OR_EXPORT",
+    "AuthorizedMediaWikiDatabase": "NOT_INSPECTED_BY_CODEX; no production database access performed.",
+    "ContinuumWikiPersistence": "Contains imported pages/revisions only; no authenticated historical Cargo snapshot established.",
+    "HistoricalCargoParity": "UNVERIFIED"
+  },
+  "ProvenanceRules": [
+    "Do not substitute current Cargo rows for rows that would have existed at a historical page revision.",
+    "A future comparison requires a versioned Cargo snapshot tied to the fixture and source revision timestamp.",
+    "Query source strings do not prove query results."
+  ],
+  "ProposedReadOnlyBoundary": {
+    "Location": "Trusted host, outside the Lua worker",
+    "Interface": "Typed CargoQueryRequest/CargoQueryResult with table, field, where, join, groupBy, orderBy, limit, source revision, and provenance fields",
+    "Allowlisting": "Explicit table and field allowlists derived from authenticated Cargo schema; reject unknown identifiers",
+    "Unsupported": ["arbitrary SQL", "filesystem/network/database access from Lua", "unbounded joins", "writes from Lua", "unversioned current-data fallback"],
+    "Budgets": ["row count", "field count", "field/output bytes", "query time", "dependency/query count", "cancellation"],
+    "TransportAssessment": "Existing one-shot worker protocol cannot safely perform an arbitrary host callback. Prefer host-side pre-resolution of approved query results in the request bundle, or an explicit bounded request/resume protocol with correlation, cancellation, and provenance; do not add an implicit SQL callback."
+  },
+  "ImplementationStages": [
+    "Obtain an authorized, read-only Cargo schema and versioned row snapshot tied to the MediaWiki reference capture.",
+    "Define typed allowlisted query plans for the observed tables/fields and validate them without SQL passthrough.",
+    "Add host-side deterministic result resolution and provenance-bearing worker data bundles.",
+    "Add negative tests for unknown tables/fields, unsupported joins/expressions, row/output/time limits, missing snapshots, and cancellation.",
+    "Capture independent MediaWiki references using the same historical Cargo dataset before claiming parity."
+  ],
+  "SecurityStatus": "Preserved; this audit adds no database access, worker capability, production Lua authorization, or parser behavior.",
+  "Claims": { "CargoCompatibility": "NOT_CLAIMED", "MediaWikiParity": "NOT_CLAIMED" }
+}
