@@ -1,0 +1,118 @@
+{
+  "ReportVersion": "cw-m5-013b-category-reconciliation-v1",
+  "GeneratedAtUtc": "2026-10-11T21:33:57Z",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Classification": "CATEGORY_RECONCILIATION_SOURCE_ONLY_VERIFIED",
+  "Scope": "Typed post-commit recovery and current-revision reconciliation; no durable persistence certification",
+  "AuditFindings": {
+    "PagePublication": "CreatePageAsync and UpdatePageAsync commit the authoritative page revision before category indexing is invoked",
+    "PostCommitIndexing": "Non-success indexing outcomes are logged and do not roll back or falsify the already successful page response",
+    "ExistingRetry": "No retry or reconciliation operation existed before this milestone",
+    "RaceRisk": "An older post-commit attempt can be superseded by a newer page revision unless current revision is re-resolved before replacement",
+    "Atomicity": "No shared durable transaction or outbox exists; this remains an explicit limitation"
+  },
+  "ConfirmedDefects": [
+    "Missing typed consistency/recovery state for post-commit outcomes",
+    "No explicit authorized current-revision reconciliation operation",
+    "No deterministic retry eligibility classification"
+  ],
+  "ImplementedComponents": [
+    "TwCategoryIndexConsistencyState",
+    "TwCategoryRecoveryEligibility",
+    "TwCategoryReconciliationRequest and TwCategoryReconciliationResult",
+    "ReconcileAsync on the existing application-service boundary",
+    "Current authoritative revision source resolution",
+    "Superseded-revision rejection and revision-change detection",
+    "Unknown classification for applied results without durable read-back",
+    "Structured consistency/recovery logging after page publication"
+  ],
+  "RecoveryPolicy": {
+    "Current": "Only reported when membership read matches authoritative revision and desired set; not inferred from Applied alone",
+    "Pending": "Never synthesized; requires a future authoritative operational mechanism",
+    "Stale": "Current revision evidence or replacement conflict shows supersession",
+    "Incomplete": "Incomplete extraction preserves existing membership and prevents replacement",
+    "Failed": "Persistence failure with sanitized diagnostic",
+    "Unavailable": "Rejecting repository or required persistence boundary unavailable",
+    "Unknown": "Insufficient durable evidence, including Applied without read-back",
+    "AutomaticRetry": false,
+    "InMemoryQueue": false,
+    "BackgroundWorker": false
+  },
+  "Reconciliation": {
+    "AuthorizationRequired": true,
+    "HistoricalReadsRejected": true,
+    "ExternalEndpoint": false,
+    "UsesClientSourceText": false,
+    "ResolvesCurrentRevision": true,
+    "ExpectedSupersededRevision": "Rejected without extraction",
+    "RevisionChangeBeforeReplacement": "Rejected by second authoritative source resolution",
+    "UsesExistingRendererAndPlanner": true,
+    "UsesExistingReplacementContract": true,
+    "CapturedMembershipReplay": false
+  },
+  "OutcomeMapping": {
+    "Applied": "Unknown unless durable read-back exists; eligible for a new authorized reconciliation",
+    "NoChange": "Current when repository membership read matched the current desired set",
+    "IncompleteExtraction": "Incomplete; eligible only after dependency/source recovery and new authorization",
+    "RevisionConflict": "Stale or superseded; requires current revision",
+    "UnauthorizedMutation": "Unknown; requires authorization",
+    "Cancelled": "Unknown; eligible after new authorization",
+    "RepositoryUnavailable": "Unavailable; eligible after new authorization",
+    "PersistenceFailure": "Failed; eligible after new authorization",
+    "InvalidRequest": "Unknown; not eligible"
+  },
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiCategoryApplicationServiceTests|FullyQualifiedName~MediaWikiCategoryPersistenceContractTests|FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedResult": "99 passed, 0 failed, 0 skipped",
+    "Coverage": [
+      "Current revision reconciliation",
+      "Unauthorized reconciliation",
+      "Historical reconciliation rejection",
+      "Superseded revision rejection",
+      "Revision change before replacement",
+      "Repository compare-and-swap conflict mapping",
+      "Incomplete extraction preservation",
+      "No-change/current classification",
+      "Repository unavailable and persistence failure",
+      "Cancellation propagation",
+      "Post-commit ordering"
+    ],
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "356 passed, 24 skipped, 0 failed",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "0 warnings, 0 errors",
+    "JsonValidation": "Passed",
+    "DiffCheck": "Passed"
+  },
+  "DatabaseAndOperations": {
+    "CategoryDatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "Provisioning": false,
+    "SchemaChanges": false,
+    "ProductionServicesChanged": false,
+    "HostSecurityChanged": false,
+    "LuaActivated": false,
+    "CargoActivated": false,
+    "AutomaticRetryIntroduced": false,
+    "UnauthorizedEndpointIntroduced": false
+  },
+  "ChangedFiles": [
+    "TightWiki.Plugin/Models/TwCategoryMembershipModels.cs",
+    "TightWiki.Plugin/Interfaces/Persistence/ITwCategoryMembershipRepository.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryMembershipApplicationService.cs",
+    "TightWiki/Controllers/PageController.cs",
+    "TightWiki.Tests/Unit/MediaWikiCategoryApplicationServiceTests.cs",
+    "docs/architecture/CW-M5-013B-CATEGORY-RECONCILIATION.md",
+    "artifacts/validation/mediawiki-category-reconciliation-v1.json",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "RemainingLimitations": [
+    "No durable consistency history or Pending state",
+    "No database-level compare-and-swap certification",
+    "No automatic retry scheduling or outbox",
+    "No durable category SQL/schema/provider",
+    "No delete/restore/import persistence hooks",
+    "No category MVC or production migration readiness"
+  ],
+  "AuthorizationStatus": "DISPOSABLE_DATABASE_AUTHORIZATION_NOT_ESTABLISHED"
+}

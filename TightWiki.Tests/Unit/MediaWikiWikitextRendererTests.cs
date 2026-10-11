@@ -26,7 +26,7 @@ public sealed class MediaWikiWikitextRendererTests
             ----
             """, ImportedSource(repository));
 
-        Assert.Contains("<h1>", result.HtmlResult);
+        Assert.Contains("<h1 id=\"世界\">", result.HtmlResult);
         Assert.Contains("<strong>bold</strong>", result.HtmlResult);
         Assert.Contains("<em>italic</em>", result.HtmlResult);
         Assert.Contains("Lore%3A%3A%E4%B8%96%E7%95%8C", result.HtmlResult);
@@ -35,6 +35,195 @@ public sealed class MediaWikiWikitextRendererTests
         Assert.Contains("<ol>", result.HtmlResult);
         Assert.Contains("<hr />", result.HtmlResult);
         Assert.Empty(result.UnsupportedConstructs);
+    }
+
+    [Fact]
+    public async Task RendersHeadingAnchorsAndFragmentLinksWithDuplicateDisambiguation()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Pages["Jovan"] = new("Jovan", "Jovan", 2);
+        var renderer = CreateRenderer(repository);
+
+        var result = await renderer.RenderAsync("""
+            == History ==
+            [[#History|Local history]] [[Jovan#History|Remote history]]
+            == Culture ==
+            == History ==
+            [[Jovan#History_1]]
+            """, ImportedSource(repository));
+
+        Assert.Contains("<h2 id=\"History\">History</h2>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("<h2 id=\"Culture\">Culture</h2>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("<h2 id=\"History_1\">History</h2>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("href=\"#History\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("href=\"/wiki/Jovan#History\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("href=\"/wiki/Jovan#History_1\"", result.HtmlResult, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task DistinguishesCategoryDirectivesAndExplicitCategoryLinks()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Pages["Category:Divines"] = new("Category:Divines", "Category::Divines", 3);
+        var renderer = CreateRenderer(repository);
+
+        var result = await renderer.RenderAsync("[[Category:Divines|Jovan]] [[ :Category:Divines|Browse]]", ImportedSource(repository));
+
+        Assert.Single(result.Categories);
+        Assert.Equal("Divines", result.Categories[0].SourceTitle);
+        Assert.Equal("Jovan", result.Categories[0].SortKey);
+        Assert.Contains("href=\"/wiki/Category%3A%3ADivines\">Browse</a>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("<div class=\"cw-mediawiki-categories\">", result.HtmlResult, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task CanonicalizesCategoryIdentityDeduplicatesMembershipsAndPreservesProvenance()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        var provenance = ImportedSource(repository, revision: "1001") with
+        {
+            SourcePageId = "page-42",
+            SourceRevisionId = "revision-1001",
+            SourceTitle = "Article",
+            SourceWikiIdentity = "wiki.example"
+        };
+
+        var result = await CreateRenderer(repository).RenderAsync(
+            "[[Category:Divines]] [[category:DIVINES]] [[Category:Divines|Jovan]] [[Category:Divines|Jovan]]",
+            provenance);
+
+        Assert.Equal(2, result.Categories.Count);
+        Assert.Contains(result.Categories, category => category.CanonicalNavigation == "category::divines" && category.SortKey is null);
+        var sorted = Assert.Single(result.Categories, category => category.SortKey == "Jovan");
+        Assert.Equal("divines", sorted.NormalizedTitle);
+        Assert.Equal("page-42", sorted.SourcePageId);
+        Assert.Equal("revision-1001", sorted.SourceRevisionId);
+        Assert.Equal(7, sorted.ImportBatchId);
+        Assert.Equal("wiki.example", sorted.SourceWikiIdentity);
+        Assert.Equal("Membership", sorted.DirectiveClassification);
+    }
+
+    [Fact]
+    public async Task RejectsInvalidCategoryIdentityWithoutCreatingMembershipMetadata()
+    {
+        var result = await CreateRenderer(new FakeMediaWikiImportRepository()).RenderAsync("[[Category:!!!]]", ImportedSource());
+
+        Assert.Empty(result.Categories);
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "InvalidCategoryTitle");
+    }
+
+    [Fact]
+    public async Task CategoryIndexPlanIncludesReachedTemplateCategoriesAndIsCompleteWhenDependenciesResolve()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Templates["Outer"] = Template("Outer", "{{Inner}}");
+        repository.Templates["Inner"] = Template("Inner", "[[Category:Divines|Jovan]]");
+        var provenance = ImportedSource(repository);
+
+        var result = await CreateRenderer(repository).RenderAsync("{{Outer}}", provenance);
+        var plan = MediaWikiCategoryIndexPlanner.Build(provenance, result);
+
+        Assert.Single(result.Categories);
+        Assert.Single(plan.DesiredMemberships);
+        Assert.Equal(MediaWikiCategoryIndexCompleteness.Complete, plan.Completeness);
+        Assert.True(plan.CanReplaceExistingMembership);
+        Assert.False(plan.PreserveExistingMembership);
+        Assert.Empty(plan.BlockingDiagnostics);
+    }
+
+    [Fact]
+    public async Task IncompleteTemplateExpansionPreservesExistingCategoryMembership()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        var provenance = ImportedSource(repository);
+
+        var result = await CreateRenderer(repository).RenderAsync("{{MissingCategoryTemplate}}", provenance);
+        var plan = MediaWikiCategoryIndexPlanner.Build(provenance, result);
+
+        Assert.Equal(MediaWikiCategoryIndexCompleteness.Incomplete, plan.Completeness);
+        Assert.True(plan.PreserveExistingMembership);
+        Assert.False(plan.CanReplaceExistingMembership);
+        Assert.Contains("MissingTemplate", plan.BlockingDiagnostics);
+    }
+
+    [Fact]
+    public async Task SupportedConditionalExpansionIndexesOnlyTheSelectedCategoryBranch()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        var provenance = ImportedSource(repository);
+
+        var result = await CreateRenderer(repository).RenderAsync(
+            "{{#if:1|[[Category:Selected]]|[[Category:Unselected]]}}",
+            provenance);
+
+        var category = Assert.Single(result.Categories);
+        Assert.Equal("selected", category.NormalizedTitle);
+        Assert.DoesNotContain(result.Categories, value => value.NormalizedTitle == "unselected");
+        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Code == "UnsupportedParserFunction");
+    }
+
+    [Fact]
+    public async Task RejectedLuaCategoryGenerationMakesTheIndexPlanIncomplete()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        var provenance = ImportedSource(repository);
+
+        var result = await CreateRenderer(repository).RenderAsync("{{#invoke:CategoryGenerator|main}}", provenance);
+        var plan = MediaWikiCategoryIndexPlanner.Build(provenance, result);
+
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "ScribuntoExecutionRejected");
+        Assert.Equal(MediaWikiCategoryIndexCompleteness.Incomplete, plan.Completeness);
+        Assert.True(plan.PreserveExistingMembership);
+        Assert.False(plan.CanReplaceExistingMembership);
+    }
+
+    [Fact]
+    public async Task DistinguishesExplicitFilePageLinksFromEmbeddedMedia()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Pages["File:Example.png"] = new("File:Example.png", "File::Example_png", 4);
+        repository.Media["Example.png"] = new("Example.png", "Page", "Example_png", "image/png", 1, true);
+        var renderer = CreateRenderer(repository);
+
+        var result = await renderer.RenderAsync("[[:File:Example.png|File page]] [[File:Example.png|thumb|Caption]]", ImportedSource(repository));
+
+        Assert.Contains("href=\"/wiki/File%3A%3AExample_png\">File page</a>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("<img", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("Caption", result.HtmlResult, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RejectsUnsafeMediaFilenamesBeforeRepositoryResolution()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Media["../secret.png"] = new("../secret.png", "Page", "secret_png", "image/png", 1, true);
+        var result = await CreateRenderer(repository).RenderAsync("[[File:../secret.png|thumb]]", ImportedSource(repository));
+
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsafeMediaFilename");
+        Assert.DoesNotContain("File/Binary", result.HtmlResult, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("cw-mediawiki-unresolved-media", result.HtmlResult, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task EncodesUnicodeHeadingFragmentsAndBoundsFragmentLength()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Pages["世界"] = new("世界", "世界", 5);
+        var renderer = new MediaWikiWikitextRenderer(repository, new TwConfiguration { BasePath = "/wiki" }, new MediaWikiWikitextRenderOptions
+        {
+            MaxFragmentCharacters = 16
+        });
+        var longFragment = new string('x', 17);
+
+        var result = await renderer.RenderAsync(
+            "== 世界 & Culture ==\n[[#世界_Culture|Local]] [[世界#世界_Culture|Remote]] [[世界#" + longFragment + "|Too long]]",
+            ImportedSource(repository));
+
+        Assert.Contains("id=\"世界_Culture\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("href=\"#%E4%B8%96%E7%95%8C_Culture\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("href=\"/wiki/%E4%B8%96%E7%95%8C#%E4%B8%96%E7%95%8C_Culture\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "InvalidFragment");
+        Assert.DoesNotContain("href=\"/wiki/%E4%B8%96%E7%95%8C#" + longFragment, result.HtmlResult, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -869,6 +1058,89 @@ public sealed class MediaWikiWikitextRendererTests
         Assert.Equal(2, result.Tables.Count);
         Assert.Equal("wikitable", result.Tables[0].CssClass);
         Assert.Equal(2, result.Tables[0].Rows[0].Cells.Count);
+    }
+
+    [Fact]
+    public async Task PreservesQuotedAttributePipesAndNestedCellSeparators()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Pages["Jovan"] = new("Jovan", "Jovan", 2);
+        repository.Templates["Example"] = Template("Example", "example");
+        var renderer = CreateRenderer(repository);
+
+        var result = await renderer.RenderAsync("""
+            {|
+            |-
+            | class="safe|label" | [[Jovan|The Divine]] || {{Example|a|b}} {{#if:yes|A|B}}
+            |}
+            """, ImportedSource(repository));
+
+        Assert.Contains("The Divine", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("example", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("A", result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain(">B<", result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain("safe|label", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsafeTableClass");
+        Assert.Single(result.Tables);
+        Assert.Equal(2, result.Tables[0].Rows[0].Cells.Count);
+    }
+
+    [Fact]
+    public async Task RendersValidatedCaptionAttributesAndDiagnosesDuplicateCaptions()
+    {
+        var renderer = CreateRenderer(new FakeMediaWikiImportRepository());
+
+        var result = await renderer.RenderAsync("""
+            {|
+            |+ id="lineage" class="title" aria-label="A|B" | First caption
+            |+ id="lineage2" class="subtitle" | Second caption
+            | value
+            |}
+            """, ImportedSource());
+
+        Assert.Contains("<caption class=\"cw-mediawiki-table-caption subtitle\" id=\"lineage2\">Second caption</caption>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "DuplicateTableCaption");
+        Assert.Equal("Second caption", result.Tables[0].Caption);
+    }
+
+    [Fact]
+    public async Task RecoversUnclosedTableWithBoundedDiagnostic()
+    {
+        var result = await CreateRenderer(new FakeMediaWikiImportRepository()).RenderAsync("""
+            {| class="wikitable"
+            |-
+            | data
+            """, ImportedSource());
+
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnclosedTable");
+        Assert.Contains("</table></div>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Single(result.Tables);
+    }
+
+    [Fact]
+    public async Task RejectsInvalidTableSpansOversizedAttributesAndCellText()
+    {
+        var oversizedLabel = new string('x', 257);
+        var options = new MediaWikiWikitextRenderOptions { MaxTableCellCharacters = 8 };
+        var renderer = new MediaWikiWikitextRenderer(new FakeMediaWikiImportRepository(), new TwConfiguration { BasePath = "/wiki" }, options);
+
+        var result = await renderer.RenderAsync($$"""
+            {| aria-label="{{oversizedLabel}}" onclick="alert(1)"
+            |-
+            ! scope="invalid" | Header
+            | colspan="65" rowspan="0" | 123456789
+            |}
+            """, ImportedSource());
+
+        Assert.DoesNotContain("onclick", result.HtmlResult, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain(oversizedLabel, result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain("colspan=\"65\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain("rowspan=\"0\"", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsafeTableAriaLabel");
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsafeTableAttribute");
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsafeTableScope");
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "InvalidTableSpan");
+        Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "TableCellSizeLimitExceeded");
     }
 
     [Fact]

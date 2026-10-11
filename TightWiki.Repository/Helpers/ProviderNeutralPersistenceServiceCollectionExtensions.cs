@@ -32,4 +32,34 @@ public static class ProviderNeutralPersistenceServiceCollectionExtensions
         services.AddSingleton<ITwApplicationMaintenanceRepository, MySqlApplicationMaintenanceRepository>();
         return services;
     }
+
+    /// <summary>
+    /// Explicitly opts a managed MariaDB host into category persistence. The
+    /// normal application registrations intentionally do not call this method.
+    /// The caller must provision and validate the category schema separately.
+    /// </summary>
+    public static IServiceCollection AddAuthorizedMySqlCategoryPersistence(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        MySqlCategoryPersistenceReadinessProof readiness)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(readiness);
+
+        if (DatabaseProviderConfiguration.GetProvider(configuration) != DatabaseProviderConfiguration.MySQL)
+            throw new InvalidOperationException("Category persistence requires Database:Provider=mysql.");
+        if (!configuration.GetValue<bool>("Database:CategoryPersistence:Enabled"))
+            throw new InvalidOperationException("Category persistence requires explicit Database:CategoryPersistence:Enabled=true.");
+        if (!string.Equals(configuration["Database:CategoryPersistence:SchemaVersion"], "1", StringComparison.Ordinal)
+            || readiness.SchemaVersion != MySqlCategorySchemaInitializer.CurrentSchemaVersion
+            || string.IsNullOrWhiteSpace(readiness.DatabaseName))
+            throw new InvalidOperationException("Category persistence requires an explicitly approved schema version of 1.");
+        if (!services.Any(descriptor => descriptor.ServiceType == typeof(IDatabaseConnectionFactory)))
+            throw new InvalidOperationException("Category persistence requires an existing provider connection factory registration.");
+
+        services.AddSingleton<ITwCategoryMembershipRepository>(provider =>
+            new MySqlCategoryMembershipRepository(provider.GetRequiredService<IDatabaseConnectionFactory>()));
+        return services;
+    }
 }

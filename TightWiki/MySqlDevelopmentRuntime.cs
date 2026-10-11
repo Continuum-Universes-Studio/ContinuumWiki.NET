@@ -57,6 +57,10 @@ internal static class MySqlDevelopmentRuntime
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddMySqlApplicationPersistence(configuration);
         builder.Services.AddSingleton<ITwMediaWikiImportRepository, MySqlMediaWikiImportRepository>();
+        builder.Services.AddSingleton<ITwCategoryIndexPageSource, ApplicationTwCategoryIndexPageSource>();
+        builder.Services.AddSingleton<ITwCategoryIndexExtractor, MediaWikiCategoryIndexExtractor>();
+        builder.Services.AddSingleton<ITwCategoryMembershipRepository, RejectingTwCategoryMembershipRepository>();
+        builder.Services.AddSingleton<ITwCategoryMembershipApplicationService, TwCategoryMembershipApplicationService>();
         // The rejecting executor remains the default. Enabling the socket path
         // requires both operator configuration and independent local evidence.
         var luaConfiguration = MediaWikiScribuntoExperimentalConfiguration.From(configuration);

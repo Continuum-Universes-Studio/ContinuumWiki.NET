@@ -1,0 +1,72 @@
+{
+  "ReportVersion": "cw-m5-010-link-category-media-compatibility-v1",
+  "GeneratedAtUtc": "2026-10-11T20:49:41Z",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Outcome": "LINK_CATEGORY_MEDIA_COMPATIBILITY_PARTIALLY_VERIFIED",
+  "Scope": "Bounded internal-link, category-directive, file-reference, fragment, and heading-anchor compatibility; no full MediaWiki navigation or thumbnail parity claim.",
+  "Architecture": {
+    "ExpansionOrdering": "Revision-aware MediaWikiTemplateExpander runs before the existing typed renderer.",
+    "PageResolution": "ITwMediaWikiImportRepository.ResolvePageAsync supplies canonical imported target navigation.",
+    "MediaResolution": "ITwMediaWikiImportRepository.ResolveMediaAsync supplies imported attachment metadata for the existing permission-checked Binary route.",
+    "UrlConstruction": "Existing renderer base-path and escaped-navigation helpers are reused; no parallel router was introduced."
+  },
+  "AuditFindings": [
+    { "Area": "Internal links and namespaces", "Classification": "VERIFIED_CORRECT", "Evidence": "Basic, piped, namespace-qualified, Unicode, underscore/space-normalized, and template-expanded page links resolve through the imported page contract." },
+    { "Area": "Fragment links", "Classification": "VERIFIED_CORRECT", "Evidence": "Local and page-qualified fragments are preserved in escaped URLs without claiming destination existence when heading metadata is unavailable." },
+    { "Area": "Heading anchors", "Classification": "VERIFIED_CORRECT", "Evidence": "Headings now receive bounded semantic-text IDs and duplicate base anchors receive deterministic numeric suffixes." },
+    { "Area": "Category directives", "Classification": "VERIFIED_CORRECT", "Evidence": "Category membership directives are typed per render, preserve sort-key metadata, and deduplicate exact repeats without database writes." },
+    { "Area": "Explicit category links", "Classification": "VERIFIED_CORRECT", "Evidence": "Leading-colon category links resolve the explicit Category: page and do not enter the directive collection." },
+    { "Area": "File embeds and file-page links", "Classification": "VERIFIED_CORRECT", "Evidence": "Embedded File/Image references use the imported-media resolver while leading-colon File links use page resolution." },
+    { "Area": "External URL and HTML security", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing HTTP/HTTPS allow-list, HTML encoding, rel policy, unsafe-scheme rejection, and control-character checks remain active." },
+    { "Area": "Unsafe media paths", "Classification": "VERIFIED_CORRECT", "Evidence": "Renderer-level filename validation rejects absolute, traversal, backslash, and NUL-containing references before resolver access." },
+    { "Area": "Advanced category/media behavior", "Classification": "UNSUPPORTED_BEHAVIOR", "Evidence": "Category persistence/index pages, generated thumbnails, remote media, complete namespace alias parity, and restricted metadata behavior remain outside the subset." }
+  ],
+  "ConfirmedDefects": [
+    { "Issue": "Internal-link fragments were discarded and headings had no imported anchor IDs.", "Correction": "Added bounded fragment-aware page/local URLs and deterministic heading IDs with duplicate suffixes.", "RegressionTests": ["RendersHeadingAnchorsAndFragmentLinksWithDuplicateDisambiguation", "EncodesUnicodeHeadingFragmentsAndBoundsFragmentLength"] },
+    { "Issue": "Category directives projected the bare category title and leading-colon namespace links were not distinguished.", "Correction": "Added typed sort-key directives, explicit category/file link handling, and Category: page projection.", "RegressionTests": ["DistinguishesCategoryDirectivesAndExplicitCategoryLinks", "DistinguishesExplicitFilePageLinksFromEmbeddedMedia"] },
+    { "Issue": "Media filename traversal safety depended on repository implementation.", "Correction": "Added renderer-boundary path validation before media resolution.", "RegressionTests": ["RejectsUnsafeMediaFilenamesBeforeRepositoryResolution"] }
+  ],
+  "ChangedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-010-LINK-CATEGORY-MEDIA-COMPATIBILITY.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-link-category-media-compatibility-v1.json"
+  ],
+  "FocusedTests": {
+    "Command": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "Result": "67 passed, 0 failed"
+  },
+  "Verification": {
+    "FullDebugTests": "324 passed, 0 failed",
+    "IntentionalSkips": "23 skipped",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "GitDiffCheck": "PASSED"
+  },
+  "SecurityPreservation": {
+    "HtmlEncoding": "PRESERVED",
+    "ExternalUrlPolicy": "HTTP_HTTPS_ONLY_PRESERVED",
+    "UnsafeMediaPaths": "REJECTED",
+    "FilesystemMediaPaths": "NOT_EMITTED",
+    "RemoteMedia": "NOT_ENABLED",
+    "ExpansionBudgets": "UNCHANGED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "ProductionLua": "DISABLED",
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "CargoProvider": "REJECTING_DEFAULT",
+    "ProductionSystemsOrEvidence": "NOT_ACCESSED_OR_MODIFIED"
+  },
+  "ResourceBounds": {
+    "MaxFragmentCharacters": 512,
+    "ExistingInputOutputExpansionParseAndDiagnosticBudgets": "UNCHANGED",
+    "Cancellation": "PRESERVED"
+  },
+  "KnownLimitations": [
+    "No complete MediaWiki heading-anchor historical algorithm claim.",
+    "Category membership is per-render metadata; no new persistence schema or write path was introduced.",
+    "Generated thumbnail parity and full media authorization/index semantics remain unavailable.",
+    "Historical parity, Cargo/Lua parity, host certification, and migration readiness remain independent gates."
+  ],
+  "RecommendedNextMilestone": "Compare the bounded navigation/media subset against independently captured reference HTML while preserving application route and authorization boundaries."
+}

@@ -12,6 +12,7 @@ public sealed class MediaWikiWikitextRenderOptions
 {
     public int MaxInputCharacters { get; init; } = 1_000_000;
     public int MaxOutputCharacters { get; init; } = 1_500_000;
+    public int MaxFragmentCharacters { get; init; } = 512;
     public int MaxParseDepth { get; init; } = 32;
     public int MaxBlocks { get; init; } = 10_000;
     public int MaxDiagnostics { get; init; } = 100;
@@ -63,7 +64,18 @@ public sealed record MediaWikiCompatibilityDiagnostic(
     int Column,
     MediaWikiDiagnosticSeverity Severity = MediaWikiDiagnosticSeverity.Warning);
 
-public sealed record MediaWikiCategory(string SourceTitle, int Offset);
+public sealed record MediaWikiCategory(string SourceTitle, int Offset)
+{
+    public const string NamespaceName = "Category";
+    public string NormalizedTitle { get; init; } = string.Empty;
+    public string CanonicalNavigation { get; init; } = string.Empty;
+    public string? SortKey { get; init; }
+    public string? SourcePageId { get; init; }
+    public string? SourceRevisionId { get; init; }
+    public long? ImportBatchId { get; init; }
+    public string? SourceWikiIdentity { get; init; }
+    public string DirectiveClassification { get; init; } = "Membership";
+}
 
 public sealed record MediaWikiReference(string? Name, string Body, int Index, int Offset);
 
@@ -150,12 +162,20 @@ public sealed class MediaWikiWikitextRenderer(
             }
         }
 
-        if (document.Categories.Count > 0)
+        var categories = document.Categories.Select(category => category with
+        {
+            SourcePageId = provenance.SourcePageId,
+            SourceRevisionId = provenance.SourceRevisionId,
+            ImportBatchId = provenance.ImportBatchId,
+            SourceWikiIdentity = provenance.SourceWikiIdentity
+        }).ToList();
+
+        if (categories.Count > 0)
         {
             context.Append("<div class=\"cw-mediawiki-categories\"><span>Categories:</span> ");
-            foreach (var category in document.Categories)
+            foreach (var category in categories)
             {
-                await AppendPageLinkAsync(context, provenance, category.SourceTitle, null, category.SourceTitle, category.Offset, cancellationToken, categoryPrefix: "Category:");
+                await AppendPageLinkAsync(context, provenance, "Category:" + category.SourceTitle, null, category.SourceTitle, category.Offset, cancellationToken);
                 context.Append(" ");
             }
             context.Append("</div>");
@@ -179,7 +199,7 @@ public sealed class MediaWikiWikitextRenderer(
         return new MediaWikiWikitextRenderResult(
             context.Html.ToString(),
             context.Diagnostics,
-            document.Categories,
+            categories,
             context.References.Select(reference => new MediaWikiReference(reference.Name, reference.Body, reference.Index, reference.Offset)).ToList(),
             [.. expansion.UnsupportedConstructs, .. document.UnsupportedConstructs.Distinct(StringComparer.Ordinal)],
             expansion.Dependencies,
@@ -210,7 +230,8 @@ public sealed class MediaWikiWikitextRenderer(
                 context.Append("</p>");
                 break;
             case HeadingBlock heading:
-                context.Append($"<h{heading.Level}>");
+                var anchor = BuildHeadingAnchor(document, heading);
+                context.Append($"<h{heading.Level} id=\"{WebUtility.HtmlEncode(anchor)}\">");
                 await RenderInlineAsync(context, document, provenance, heading.Inlines, cancellationToken);
                 context.Append($"</h{heading.Level}>");
                 break;
@@ -252,7 +273,12 @@ public sealed class MediaWikiWikitextRenderer(
         context.Append(">");
         if (table.Caption is not null)
         {
-            context.Append("<caption class=\"cw-mediawiki-table-caption\">");
+            var captionClasses = new List<string> { "cw-mediawiki-table-caption" };
+            captionClasses.AddRange(table.Caption.Attributes.Classes);
+            context.Append("<caption class=\"" + WebUtility.HtmlEncode(string.Join(' ', captionClasses.Distinct(StringComparer.OrdinalIgnoreCase))) + "\"");
+            AppendTableAttribute(context, "id", table.Caption.Attributes.Id);
+            AppendTableAttribute(context, "aria-label", table.Caption.Attributes.AriaLabel);
+            context.Append(">");
             await RenderInlineAsync(context, document, provenance, table.Caption.Inlines, cancellationToken);
             context.Append("</caption>");
         }
@@ -564,7 +590,35 @@ public sealed class MediaWikiWikitextRenderer(
 
     private async Task AppendInternalLinkAsync(RenderContext context, TwMediaWikiRenderSource provenance, InternalLinkNode link, CancellationToken cancellationToken)
     {
-        var targetTitle = link.Target.Split('#', 2)[0].Trim();
+        var targetParts = link.Target.Split('#', 2);
+        var targetTitle = targetParts[0].Trim();
+        string? fragment = null;
+        if (targetParts.Length > 1)
+        {
+            fragment = NormalizeFragment(targetParts[1]);
+            if (fragment is null)
+            {
+                AddDiagnostic(context.Diagnostics, _options, "InvalidFragment", "The internal link fragment was empty, malformed, or exceeded the configured limit.", link.Offset, link.Length);
+                context.Append(WebUtility.HtmlEncode(link.Label ?? DisplayTitle(link.Target)));
+                return;
+            }
+        }
+
+        if (targetTitle.Length == 0)
+        {
+            if (fragment is null)
+            {
+                context.Append(WebUtility.HtmlEncode(link.Label ?? DisplayTitle(link.Target)));
+                return;
+            }
+
+            var localHref = BuildFragmentHref(fragment);
+            context.Append("<a href=\"" + WebUtility.HtmlEncode(localHref) + "\">");
+            context.Append(WebUtility.HtmlEncode(link.Label ?? DisplayTitle(link.Target)));
+            context.Append("</a>");
+            return;
+        }
+
         var target = await importRepository.ResolvePageAsync(provenance.ImportBatchId ?? 0, targetTitle, cancellationToken);
         if (target is null)
         {
@@ -573,10 +627,10 @@ public sealed class MediaWikiWikitextRenderer(
             return;
         }
 
-        await AppendPageLinkAsync(context, provenance, target.SourceTitle, target.TargetNavigation, link.Label ?? DisplayTitle(link.Target), link.Offset, cancellationToken);
+        await AppendPageLinkAsync(context, provenance, target.SourceTitle, target.TargetNavigation, link.Label ?? DisplayTitle(link.Target), link.Offset, cancellationToken, fragment: fragment);
     }
 
-    private async Task AppendPageLinkAsync(RenderContext context, TwMediaWikiRenderSource provenance, string sourceTitle, string? mappedNavigation, string label, int offset, CancellationToken cancellationToken, string? categoryPrefix = null)
+    private async Task AppendPageLinkAsync(RenderContext context, TwMediaWikiRenderSource provenance, string sourceTitle, string? mappedNavigation, string label, int offset, CancellationToken cancellationToken, string? fragment = null)
     {
         var navigation = mappedNavigation;
         if (string.IsNullOrWhiteSpace(navigation))
@@ -592,14 +646,21 @@ public sealed class MediaWikiWikitextRenderer(
             return;
         }
 
-        var href = BuildPageHref(navigation);
+        var href = BuildPageHref(navigation, fragment);
         context.Append("<a href=\"" + WebUtility.HtmlEncode(href) + "\">");
-        context.Append(WebUtility.HtmlEncode(categoryPrefix is null ? label : label));
+        context.Append(WebUtility.HtmlEncode(label));
         context.Append("</a>");
     }
 
     private async Task AppendMediaLinkAsync(RenderContext context, Document document, TwMediaWikiRenderSource provenance, MediaLinkNode media, CancellationToken cancellationToken, bool bareImage = false)
     {
+        if (!IsSafeMediaReference(media.FileName))
+        {
+            AddDiagnostic(context.Diagnostics, _options, "UnsafeMediaFilename", "The imported media filename was rejected by the path-safety policy.", media.Offset, media.Length);
+            context.Append("<span class=\"cw-mediawiki-unresolved-media\">[File: " + WebUtility.HtmlEncode(media.FileName) + "]</span>");
+            return;
+        }
+
         var target = await importRepository.ResolveMediaAsync(provenance.ImportBatchId ?? 0, provenance.SourcePageId ?? string.Empty, provenance.SourceRevisionId ?? string.Empty, media.FileName, cancellationToken);
         if (target is null || !target.Resolved)
         {
@@ -732,7 +793,18 @@ public sealed class MediaWikiWikitextRenderer(
         context.Append("</ol>");
     }
 
-    private string BuildPageHref(string navigation) => JoinBasePath("/" + Uri.EscapeDataString(navigation));
+    private string BuildPageHref(string navigation, string? fragment = null)
+        => JoinBasePath("/" + Uri.EscapeDataString(navigation) + (fragment is null ? string.Empty : "#" + Uri.EscapeDataString(fragment)));
+
+    private static string BuildFragmentHref(string fragment) => "#" + Uri.EscapeDataString(fragment);
+
+    private static bool IsSafeMediaReference(string value)
+        => !string.IsNullOrWhiteSpace(value)
+        && !value.StartsWith('/')
+        && !value.Contains('\0')
+        && !value.Contains('\\')
+        && !value.Split('/').Any(part => part is "." or "..")
+        && !value.Contains("../", StringComparison.Ordinal);
     private string JoinBasePath(string path)
     {
         var basePath = wikiConfiguration.BasePath?.TrimEnd('/') ?? string.Empty;
@@ -741,8 +813,82 @@ public sealed class MediaWikiWikitextRenderer(
 
     private static string DisplayTitle(string value)
     {
-        var title = value.Split('#', 2)[0].Trim().Replace('_', ' ');
+        var parts = value.Split('#', 2);
+        var title = parts[0].Trim().Replace('_', ' ');
+        if (title.Length == 0 && parts.Length > 1) return parts[1].Trim().Replace('_', ' ');
         return title.Contains(':') ? title[(title.IndexOf(':') + 1)..].Trim() : title;
+    }
+
+    private string BuildHeadingAnchor(Document document, HeadingBlock heading)
+    {
+        var baseAnchor = NormalizeFragment(ExtractInlineText(heading.Inlines), allowTruncate: true);
+        if (string.IsNullOrEmpty(baseAnchor)) baseAnchor = "section";
+        if (!document.HeadingAnchorCounts.TryGetValue(baseAnchor, out var count))
+        {
+            document.HeadingAnchorCounts[baseAnchor] = 0;
+            return baseAnchor;
+        }
+
+        count++;
+        document.HeadingAnchorCounts[baseAnchor] = count;
+        var suffix = "_" + count.ToString(CultureInfo.InvariantCulture);
+        return baseAnchor.Length + suffix.Length <= _options.MaxFragmentCharacters
+            ? baseAnchor + suffix
+            : baseAnchor[..Math.Max(1, _options.MaxFragmentCharacters - suffix.Length)] + suffix;
+    }
+
+    private static string ExtractInlineText(IReadOnlyList<InlineNode> nodes)
+    {
+        var builder = new StringBuilder();
+        foreach (var node in nodes)
+        {
+            switch (node)
+            {
+                case TextNode text:
+                    builder.Append(text.Value);
+                    break;
+                case BoldNode bold:
+                    builder.Append(ExtractInlineText(bold.Children));
+                    break;
+                case ItalicNode italic:
+                    builder.Append(ExtractInlineText(italic.Children));
+                    break;
+                case InternalLinkNode link:
+                    builder.Append(link.Label ?? DisplayTitle(link.Target));
+                    break;
+                case ExternalLinkNode link:
+                    builder.Append(link.Label ?? link.Url);
+                    break;
+                case MediaLinkNode media:
+                    builder.Append(media.Options.CaptionText ?? media.FileName);
+                    break;
+            }
+        }
+        return builder.ToString();
+    }
+
+    private string? NormalizeFragment(string value, bool allowTruncate = false)
+    {
+        var trimmed = value.Trim();
+        if (trimmed.Length == 0 || (!allowTruncate && trimmed.Length > _options.MaxFragmentCharacters)) return null;
+        var builder = new StringBuilder(trimmed.Length);
+        var pendingSeparator = false;
+        foreach (var character in trimmed)
+        {
+            if (char.IsWhiteSpace(character) || character == '_')
+            {
+                pendingSeparator = builder.Length > 0;
+                continue;
+            }
+            if (char.IsLetterOrDigit(character) || character is '-' or ':')
+            {
+                if (pendingSeparator && builder.Length > 0) builder.Append('_');
+                builder.Append(character);
+                pendingSeparator = false;
+                if (allowTruncate && builder.Length >= _options.MaxFragmentCharacters) break;
+            }
+        }
+        return builder.ToString().Trim('_');
     }
 
     private static void AddDiagnostic(List<MediaWikiCompatibilityDiagnostic> diagnostics, MediaWikiWikitextRenderOptions? options, string code, string message, int offset, int length, MediaWikiDiagnosticSeverity severity = MediaWikiDiagnosticSeverity.Warning)
@@ -842,7 +988,7 @@ public sealed class MediaWikiWikitextRenderer(
         string? AriaLabel,
         int? RowSpan = null,
         int? ColumnSpan = null);
-    private sealed record TableCaption(IReadOnlyList<InlineNode> Inlines, string RawText, int Offset);
+    private sealed record TableCaption(TableAttributeSet Attributes, IReadOnlyList<InlineNode> Inlines, string RawText, int Offset);
     private sealed record TableRow(TableAttributeSet Attributes, IReadOnlyList<TableCell> Cells, int Offset);
     private sealed record TableCell(bool IsHeader, TableAttributeSet Attributes, IReadOnlyList<CellContent> Contents, int Offset, int Length);
     private abstract record CellContent;
@@ -858,6 +1004,7 @@ public sealed class MediaWikiWikitextRenderer(
         public List<MediaWikiCategory> Categories { get; } = new();
         public List<string> UnsupportedConstructs { get; } = new();
         public List<MediaWikiTableRenderModel> Tables { get; } = new();
+        public Dictionary<string, int> HeadingAnchorCounts { get; } = new(StringComparer.Ordinal);
     }
 
     private sealed class Parser(string source, MediaWikiWikitextRenderOptions options, TwMediaWikiRenderSource provenance, CancellationToken cancellationToken)
@@ -1127,8 +1274,15 @@ public sealed class MediaWikiWikitextRenderer(
                     CommitCell();
                     var captionText = trimmed[2..].Trim();
                     var captionParts = SplitTopLevel(captionText, '|');
-                    if (captionParts.Count > 1 && LooksLikeAttributes(captionParts[0])) captionText = string.Join('|', captionParts.Skip(1));
-                    caption = new TableCaption(ParseInline(captionText, lineOffsets[index] + Math.Max(0, line.IndexOf("|+", StringComparison.Ordinal) + 2), depth + 1), captionText, lineOffsets[index]);
+                    var captionAttributes = new TableAttributeSet([], null, null, null, null);
+                    if (captionParts.Count > 1 && LooksLikeAttributes(captionParts[0]))
+                    {
+                        captionAttributes = ParseTableAttributes(captionParts[0].Trim(), lineOffsets[index] + Math.Max(0, line.IndexOf("|+", StringComparison.Ordinal) + 2));
+                        captionText = string.Join('|', captionParts.Skip(1)).Trim();
+                    }
+                    if (caption is not null)
+                        AddDiagnostic(_document.Diagnostics, options, "DuplicateTableCaption", "A table contained more than one caption; the last caption was used.", lineOffsets[index], trimmed.Length);
+                    caption = new TableCaption(captionAttributes, ParseInline(captionText, lineOffsets[index] + Math.Max(0, line.IndexOf("|+", StringComparison.Ordinal) + 2), depth + 1), captionText, lineOffsets[index]);
                     continue;
                 }
                 if (trimmed.StartsWith("!", StringComparison.Ordinal) || (trimmed.StartsWith("|", StringComparison.Ordinal) && !trimmed.StartsWith("||", StringComparison.Ordinal)))
@@ -1409,8 +1563,22 @@ public sealed class MediaWikiWikitextRenderer(
             var start = 0;
             var braces = 0;
             var links = 0;
+            var quote = '\0';
+            var previousSignificant = '\0';
             for (var index = 0; index <= value.Length - separator.Length; index++)
             {
+                if (quote != '\0')
+                {
+                    if (value[index] == quote) quote = '\0';
+                    if (!char.IsWhiteSpace(value[index])) previousSignificant = value[index];
+                    continue;
+                }
+                if (braces == 0 && links == 0 && previousSignificant == '=' && (value[index] == '"' || value[index] == '\''))
+                {
+                    quote = value[index];
+                    previousSignificant = value[index];
+                    continue;
+                }
                 if (value.AsSpan(index).StartsWith("{{", StringComparison.Ordinal)) { braces++; index++; continue; }
                 if (value.AsSpan(index).StartsWith("}}", StringComparison.Ordinal) && braces > 0) { braces--; index++; continue; }
                 if (value.AsSpan(index).StartsWith("[[", StringComparison.Ordinal)) { links++; index++; continue; }
@@ -1421,6 +1589,7 @@ public sealed class MediaWikiWikitextRenderer(
                     start = index + separator.Length;
                     index += separator.Length - 1;
                 }
+                if (!char.IsWhiteSpace(value[index])) previousSignificant = value[index];
             }
             result.Add(value[start..]);
             return result;
@@ -1489,14 +1658,31 @@ public sealed class MediaWikiWikitextRenderer(
                     var inner = text[(index + 2)..linkEnd];
                     var parts = SplitTopLevel(inner, '|');
                     var target = DecodeTitle(parts[0]);
+                    var explicitLink = target.StartsWith(':');
+                    if (explicitLink) target = target[1..].TrimStart();
                     var absolute = sourceOffset + index;
-                    if (target.StartsWith("Category:", StringComparison.OrdinalIgnoreCase))
+                    if (!explicitLink && target.StartsWith("Category:", StringComparison.OrdinalIgnoreCase))
                     {
                         var category = target[9..].Trim();
-                        _document.Categories.Add(new(category, absolute));
+                        var sortKey = parts.Count > 1 ? DecodeTitle(string.Join('|', parts.Skip(1))).Trim() : null;
+                        var normalizedSortKey = string.IsNullOrEmpty(sortKey) ? null : sortKey;
+                        if (!MediaWikiCategoryIdentity.TryCanonicalize(category, out var normalizedTitle, out var canonicalNavigation))
+                        {
+                            AddDiagnostic(_document.Diagnostics, options, "InvalidCategoryTitle", "The category membership directive did not contain a valid category title.", absolute, linkEnd + 2 - index);
+                        }
+                        else if (!_document.Categories.Any(existing => string.Equals(existing.CanonicalNavigation, canonicalNavigation, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(existing.SortKey, normalizedSortKey, StringComparison.Ordinal)))
+                        {
+                            _document.Categories.Add(new MediaWikiCategory(category, absolute)
+                            {
+                                NormalizedTitle = normalizedTitle,
+                                CanonicalNavigation = canonicalNavigation,
+                                SortKey = normalizedSortKey
+                            });
+                        }
                         nodes.Add(new CategoryNode(category, absolute, linkEnd + 2 - index));
                     }
-                    else if (target.StartsWith("File:", StringComparison.OrdinalIgnoreCase) || target.StartsWith("Image:", StringComparison.OrdinalIgnoreCase))
+                    else if (!explicitLink && (target.StartsWith("File:", StringComparison.OrdinalIgnoreCase) || target.StartsWith("Image:", StringComparison.OrdinalIgnoreCase)))
                     {
                         var file = target[(target.IndexOf(':') + 1)..].Trim();
                         var mediaOptions = ParseMediaOptions(parts.Skip(1).Select(DecodeTitle).ToList(), absolute, linkEnd + 2 - index, depth);
@@ -1880,13 +2066,28 @@ public sealed class MediaWikiWikitextRenderer(
             var start = 0;
             var braces = 0;
             var links = 0;
+            var quote = '\0';
+            var previousSignificant = '\0';
             for (var index = 0; index < value.Length; index++)
             {
+                if (quote != '\0')
+                {
+                    if (value[index] == quote) quote = '\0';
+                    if (!char.IsWhiteSpace(value[index])) previousSignificant = value[index];
+                    continue;
+                }
+                if (braces == 0 && links == 0 && previousSignificant == '=' && (value[index] == '"' || value[index] == '\''))
+                {
+                    quote = value[index];
+                    previousSignificant = value[index];
+                    continue;
+                }
                 if (value.AsSpan(index).StartsWith("{{", StringComparison.Ordinal)) { braces++; index++; continue; }
                 if (value.AsSpan(index).StartsWith("}}", StringComparison.Ordinal) && braces > 0) { braces--; index++; continue; }
                 if (value.AsSpan(index).StartsWith("[[", StringComparison.Ordinal)) { links++; index++; continue; }
                 if (value.AsSpan(index).StartsWith("]]", StringComparison.Ordinal) && links > 0) { links--; index++; continue; }
                 if (value[index] == separator && braces == 0 && links == 0) { result.Add(value[start..index]); start = index + 1; }
+                if (!char.IsWhiteSpace(value[index])) previousSignificant = value[index];
             }
             result.Add(value[start..]);
             return result;

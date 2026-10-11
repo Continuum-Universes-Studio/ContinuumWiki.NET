@@ -1,0 +1,148 @@
+{
+  "ReportVersion": "cw-m5-012-category-persistence-readiness-v1",
+  "GeneratedAtUtc": "2026-10-11T21:03:23Z",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Classification": "CATEGORY_PERSISTENCE_PREPARED_AUTHORIZATION_BLOCKED",
+  "AuthorizationStatus": "AUTHORIZATION_NOT_ESTABLISHED",
+  "DatabaseMutationsPerformed": 0,
+  "DatabaseTestsExecuted": 0,
+  "AuditedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryMembershipIndexing.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Plugin/Models/TwCategoryMembershipModels.cs",
+    "TightWiki.Plugin/Interfaces/Persistence/ITwCategoryMembershipRepository.cs",
+    "TightWiki.Repository/Helpers/MySqlRuntimeReadiness.cs",
+    "TightWiki.Repository/Helpers/MySqlSchemaCompatibility.cs",
+    "TightWiki.Repository/Helpers/MySqlDatabaseConnectionFactory.cs",
+    "TightWiki.Repository/Helpers/MySqlPageRepository.cs",
+    "TightWiki.Repository/Scripts/MySql/Pages/V1__PageSchema.sql",
+    "TightWiki.Tests/Integration/MySqlConfigurationIntegrationTests.cs",
+    "TightWiki.Tests/Integration/MediaWikiCategoryPersistenceAuthorizationTests.cs"
+  ],
+  "ProviderCompatibility": {
+    "DefaultProvider": "SQLite",
+    "Connector": "MySqlConnector 2.6.2",
+    "EfIdentityProvider": "MySql.EntityFrameworkCore 10.0.9",
+    "ApplicationRuntimeRequirement": "MariaDB 11.8.x enforced by MySqlRuntimeReadiness",
+    "GenericMySqlFactGate": "Only CONTINUUMWIKI_RUN_MYSQL_TESTS=1 and CONTINUUMWIKI_MYSQL_TEST_CONNECTION are checked; server version is not checked by the attribute",
+    "SchemaVersionGuard": "Existing MySQL schema domains reject versions newer than the supported versions",
+    "CompatibilityWarning": "MySQL-compatible direct repository tests must not be treated as MariaDB runtime readiness"
+  },
+  "ExistingArchitecture": {
+    "PageIdentity": "Page.Id with Page.Revision optimistic concurrency",
+    "PageSaveTransactions": "MySqlPageRepository.CreatePageAsync and UpdatePageAsync use one transaction",
+    "ExistingTagStorage": "PageTag is unrelated and is not reused",
+    "CategoryStorage": "MISSING",
+    "CategoryRepository": "No durable implementation; CW-M5-013A registers only a fail-closed rejecting adapter",
+    "CategoryVisibilityPolicy": "MISSING",
+    "CategoryMvcRoute": "MISSING",
+    "SchemaMigration": "Explicit versioned initializers; no category migration exists"
+  },
+  "ProposedSchema": {
+    "UsesExistingCategoryPageEntity": true,
+    "IndexStateTable": "PageCategoryIndexState",
+    "MembershipTable": "PageCategoryMembership",
+    "MembershipKey": ["PageId", "CategoryNavigation"],
+    "CategoryNavigationMaxCharacters": 128,
+    "SortKeyMaxCharacters": 512,
+    "MembershipIndexes": [
+      "CategoryNavigation, SortKey, PageId",
+      "PageId, SourcePageRevision"
+    ],
+    "ForeignKeyBehavior": "PageCategory rows cascade with permanent Page deletion; restoration requires fresh authorized indexing",
+    "MigrationCreated": false
+  },
+  "TypedContracts": {
+    "Identity": "TwCategoryIdentity",
+    "Membership": "TwCategoryMembershipRecord",
+    "ReplacementRequest": "TwCategoryMembershipReplacementRequest",
+    "ReplacementDispositions": ["Applied", "NoChange", "IncompleteExtraction", "RevisionConflict", "AuthorizationRejected", "PersistenceFailure", "InvalidRequest"],
+    "MemberQuery": "TwCategoryMemberQuery",
+    "MemberResult": "TwCategoryMemberPage with bounded Members and HasMore only",
+    "Repository": "ITwCategoryMembershipRepository is preparation-only; only a rejecting adapter is registered by CW-M5-013A"
+  },
+  "Policies": {
+    "AtomicReplacement": "Lock authoritative Page.Revision, reject stale or incomplete input, replace verified memberships and state in one transaction, rollback on failure/cancellation",
+    "IncompleteExtraction": "Preserve old physical rows but mark index Incomplete/Unknown; member queries require Verified state",
+    "StaleRevision": "RevisionConflict; older indexing cannot overwrite newer state",
+    "Idempotency": "Same verified revision and semantic membership set returns NoChange",
+    "Visibility": "Apply existing Read policy before pagination; no application-side unbounded filtering",
+    "Pagination": "PageNumber positive, PageSize 1..100, stable SortKey binary ordering then PageId",
+    "Counts": "No total count exposed by the prepared contract",
+    "RenderingWrites": "Forbidden",
+    "HistoricalReads": "Cannot mutate current membership"
+  },
+  "LifecyclePlan": {
+    "Create": "Index published revision after complete extraction",
+    "RevisionPublication": "Replace within authorized page-save transaction",
+    "Move": "Preserve PageId and reindex published body",
+    "Delete": "Cascade storage; do not disclose through listings",
+    "Restore": "Fresh authorized reindex required",
+    "Import": "Preserve source IDs/revisions and replace only complete plans",
+    "GlobalEventBus": "Not introduced"
+  },
+  "AuthorizationGate": {
+    "RequiredEnvironment": [
+      "CONTINUUMWIKI_RUN_MYSQL_TESTS=1",
+      "CONTINUUMWIKI_CATEGORY_PERSISTENCE_AUTHORIZED=1",
+      "CONTINUUMWIKI_CATEGORY_PERSISTENCE_APPROVAL_PATH",
+      "CONTINUUMWIKI_CATEGORY_PERSISTENCE_TARGET_DATABASE",
+      "CONTINUUMWIKI_MYSQL_TEST_CONNECTION"
+    ],
+    "TargetPattern": "cw_m5_012_",
+    "EngineRequirement": "MariaDB 11.8.x",
+    "ApprovalPresent": false,
+    "ProvisioningExecuted": false,
+    "CleanupExecuted": false,
+    "CredentialExposure": "None"
+  },
+  "Tests": {
+    "FocusedSourceOnlyCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiCategoryPersistenceContractTests|FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedSourceOnlyResult": "80 passed, 0 failed",
+    "AuthorizationGate": "Skipped without explicit authorization inputs; no database opened",
+    "SourceOnlyCoverage": [
+      "Canonical identity",
+      "Bounded query validation",
+      "Duplicate and oversized membership rejection",
+      "No-change idempotency",
+      "Sort-key replacement",
+      "Incomplete extraction preservation",
+      "Stale revision conflict"
+    ],
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "337 passed, 24 existing/gated skips, 0 failed",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "0 warnings, 0 errors"
+  },
+  "SecurityPreservation": {
+    "ProductionDatabase": "NOT_ACCESSED_OR_MODIFIED",
+    "ProductionMigration": "NO_GO_PRESERVED",
+    "ProductionLua": "DISABLED",
+    "Cargo": "REJECTING_DEFAULT",
+    "WorkerSecurity": "UNCHANGED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "PageTagReuse": "DISALLOWED",
+    "RendererMutation": "NONE",
+    "UnboundedQueries": "NOT_INTRODUCED",
+    "RestrictedDisclosure": "NOT_INTRODUCED"
+  },
+  "ChangedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryMembershipIndexing.cs",
+    "TightWiki.Plugin/Models/TwCategoryMembershipModels.cs",
+    "TightWiki.Plugin/Interfaces/Persistence/ITwCategoryMembershipRepository.cs",
+    "TightWiki.Tests/Unit/MediaWikiCategoryPersistenceContractTests.cs",
+    "TightWiki.Tests/Integration/MediaWikiCategoryPersistenceAuthorizationTests.cs",
+    "docs/architecture/CW-M5-012-CATEGORY-PERSISTENCE-READINESS.md",
+    "artifacts/validation/mediawiki-category-persistence-readiness-v1.json",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "RemainingBlockers": [
+    "Explicit disposable MariaDB 11.8 authorization",
+    "Reviewed schema migration",
+    "Provider implementation and transaction wiring",
+    "Visibility predicate implementation",
+    "Category MVC integration",
+    "Historical category parity"
+  ],
+  "RecommendedNextMilestone": "Obtain approved cw_m5_012 MariaDB 11.8 scope and implement the provider contract only after the authorization gate is satisfied."
+}

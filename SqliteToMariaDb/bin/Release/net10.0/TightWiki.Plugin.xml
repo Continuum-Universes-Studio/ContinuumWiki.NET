@@ -1656,6 +1656,15 @@
         <member name="M:TightWiki.Plugin.Interfaces.Persistence.ITwApplicationTranslationRepository.GetTranslationAsync(System.String,System.String,System.Threading.CancellationToken)">
             <summary>Gets a localized translation or null when no value exists.</summary>
         </member>
+        <member name="T:TightWiki.Plugin.Interfaces.Persistence.ITwCategoryMembershipRepository">
+            <summary>
+            Preparation-only category persistence boundary. Application DI registers
+            only an explicit rejecting adapter until an authorized durable provider
+            exists; rendering never calls it.
+            Implementations must enforce authorization and an atomic page-revision
+            replacement transaction.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Interfaces.Persistence.ITwMediaWikiImportRepository">
             <summary>
             Selects the source format for one target page revision and resolves the
@@ -3358,6 +3367,54 @@
             <summary>
             The page ID this permission is scoped to, or null if it applies across all pages.
             </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryIdentity">
+            <summary>Canonical Category namespace identity shared by persistence contracts.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryIdentity.#ctor(System.String,System.String)">
+            <summary>Canonical Category namespace identity shared by persistence contracts.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryDurableIndexState">
+            <summary>State persisted independently from category membership rows.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryMembershipRecord">
+            <summary>One durable membership candidate for a specific page revision.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryMembershipRecord.#ctor(System.Int32,TightWiki.Plugin.Models.TwCategoryIdentity,System.String,System.Int32,System.String,System.String,System.String,System.Guid,System.DateTime,TightWiki.Plugin.Models.TwCategoryMembershipIndexState)">
+            <summary>One durable membership candidate for a specific page revision.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryMembershipReplacementRequest">
+            <summary>Authorized mutation input for an atomic membership replacement.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryMembershipReplacementRequest.#ctor(System.Int32,System.Int32,System.Collections.Generic.IReadOnlyList{TightWiki.Plugin.Models.TwCategoryMembershipRecord},System.Boolean,System.Guid,System.DateTime,System.String,System.String,System.String)">
+            <summary>Authorized mutation input for an atomic membership replacement.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryMemberQuery">
+            <summary>Visibility-scoped, bounded category member query.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryMemberQuery.#ctor(TightWiki.Plugin.Models.TwCategoryIdentity,System.Nullable{System.Guid},System.Int32,System.Int32)">
+            <summary>Visibility-scoped, bounded category member query.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryMember">
+            <summary>Only page data already authorized for the requesting viewer.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryMember.#ctor(System.Int32,System.String,System.String,System.String,System.String)">
+            <summary>Only page data already authorized for the requesting viewer.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryIndexProvenance">
+            <summary>Authoritative provenance stored with the durable index state.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryIndexProvenance.#ctor(System.String,System.String,System.String,System.Nullable{System.Guid},System.Nullable{System.DateTime})">
+            <summary>Authoritative provenance stored with the durable index state.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryIndexConsistencyResult">
+            <summary>Read-back of durable category index state against the current page.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryIndexConsistencyResult.#ctor(TightWiki.Plugin.Models.TwCategoryIndexConsistencyState,System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32},TightWiki.Plugin.Models.TwCategoryIndexProvenance,System.String)">
+            <summary>Read-back of durable category index state against the current page.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryMembershipReplacementPolicy">
+            <summary>Pure validation and concurrency policy for source-only tests.</summary>
         </member>
         <member name="T:TightWiki.Plugin.Models.TwConfigurationEntries">
             <summary>

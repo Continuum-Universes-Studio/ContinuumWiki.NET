@@ -1,0 +1,95 @@
+{
+  "ReportVersion": "cw-m5-011-category-membership-indexing-v1",
+  "GeneratedAtUtc": "2026-10-11T20:57:15Z",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Classification": "CATEGORY_MEMBERSHIP_SOURCE_ONLY_VERIFIED",
+  "Scope": "Typed, canonical, read-only MediaWiki category metadata and source-only index planning; no durable category persistence or full category-page parity claim.",
+  "ArchitectureAudit": {
+    "RendererCategoryDirectives": "IMPLEMENTED_VERIFIED",
+    "ExistingPageAndRevisionStorage": "IMPLEMENTED_VERIFIED",
+    "ExistingPageTagStorage": "IMPLEMENTED_VERIFIED_BUT_NOT_CATEGORY_STORAGE",
+    "NativeCategoryStorage": "MISSING",
+    "CategoryRepository": "MISSING",
+    "CategoryMemberQueries": "MISSING",
+    "CategoryMvcRouteAndView": "MISSING",
+    "AuthorizationAwareCategoryListing": "BLOCKED_BY_AUTHORIZATION",
+    "CategoryRedirectsAndSubcategories": "UNSUPPORTED",
+    "ExistingPageSaveTransactions": "IMPLEMENTED_VERIFIED",
+    "CategorySaveImportIntegration": "MISSING"
+  },
+  "ImplementedBehavior": {
+    "TypedDirective": "MediaWikiCategory retains source title, offset, normalized title, canonical Category:: navigation, sort key, provenance, and Membership classification.",
+    "CanonicalIdentity": "Existing TwNamespaceNavigation rules are reused; invalid identities produce InvalidCategoryTitle.",
+    "ExplicitCategoryLinks": "Leading-colon Category links remain links and do not create membership metadata.",
+    "Deduplication": "Canonical navigation plus ordinal sort key; exact repeats collapse deterministically.",
+    "Transclusion": "Resolved direct and reached nested-template directives are exposed after expansion; selected conditional branches only.",
+    "IndexPlan": "MediaWikiCategoryIndexPlanner creates an immutable, ordered, source-only plan and never writes storage.",
+    "IncompleteExpansion": "Missing/restricted/unsupported/recursive/runtime/budget diagnostics set PreserveExistingMembership and prohibit replacement.",
+    "HistoricalRendering": "No mutation path exists; historical rendering cannot update current membership."
+  },
+  "Persistence": {
+    "Status": "BLOCKED_BY_AUTHORIZATION",
+    "DatabaseAuthorization": "NOT_GRANTED",
+    "SchemaChanges": "NOT PERFORMED",
+    "TransactionalUpdate": "NOT IMPLEMENTED_OR_EXECUTED",
+    "ExistingTagTableReused": false,
+    "DatabaseTests": {
+      "Executed": 0,
+      "Passed": 0,
+      "SkippedOrUnavailable": true,
+      "Note": "No category schema or authorized disposable category database was available; skipped database tests are not passes."
+    }
+  },
+  "QueriesAndMvc": {
+    "BoundedMemberQuery": "MISSING",
+    "DeterministicPagination": "NOT_IMPLEMENTED",
+    "VisibilityEnforcement": "BLOCKED_BY_AUTHORIZATION",
+    "CategoryPageIntegration": "MISSING",
+    "TagBrowsingReuse": "NOT_USED"
+  },
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedResult": "73 passed, 0 failed",
+    "NewRegressionCoverage": [
+      "Canonical category identity and provenance",
+      "Invalid category identity",
+      "Nested template-generated category planning",
+      "Incomplete template expansion preserves existing membership",
+      "Explicit leading-colon category link remains non-membership"
+    ],
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "330 passed, 23 existing intentional skips, 0 failed",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "0 warnings, 0 errors"
+  },
+  "SecurityPreservation": {
+    "RenderingWrites": "NONE",
+    "HistoricalMutation": "DISALLOWED",
+    "IncompleteIndexDestructiveReplacement": "DISALLOWED",
+    "PageVisibilityDisclosure": "NOT_INTRODUCED",
+    "UnboundedQueries": "NOT_INTRODUCED",
+    "ProductionDatabase": "NOT_ACCESSED_OR_MODIFIED",
+    "ProductionLua": "DISABLED",
+    "Cargo": "REJECTING_DEFAULT",
+    "WorkerSecurity": "UNCHANGED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "RendererBudgets": "UNCHANGED"
+  },
+  "ChangedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryMembershipIndexing.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-011-CATEGORY-MEMBERSHIP-INDEXING.md",
+    "artifacts/validation/mediawiki-category-membership-indexing-v1.json",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "RemainingBlockers": [
+    "Authorized disposable category schema and repository contract",
+    "Transactional provider integration at page-save/import boundaries",
+    "Bounded category-member query with stable pagination",
+    "Existing page visibility policy applied to category listings",
+    "Category MVC route/view and empty/missing states",
+    "Historical category evidence and MediaWiki parity"
+  ],
+  "RecommendedNextMilestone": "Obtain explicit authorization and design evidence for a disposable category persistence/visibility slice before adding schema, repository, query, or MVC integration."
+}

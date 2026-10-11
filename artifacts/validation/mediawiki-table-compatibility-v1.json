@@ -1,0 +1,73 @@
+{
+  "ReportVersion": "cw-m5-009-mediawiki-table-compatibility-v1",
+  "GeneratedAtUtc": "2026-10-11T20:40:59Z",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Outcome": "MEDIAWIKI_TABLE_COMPATIBILITY_PARTIALLY_VERIFIED",
+  "Scope": "Bounded typed MediaWiki table parsing and sanitized HTML rendering; no complete MediaWiki HTML parity claim.",
+  "Architecture": {
+    "ExpansionOrdering": "Revision-aware MediaWikiTemplateExpander runs before the existing typed Wikitext block parser.",
+    "TableParser": "MediaWikiWikitextRenderer.Parser recognizes table, row, cell, caption, template, link, and nested-table boundaries.",
+    "Tokenization": "Top-level template/link tracking plus quoted attribute-value tracking preserves structural separators.",
+    "Rendering": "Typed table nodes render through the existing bounded RenderContext and attribute policy."
+  },
+  "AuditFindings": [
+    { "Area": "Table delimiters and rows", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing typed parser handles {|, |}, |-, empty/consecutive row separators, missing closure diagnostics, and balanced output." },
+    { "Area": "Header/data cells", "Classification": "VERIFIED_CORRECT", "Evidence": "! and | markers produce th/td cells; !! and || split inline cells within a row." },
+    { "Area": "Nested templates and links", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing bounded tokenization preserves pipes inside balanced {{...}} and [[...]] constructs." },
+    { "Area": "Quoted attribute separators", "Classification": "VERIFIED_CORRECT", "Evidence": "A confirmed tokenizer defect was fixed; quoted pipes after attribute '=' are no longer interpreted as cell boundaries." },
+    { "Area": "Captions", "Classification": "VERIFIED_CORRECT", "Evidence": "|+ renders safe captions; validated class/id/aria-label attributes are emitted and duplicate captions produce a bounded diagnostic with deterministic last-caption-wins behavior." },
+    { "Area": "Attribute security", "Classification": "VERIFIED_CORRECT", "Evidence": "Allow-listed contextual attributes are encoded and only emitted in supported table/row/cell/caption contexts; event handlers, styles, unsafe URL material, invalid spans, unsupported attributes, and oversized values are rejected or ignored." },
+    { "Area": "Template-expanded tables", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing revision-aware expansion produces table Wikitext consumed by the normal renderer without a second expansion pass." },
+    { "Area": "Malformed recovery and budgets", "Classification": "VERIFIED_CORRECT", "Evidence": "Unclosed tables render bounded balanced output with typed diagnostics; existing depth, row, cell, character, attribute, output, cancellation, and diagnostic limits remain active." },
+    { "Area": "Advanced MediaWiki table grammar", "Classification": "UNSUPPORTED_BEHAVIOR", "Evidence": "Complex continuation, complete contextual attribute semantics, browser layout behavior, and exact whitespace parity remain outside the documented subset." }
+  ],
+  "ConfirmedDefects": [
+    { "Issue": "Quoted attribute pipes were split by top-level cell tokenization.", "Correction": "Added quote-aware bounded scanning to SplitTopLevel and SplitTopLevelToken.", "RegressionTest": "PreservesQuotedAttributePipesAndNestedCellSeparators" },
+    { "Issue": "Caption attributes were recognized but discarded.", "Correction": "Reused the existing validated TableAttributeSet for safe caption class/id/aria-label output.", "RegressionTest": "RendersValidatedCaptionAttributesAndDiagnosesDuplicateCaptions" }
+  ],
+  "ChangedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-009-MEDIAWIKI-TABLE-COMPATIBILITY.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-table-compatibility-v1.json"
+  ],
+  "FocusedTests": {
+    "Command": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "Result": "62 passed, 0 failed"
+  },
+  "Verification": {
+    "FullDebugTests": "319 passed, 0 failed",
+    "IntentionalSkips": "23 skipped",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "GitDiffCheck": "PASSED"
+  },
+  "SecurityPreservation": {
+    "RawHtmlExecution": "NOT INTRODUCED",
+    "EventHandlers": "REJECTED",
+    "UnsafeLinks": "REJECTED",
+    "InlineCss": "REJECTED_OUTSIDE_TEMPLATESTYLES",
+    "AttributeEncoding": "EXISTING_HTML_ENCODING_PRESERVED",
+    "ExpansionBudgets": "UNCHANGED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "ProductionLua": "DISABLED",
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "CargoProvider": "REJECTING_DEFAULT",
+    "ProductionSystems": "NOT_ACCESSED"
+  },
+  "ResourceBounds": {
+    "MaxTableNestingDepth": 8,
+    "MaxTableRows": 1000,
+    "MaxTableCells": 5000,
+    "MaxTableCellCharacters": 100000,
+    "MaxTableAttributes": 16,
+    "SharedOutputAndDiagnosticBudgets": "UNCHANGED"
+  },
+  "KnownLimitations": [
+    "No exact MediaWiki 1.45 HTML parity claim.",
+    "Complex table continuation and full caption/row/cell attribute semantics remain outside the subset.",
+    "Historical parity, Cargo/Lua parity, host certification, and migration readiness remain independent gates."
+  ],
+  "RecommendedNextMilestone": "Compare the bounded table subset against independently captured reference HTML without changing production evidence or security boundaries."
+}

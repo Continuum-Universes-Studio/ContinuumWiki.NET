@@ -46,7 +46,8 @@ namespace TightWiki.Controllers
             ITwApplicationIdentityRepository usersRepository,
             SignInManager<IdentityUser> signInManager,
             TwConfiguration wikiConfiguration,
-            UserManager<IdentityUser> userManager
+            UserManager<IdentityUser> userManager,
+            ITwCategoryMembershipApplicationService? categoryMembershipApplicationService = null
         )
         : TwController<PageController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
@@ -1378,6 +1379,39 @@ namespace TightWiki.Controllers
             }
         }
 
+        private async Task RecordCategoryIndexingAfterPageMutationAsync(
+            ITwCategoryMembershipApplicationService? categoryMembershipApplicationService,
+            TwPage page)
+        {
+            if (categoryMembershipApplicationService is null)
+                return;
+
+            var actorUserId = SessionState.Profile?.UserId;
+            var result = await categoryMembershipApplicationService.IndexAfterCommittedMutationAsync(
+                new TwCategoryIndexingRequest(
+                    page.Id,
+                    page.Navigation,
+                    page.Revision,
+                    TwCategoryIndexMutationKind.PageMutation,
+                    actorUserId),
+                (context, cancellationToken) =>
+                    SessionState.HoldsPermission(context.PageNavigation, TwPermission.Edit),
+                HttpContext.RequestAborted);
+
+            if (result.Disposition is not TwCategoryIndexingDisposition.Applied
+                and not TwCategoryIndexingDisposition.NoChange)
+            {
+                Logger.LogWarning(
+                    "Category indexing was not completed after committed page mutation. PageId={PageId}, Revision={Revision}, Disposition={Disposition}, Consistency={ConsistencyState}, Recovery={RecoveryEligibility}, Diagnostic={DiagnosticCode}.",
+                    result.PageId,
+                    result.PageRevision,
+                    result.Disposition,
+                    result.ConsistencyState,
+                    result.RecoveryEligibility,
+                    result.DiagnosticCode);
+            }
+        }
+
         [Authorize]
         [HttpPost("{givenCanonical}/Create")]
         [HttpPost("{givenCanonical}/Edit")]
@@ -1447,6 +1481,7 @@ namespace TightWiki.Controllers
 
                     var snapshot = await metadataRebuilder.BuildSnapshotAsync(tightEngine, Localizer, page, SessionState);
                     page.Id = await applicationPageRepository.CreatePageAsync(page, snapshot.Tags, snapshot.References, snapshot.Instructions, snapshot.Tokens);
+                    await RecordCategoryIndexingAfterPageMutationAsync(categoryMembershipApplicationService, page);
 
                     await SessionState.SetPageId(page.Id);
                     await applicationPageRepository.DeleteCurrentPageEditorAsync(page.Id, SessionState.Profile.EnsureNotNull().UserId);
@@ -1504,6 +1539,7 @@ namespace TightWiki.Controllers
 
                     var snapshot = await metadataRebuilder.BuildSnapshotAsync(tightEngine, Localizer, page, SessionState);
                     await applicationPageRepository.UpdatePageAsync(page, model.Revision, snapshot.Tags, snapshot.References, snapshot.Instructions, snapshot.Tokens);
+                    await RecordCategoryIndexingAfterPageMutationAsync(categoryMembershipApplicationService, page);
 
                     await SessionState.SetPageId(page.Id);
                     await applicationPageRepository.DeleteCurrentPageEditorAsync(page.Id, SessionState.Profile.EnsureNotNull().UserId);

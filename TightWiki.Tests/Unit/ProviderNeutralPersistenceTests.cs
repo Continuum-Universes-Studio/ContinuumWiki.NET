@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TightWiki.Library.Database;
 using TightWiki.Library;
 using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Repository.Helpers;
@@ -62,6 +63,28 @@ public sealed class ProviderNeutralPersistenceTests
         Assert.IsType<MySqlDefaultsRepository>(provider.GetRequiredService<ITwApplicationDefaultsRepository>());
         Assert.IsType<MySqlTranslationRepository>(provider.GetRequiredService<ITwApplicationTranslationRepository>());
         Assert.IsType<MySqlApplicationMaintenanceRepository>(provider.GetRequiredService<ITwApplicationMaintenanceRepository>());
+        Assert.DoesNotContain(services, descriptor => descriptor.ServiceType == typeof(ITwCategoryMembershipRepository));
+    }
+
+    [Fact]
+    public void CategoryPersistenceActivationRequiresExplicitConfigurationAndExistingFactory()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Database:Provider"] = "mysql",
+                ["Database:CategoryPersistence:Enabled"] = "true",
+                ["Database:CategoryPersistence:SchemaVersion"] = "1"
+            })
+            .Build();
+        var services = new ServiceCollection();
+        services.AddSingleton<IDatabaseConnectionFactory>(_ => throw new InvalidOperationException("synthetic connection factory"));
+
+        services.AddAuthorizedMySqlCategoryPersistence(
+            configuration,
+            new MySqlCategoryPersistenceReadinessProof("cw_m5_014_test", 1));
+
+        Assert.Contains(services, descriptor => descriptor.ServiceType == typeof(ITwCategoryMembershipRepository));
     }
 
     private sealed record TestCompatibility(

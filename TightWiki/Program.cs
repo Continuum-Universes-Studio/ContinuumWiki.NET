@@ -126,6 +126,10 @@ namespace TightWiki
             builder.Services.AddSingleton<ITwApplicationPageRepository>(new SqliteApplicationPageRepository(databaseManager.PageRepository));
             builder.Services.AddSingleton<ITwApplicationPageSupportRepository>(new SqliteApplicationPageSupportRepository(databaseManager.PageRepository));
             builder.Services.AddSingleton<ITwMediaWikiImportRepository, SqliteMediaWikiImportRepository>();
+            builder.Services.AddSingleton<ITwCategoryIndexPageSource, ApplicationTwCategoryIndexPageSource>();
+            builder.Services.AddSingleton<ITwCategoryIndexExtractor, MediaWikiCategoryIndexExtractor>();
+            builder.Services.AddSingleton<ITwCategoryMembershipRepository, RejectingTwCategoryMembershipRepository>();
+            builder.Services.AddSingleton<ITwCategoryMembershipApplicationService, TwCategoryMembershipApplicationService>();
             builder.Services.AddSingleton<MediaWikiWikitextRenderer>();
             builder.Services.AddSingleton<PageMetadataRebuilder>();
             builder.Services.AddSingleton<ITwUsersRepository>(databaseManager.UsersRepository);

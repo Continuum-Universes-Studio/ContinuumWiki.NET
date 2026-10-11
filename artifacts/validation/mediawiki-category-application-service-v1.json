@@ -1,0 +1,148 @@
+{
+  "ReportVersion": "cw-m5-013a-category-application-service-v1",
+  "GeneratedAtUtc": "2026-10-11T21:21:26Z",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Classification": "CATEGORY_APPLICATION_SERVICE_SOURCE_ONLY_VERIFIED",
+  "Scope": "Source-only application orchestration; category persistence remains fail-closed and uncertified",
+  "DatabaseMutationsPerformed": 0,
+  "CategoryDatabaseConnectionsOpened": 0,
+  "DatabaseTestsExecuted": 0,
+  "ImplementedComponents": [
+    "TwCategoryIndexingRequest and typed mutation contexts",
+    "TwCategoryMembershipApplicationService",
+    "ApplicationTwCategoryIndexPageSource",
+    "MediaWikiCategoryIndexExtractor",
+    "RejectingTwCategoryMembershipRepository",
+    "Post-commit PageController create/edit invocation seam",
+    "Explicit DI registrations for SQLite and isolated MySQL startup"
+  ],
+  "LifecycleAudit": {
+    "Authorization": "PageController uses ASP.NET Authorize and SessionState.RequirePermission(Create/Edit) before page mutation; protected pages require Moderate",
+    "AuthoritativeRevision": "ITwApplicationPageRepository CreatePageAsync and UpdatePageAsync commit Page/PageRevision and enforce expected revision",
+    "PostCommitHook": "PageController invokes category indexing only after successful create/update return",
+    "Rendering": "GET and historical rendering remain read-only and do not invoke category indexing",
+    "DeleteRestoreMoveImport": "Move follows edit; delete/restore/import require future explicit invalidation or maintenance seams and are documented, not falsely wired",
+    "Cancellation": "Indexing service propagates the supplied cancellation token through authorization, source, extraction, and repository calls",
+    "AtomicityLimit": "No shared durable transaction or outbox exists; source-only code does not claim page/category atomicity"
+  },
+  "ApplicationService": {
+    "Request": "TwCategoryIndexingRequest",
+    "AuthorizationContext": "TwCategoryIndexAuthorizationContext",
+    "MandatoryAuthorizationCallback": true,
+    "HistoricalReadRejected": true,
+    "SourceTextAcceptedFromCaller": false,
+    "UsesExistingCategoryPlanner": true,
+    "UsesExistingRenderer": true,
+    "DoesNotWriteDuringRendering": true,
+    "Outcomes": [
+      "Applied",
+      "NoChange",
+      "IncompleteExtraction",
+      "RevisionConflict",
+      "UnauthorizedMutation",
+      "InvalidRequest",
+      "Cancelled",
+      "RepositoryUnavailable",
+      "PersistenceFailure"
+    ]
+  },
+  "Authorization": {
+    "ExistingPagePermissionReused": "TwPermission.Edit through SessionState",
+    "DirectIndexingWithoutAuthorization": "Rejected",
+    "ImportAndMaintenance": "Require explicit caller-supplied authorized context; no implicit allow-all registration",
+    "HistoricalRead": "Rejected",
+    "ProtectedContent": "Existing Moderate check remains before page mutation",
+    "SensitiveDiagnosticDetails": "Sanitized stable codes only"
+  },
+  "ExtractionPolicy": {
+    "CompletePlanRequired": true,
+    "IncompleteDiagnosticsPreserveExistingMembership": true,
+    "Examples": [
+      "MissingTemplate",
+      "Rejected Lua",
+      "Unsupported extension",
+      "Expansion/resource budget exhaustion",
+      "Source unavailable",
+      "UnsupportedSourceFormat"
+    ],
+    "NativeTightWikiSource": "Not silently treated as empty; imported-MediaWiki extractor returns UnsupportedSourceFormat"
+  },
+  "RevisionPolicy": {
+    "CurrentRevisionReRead": true,
+    "ExpectedRevisionValidated": true,
+    "NavigationValidated": true,
+    "StaleRevision": "RevisionConflict",
+    "RepositoryCompareAndSwap": "Required of future durable implementation; not claimed by fakes",
+    "OlderWorkCannotBeAcceptedByService": true
+  },
+  "RepositoryBehavior": {
+    "CurrentImplementation": "RejectingTwCategoryMembershipRepository",
+    "Registered": true,
+    "ReportsSuccess": false,
+    "UnavailableMapping": "RepositoryUnavailable",
+    "LiveSql": false,
+    "ProviderReadinessChanged": false
+  },
+  "DI": {
+    "SQLitePath": "Registered with explicit rejecting category repository",
+    "MySqlPath": "Registered with explicit rejecting category repository",
+    "ServiceLifetime": "Singleton, matching existing immutable renderer/import service registrations",
+    "MutableGlobalStateIntroduced": false,
+    "ProductionCategoryRepositoryActivated": false
+  },
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiCategoryApplicationServiceTests|FullyQualifiedName~MediaWikiCategoryPersistenceContractTests|FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedResult": "92 passed, 0 failed, 0 skipped",
+    "Coverage": [
+      "Authorized page mutation",
+      "Authorized import context",
+      "Unauthorized and missing authorization",
+      "Historical read rejection",
+      "Revision conflict before extraction",
+      "Complete extraction and call ordering",
+      "Incomplete extraction with no replacement",
+      "No-change idempotency",
+      "Repository unavailable",
+      "Repository failure",
+      "Cancellation propagation",
+      "Typed non-success outcomes"
+    ],
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "349 passed, 24 skipped, 0 failed",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "0 warnings, 0 errors",
+    "JsonValidation": "Passed",
+    "DiffCheck": "Passed",
+    "DatabaseGate": "Not invoked; no category authorization inputs used"
+  },
+  "ChangedFiles": [
+    "TightWiki.Plugin/Models/TwCategoryMembershipModels.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryMembershipApplicationService.cs",
+    "TightWiki/Program.cs",
+    "TightWiki/MySqlDevelopmentRuntime.cs",
+    "TightWiki/Controllers/PageController.cs",
+    "TightWiki.Tests/Unit/MediaWikiCategoryApplicationServiceTests.cs",
+    "docs/architecture/CW-M5-013A-CATEGORY-APPLICATION-SERVICE.md",
+    "artifacts/validation/mediawiki-category-application-service-v1.json",
+    "docs/architecture/CW-M5-012-CATEGORY-PERSISTENCE-READINESS.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "SecurityPreservation": {
+    "ProductionDatabase": "Not accessed or modified",
+    "SchemaMigrations": "None",
+    "Lua": "Production disabled; rejecting executor default unchanged",
+    "Cargo": "Rejecting/default behavior unchanged",
+    "WorkerSandbox": "Unchanged",
+    "StrictMigrationPlanner": "Unchanged",
+    "HistoricalSourceEvidence": "Unchanged",
+    "CredentialExposure": "None"
+  },
+  "RemainingCertificationGates": [
+    "Explicit disposable category database authorization",
+    "Reviewed category schema migration and provider implementation",
+    "Atomic repository compare-and-swap verification",
+    "Visibility-safe category member queries",
+    "Delete/restore/import maintenance indexing",
+    "Category MVC and historical category parity"
+  ]
+}

@@ -389,3 +389,166 @@ Evidence is recorded in
 `artifacts/validation/mediawiki-structural-wikitext-rendering-v1.json`.
 This does not establish complete MediaWiki HTML parity, historical parity,
 Lua/Cargo parity, host authorization certification, or migration readiness.
+
+### CW-M5-009 — MediaWiki table structure and attribute compatibility
+
+MEDIAWIKI_TABLE_COMPATIBILITY_PARTIALLY_VERIFIED. The existing bounded typed
+table parser was retained. A confirmed tokenizer defect was corrected so
+quoted attribute values containing structural pipe characters no longer
+corrupt cell boundaries. Safe caption `class`, `id`, and `aria-label`
+attributes are now validated and emitted, duplicate captions are diagnosed
+with deterministic last-caption-wins behavior, and unclosed tables retain
+bounded balanced output with typed diagnostics.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-009-MEDIAWIKI-TABLE-COMPATIBILITY.md` and
+`artifacts/validation/mediawiki-table-compatibility-v1.json`. Existing row,
+cell, nested-template, nested-link, span, output, cancellation, and security
+bounds remain in force. This does not establish complete MediaWiki HTML or
+historical parity, production migration readiness, Cargo/Lua parity, or host
+certification.
+
+### CW-M5-010 — internal links, categories, files, and heading anchors
+
+LINK_CATEGORY_MEDIA_COMPATIBILITY_PARTIALLY_VERIFIED. The bounded imported
+renderer now preserves local and page-qualified fragments, emits deterministic
+semantic heading IDs with duplicate disambiguation, distinguishes category
+membership directives from leading-colon category links, preserves category
+sort-key metadata per render, and distinguishes explicit file-page links from
+embedded media references. Unsafe media path material is rejected before
+repository resolution.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-010-LINK-CATEGORY-MEDIA-COMPATIBILITY.md` and
+`artifacts/validation/mediawiki-link-category-media-compatibility-v1.json`.
+The existing canonical navigation, imported-media resolver, HTML/URL
+sanitization, expansion budgets, production Lua/Cargo defaults, and migration
+readiness decisions remain unchanged. Category persistence, generated
+thumbnail parity, historical parity, and host certification remain separate
+gates.
+
+### CW-M5-011 — native category membership indexing and category pages
+
+CATEGORY_MEMBERSHIP_SOURCE_ONLY_VERIFIED. The imported renderer now enriches
+category directives with canonical `Category::` identity, sort keys, source
+revision provenance, and deterministic duplicate handling. A bounded,
+read-only `MediaWikiCategoryIndexPlanner` produces an immutable membership plan
+and preserves existing membership whenever template/dependency/runtime or
+resource-limit diagnostics make the expansion incomplete. Rendering and
+historical reads do not write category state.
+
+The repository audit found only the unrelated `PageTag` feature; no native
+category table, category repository, category-member query, visibility-aware
+category listing, or category MVC route exists. No schema or production
+database change was authorized or performed. Durable persistence, transactional
+save/import integration, authorization-aware pagination, category pages,
+historical category evidence, and MediaWiki parity remain blocked gates.
+Evidence is recorded in
+`docs/architecture/CW-M5-011-CATEGORY-MEMBERSHIP-INDEXING.md` and
+`artifacts/validation/mediawiki-category-membership-indexing-v1.json`.
+
+### CW-M5-012 — disposable category persistence authorization and integration preparation
+
+CATEGORY_PERSISTENCE_PREPARED_AUTHORIZATION_BLOCKED. The persistence audit
+confirmed SQLite remains the default, MySqlConnector 2.6.2 and
+MySql.EntityFrameworkCore 10.0.9 are the MySQL-capable dependencies, and the
+actual application runtime guard requires MariaDB 11.8.x. No category table,
+repository, visibility policy, or category MVC route exists, and the existing
+PageTag feature is not interchangeable with MediaWiki categories.
+
+The source-only boundary now includes typed category identity, membership,
+replacement, bounded member-query contracts, typed mutation outcomes,
+idempotency/revision-conflict/incomplete-index policy, and an explicit
+authorization gate test that never opens a database. A two-table design is
+proposed using the existing Page identity: PageCategoryIndexState and
+PageCategoryMembership. No schema migration, provider registration,
+provisioning command, database connection, or database mutation was executed.
+
+Database authorization is `AUTHORIZATION_NOT_ESTABLISHED`; production
+migration remains `NO_GO`. Evidence is recorded in
+`docs/architecture/CW-M5-012-CATEGORY-PERSISTENCE-READINESS.md` and
+`artifacts/validation/mediawiki-category-persistence-readiness-v1.json`.
+
+### CW-M5-013A — category membership application-service integration
+
+CATEGORY_APPLICATION_SERVICE_SOURCE_ONLY_VERIFIED. The page-save lifecycle
+was audited and the smallest post-commit integration seam was added. Existing
+`SessionState` page-mutation authorization remains the authority; the service
+requires an explicit authorization callback and independently re-reads the
+current committed page revision before extraction. Historical reads and direct
+indexing attempts without authorization are rejected.
+
+`MediaWikiCategoryIndexExtractor` reuses the bounded imported MediaWiki
+renderer and `MediaWikiCategoryIndexPlanner`. Incomplete expansion,
+unsupported source/runtime behavior, unavailable source, cancellation, and
+revision conflicts never submit a replacement. Complete changed sets use the
+existing typed replacement contract; unchanged sets return `NoChange`.
+
+The application service and source adapter are registered in both application
+DI paths with an explicit `RejectingTwCategoryMembershipRepository`. No live
+category SQL, schema migration, database connection, or provider activation
+was introduced. Page create/edit calls the service only after the existing
+page repository mutation returns successfully; indexing failure cannot be
+reported as page/index success. Delete, restore, and controlled import remain
+documented future maintenance seams.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-013A-CATEGORY-APPLICATION-SERVICE.md` and
+`artifacts/validation/mediawiki-category-application-service-v1.json`.
+This source-only result does not certify category persistence, transaction
+atomicity, visibility-safe member queries, category MVC, production
+migration, Lua/Cargo behavior, or host-worker certification.
+
+### CW-M5-013B — category indexing reconciliation and failure recovery
+
+CATEGORY_RECONCILIATION_SOURCE_ONLY_VERIFIED. The post-commit audit confirms
+that page publication remains successful when category indexing is unavailable,
+incomplete, canceled, conflicted, or failed; those outcomes are now logged as
+typed non-success results rather than being treated as current indexing.
+
+The existing application-service boundary now exposes an explicit authorized
+reconciliation operation. It re-resolves the current authoritative page
+revision, rejects historical or superseded requests, reruns the existing
+bounded renderer/planner, preserves incomplete memberships, and delegates only
+eligible replacements to the existing repository contract. `Applied` without
+durable read-back is `Unknown`, not `Current`; `Pending` is never fabricated.
+Retry eligibility is deterministic and always requires a new authorized
+request where applicable. No queue, timer, hosted worker, live SQL, schema,
+database connection, Lua/Cargo activation, or security-policy change was
+introduced.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-013B-CATEGORY-RECONCILIATION.md` and
+`artifacts/validation/mediawiki-category-reconciliation-v1.json`.
+Durable CAS, recovery history, outbox/retry scheduling, category persistence,
+delete/restore/import hooks, and category MVC remain separate authorized
+milestones.
+
+### CW-M5-014 — authorized category persistence and disposable verification
+
+CATEGORY_PERSISTENCE_SOURCE_IMPLEMENTED_AUTHORIZATION_BLOCKED. The durable
+MariaDB category repository and explicit category schema initializer are now
+implemented behind the existing provider-neutral Dapper transaction boundary.
+PageCategoryIndexState is independent from PageCategoryMembership, so verified
+empty indexes have durable revision evidence. Replacement locks the
+authoritative Page revision, rejects stale generations, replaces memberships
+and state atomically, preserves incomplete indexes, and rolls back failures.
+Consistency read-back is required before and after application-service
+classification; membership rows alone cannot claim Current.
+
+Visibility-safe category member queries apply the existing SQL Read permission
+rules before bounded pagination, including page-specific deny precedence, and
+do not expose source revision metadata or unrestricted counts. The rejecting
+repository remains registered by default. Explicit activation requires MySQL,
+an enabled category-persistence flag, approved schema version, and an existing
+connection-factory registration; application startup never invokes the
+category schema initializer or activation method.
+
+Source-only tests and builds pass. The gated disposable MariaDB tests were
+skipped because `DATABASE_AUTHORIZATION_NOT_ESTABLISHED`; no database
+connection, schema mutation, production change, Lua/Cargo activation, or host
+security change occurred. Evidence is recorded in
+`docs/architecture/CW-M5-014-CATEGORY-PERSISTENCE.md` and
+`artifacts/validation/mediawiki-category-persistence-v1.json`.
+Database certification, concurrent real CAS, production activation, and
+category MVC remain separate gates.
