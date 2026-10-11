@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo>
+    <sitename>Continuum 世界</sitename><base>https://example.invalid/wiki</base><generator>MediaWiki 1.42</generator><case>first-letter</case>
+    <namespaces><namespace key="0" case="first-letter" /><namespace key="6" case="first-letter">File</namespace><namespace key="10" case="first-letter">Template</namespace></namespaces>
+  </siteinfo>
+  <page>
+    <title>世界</title><ns>0</ns><id>42</id>
+    <revision>
+      <id>4201</id><parentid>4200</parentid><timestamp>2025-02-03T04:05:06Z</timestamp>
+      <contributor><username>Alice 世界</username><id>7</id></contributor>
+      <comment>Preserve exact source</comment><model>wikitext</model><format>text/x-wiki</format><sha1>abc123</sha1>
+      <text xml:space="preserve">== 世界 ==
+{{Infobox|name=世界|raw=&amp;value}}
+&lt;ref name="source"&gt;A &amp; B&lt;/ref&gt;
+[[Category:Lore]] [[File:Map.png|thumb|Caption]] {{#invoke:World|render}}
+&lt;custom-tag data-x="1"&gt;unknown&lt;/custom-tag&gt;</text>
+    </revision>
+    <revision>
+      <id>4202</id><timestamp>2025-02-04T04:05:06Z</timestamp><contributor><ip>192.0.2.10</ip></contributor>
+      <comment deleted="deleted" /><model>unknown-model</model><text deleted="deleted" />
+    </revision>
+    <extension-data source="fixture">preserve me</extension-data>
+  </page>
+  <page><title>世界旧名</title><ns>0</ns><id>43</id><redirect title="世界" />
+    <revision><id>4301</id><timestamp>2025-02-05T04:05:06Z</timestamp><contributor><username>Bob</username></contributor><text>#REDIRECT [[世界]]</text></revision>
+  </page>
+  <page><title>Anonymous page</title><ns>0</ns><id>44</id>
+    <revision><id>4401</id><contributor><ip>192.0.2.11</ip></contributor><hook-data>keep</hook-data><text>Body</text></revision>
+  </page>
+</mediawiki>

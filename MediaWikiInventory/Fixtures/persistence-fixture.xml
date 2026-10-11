@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo>
+    <sitename>Continuum Synthetic Wiki</sitename>
+    <base>https://synthetic.invalid/wiki</base>
+    <generator>MediaWiki 1.42</generator>
+    <case>first-letter</case>
+    <namespaces>
+      <namespace key="0" case="first-letter" />
+      <namespace key="6" case="first-letter">File</namespace>
+      <namespace key="10" case="first-letter">Template</namespace>
+      <namespace key="14" case="first-letter">Category</namespace>
+    </namespaces>
+  </siteinfo>
+  <page>
+    <title>世界</title><ns>0</ns><id>100</id>
+    <revision>
+      <id>1001</id><timestamp>2025-01-01T00:00:00Z</timestamp>
+      <contributor><username>Alice 世界</username><id>7</id></contributor>
+      <comment>initial source</comment><model>wikitext</model><format>text/x-wiki</format><sha1>source1001</sha1>
+      <text xml:space="preserve">First {{Infobox}} [[Category:Lore]] [[File:Map.png]] 世界</text>
+    </revision>
+    <revision>
+      <id>1002</id><parentid>1001</parentid><timestamp>2025-01-02T00:00:00Z</timestamp>
+      <contributor><ip>192.0.2.30</ip></contributor>
+      <comment>second source</comment><model>wikitext</model><format>text/x-wiki</format><minor />
+      <text xml:space="preserve">Second {{Infobox}} [[Category:Lore]] [[File:Map.png]] 世界</text>
+    </revision>
+  </page>
+  <page>
+    <title>Infobox</title><ns>10</ns><id>101</id>
+    <revision>
+      <id>1011</id><timestamp>2025-01-01T01:00:00Z</timestamp>
+      <contributor><username>Template author</username><id>8</id></contributor>
+      <comment>template</comment><model>wikitext</model><text xml:space="preserve">Template body</text>
+    </revision>
+  </page>
+  <page>
+    <title>Map.png</title><ns>6</ns><id>102</id>
+    <revision>
+      <id>1021</id><timestamp>2025-01-01T02:00:00Z</timestamp>
+      <contributor><ip>192.0.2.31</ip></contributor>
+      <comment>file placeholder</comment><model>wikitext</model><text xml:space="preserve">File placeholder</text>
+    </revision>
+  </page>
+  <page>
+    <title>世界旧名</title><ns>0</ns><id>103</id><redirect title="世界" />
+    <revision>
+      <id>1031</id><timestamp>2025-01-03T00:00:00Z</timestamp>
+      <contributor><username>Redirect author</username></contributor>
+      <comment>redirect</comment><model>wikitext</model><text xml:space="preserve">#REDIRECT [[世界]]</text>
+    </revision>
+  </page>
+</mediawiki>

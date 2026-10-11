@@ -66,6 +66,9 @@ namespace TightWiki.Plugin
         /// </summary>
         public string Name { get; set; } = string.Empty;
 
+        /// <summary>The MediaWiki-compatible content language used by imported expansion metadata.</summary>
+        public string ContentLanguage { get; set; } = "en";
+
         /// <summary>
         /// A short blurb displayed in the site footer.
         /// </summary>

@@ -37,6 +37,98 @@
   outline-offset: 3px;
   border-radius: var(--cw-radius-small);
 }
+.cw-mediawiki-table-wrap {
+  max-width: 100%;
+  margin-block: 0.75rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.cw-mediawiki-table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  color: var(--cw-primary-text);
+  background: var(--cw-surface-background);
+}
+.cw-mediawiki-table caption {
+  padding: 0.5rem;
+  color: var(--cw-primary-text);
+  font-weight: 600;
+  text-align: left;
+}
+.cw-mediawiki-table th,
+.cw-mediawiki-table td {
+  min-width: 2.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--cw-border);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.cw-mediawiki-table th {
+  background: var(--cw-elevated-surface);
+  font-weight: 600;
+}
+.cw-mediawiki-infobox {
+  width: min(100%, 24rem);
+  margin-inline-start: 0.75rem;
+  float: right;
+}
+@media (max-width: 48rem) {
+  .cw-mediawiki-infobox {
+    width: 100%;
+    margin-inline-start: 0;
+    float: none;
+  }
+}
+.cw-mediawiki-table-caption,
+.cw-mediawiki-caption {
+  color: var(--cw-secondary-text);
+}
+.cw-mediawiki-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.5rem;
+  margin-block: 0.75rem;
+}
+.cw-mediawiki-gallery-item,
+.cw-mediawiki-media-figure {
+  min-width: 0;
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--cw-border);
+  background: var(--cw-surface-background);
+  text-align: center;
+}
+.cw-mediawiki-gallery-item img,
+.cw-mediawiki-media,
+.cw-mediawiki-media-figure img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  object-fit: contain;
+}
+.cw-mediawiki-media-align-left {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+.cw-mediawiki-media-align-right {
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+}
+.cw-mediawiki-media-align-center {
+  margin-inline: auto;
+}
+.cw-mediawiki-media-border {
+  border: 1px solid var(--cw-border);
+}
+.cw-mediawiki-unresolved-media {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border: 1px dashed var(--cw-border);
+  color: var(--cw-secondary-text);
+}
 body {
   background-color: var(--cw-page-background);
   color: var(--cw-primary-text);

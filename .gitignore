@@ -134,6 +134,14 @@ TightWiki.Test.Library/obj/
 TightWiki.Tests/bin/
 
 TightWiki.Tests/obj/
+ScribuntoWorker/bin/
+ScribuntoWorker/obj/
+ScribuntoCompatibility/bin/
+ScribuntoCompatibility/obj/
+ScribuntoSandboxCertification/bin/
+ScribuntoSandboxCertification/obj/
+ScribuntoSandboxProbe/bin/
+ScribuntoSandboxProbe/obj/
 
 TightWiki.Plugin/bin/
 

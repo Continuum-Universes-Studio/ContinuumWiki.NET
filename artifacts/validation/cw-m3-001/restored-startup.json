@@ -1,0 +1,9 @@
+{
+  "restoredApplicationStartup": true,
+  "readinessHttp": 200,
+  "health": {
+    "status": "ready",
+    "provider": "mariadb",
+    "target": "11.8"
+  }
+}

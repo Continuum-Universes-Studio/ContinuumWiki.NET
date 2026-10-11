@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo><sitename>MoonSharp Compatibility Wiki</sitename><base>https://moonsharp.synthetic.invalid/wiki</base><generator>MediaWiki 1.42</generator><case>first-letter</case>
+    <namespaces><namespace key="0" case="first-letter" /><namespace key="828" case="first-letter">Module</namespace></namespaces>
+  </siteinfo>
+  <page><title>Compatibility Article</title><ns>0</ns><id>100</id>
+    <revision><id>1001</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>wikitext</model>
+      <text>{{#invoke:Compatibility|main|  positional  |empty=|unicode=é✓中}}</text></revision>
+  </page>
+  <page><title>Compatibility</title><ns>828</ns><id>101</id>
+    <revision><id>1011</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { main = function(frame) return mw.text.trim(frame.args[1]) .. '|' .. tostring(frame.args.empty == '') .. '|' .. mw.ustring.len(frame.args.unicode) end }</text></revision>
+  </page>
+  <page><title>StaticDependency</title><ns>828</ns><id>102</id>
+    <revision><id>1021</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return require('Module:Compatibility')</text></revision>
+  </page>
+  <page><title>InvalidDependency</title><ns>828</ns><id>103</id>
+    <revision><id>1031</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return mw.loadData(dynamicName)</text></revision>
+  </page>
+  <page><title>NestedCalls</title><ns>828</ns><id>104</id>
+    <revision><id>1041</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>local function decorate(value) return '[' .. value .. ']' end return { main = function(frame) return decorate(mw.text.trim(frame.args[1])) end }</text></revision>
+  </page>
+  <page><title>TextUtilities</title><ns>828</ns><id>110</id>
+    <revision><id>1101</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { main = function(frame) return mw.text.encode(frame.args[1]) .. '|' .. mw.text.listToText({'a','b'}) end }</text></revision>
+  </page>
+  <page><title>MissingExport</title><ns>828</ns><id>105</id>
+    <revision><id>1051</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { other = function() return 'not-main' end }</text></revision>
+  </page>
+  <page><title>MalformedModule</title><ns>828</ns><id>106</id>
+    <revision><id>1061</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return {</text></revision>
+  </page>
+  <page><title>UnsupportedCapability</title><ns>828</ns><id>107</id>
+    <revision><id>1071</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { main = function(frame) return frame:getTitle() end }</text></revision>
+  </page>
+  <page><title>ResourceExhaustion</title><ns>828</ns><id>108</id>
+    <revision><id>1081</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { main = function(frame) while true do end end }</text></revision>
+  </page>
+  <page><title>MissingStaticDependency</title><ns>828</ns><id>109</id>
+    <revision><id>1091</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return require('Module:NotImported')</text></revision>
+  </page>
+  <page><title>ModuleA</title><ns>828</ns><id>120</id>
+    <revision><id>1201</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>local b = require('Module:ModuleB') local shared = require('Module:Shared') return { main = function() return b.value .. shared.value end }</text></revision>
+  </page>
+  <page><title>ModuleB</title><ns>828</ns><id>121</id>
+    <revision><id>1211</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>local shared = require('Module:Shared') return { value = 'B' .. shared.value }</text></revision>
+  </page>
+  <page><title>Shared</title><ns>828</ns><id>122</id>
+    <revision><id>1221</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { value = 'S' }</text></revision>
+  </page>
+  <page><title>Data</title><ns>828</ns><id>123</id>
+    <revision><id>1231</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { value = 'immutable' }</text></revision>
+  </page>
+  <page><title>Json</title><ns>828</ns><id>124</id>
+    <revision><id>1241</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Json</model>
+      <text>{"value":"json","count":2}</text></revision>
+  </page>
+  <page><title>CycleA</title><ns>828</ns><id>125</id>
+    <revision><id>1251</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return require('Module:CycleB')</text></revision>
+  </page>
+  <page><title>CycleB</title><ns>828</ns><id>126</id>
+    <revision><id>1261</id><timestamp>2025-02-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return require('Module:CycleA')</text></revision>
+  </page>
+  <page><title>Historical</title><ns>828</ns><id>127</id>
+    <revision><id>1271</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { main = function() return 'old' end }</text></revision>
+    <revision><id>1272</id><timestamp>2025-03-01T00:00:00Z</timestamp><contributor><username>Fixture Author</username><id>1</id></contributor><model>Scribunto</model>
+      <text>return { main = function() return 'new' end }</text></revision>
+  </page>
+</mediawiki>

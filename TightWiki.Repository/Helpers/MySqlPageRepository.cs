@@ -44,31 +44,57 @@ public sealed class MySqlPageRepository : ITwApplicationPageRepository
         if (tokens.Length == 0) return [];
         var size = pageSize.GetValueOrDefault(25);
         if (size < 1) throw new ArgumentOutOfRangeException(nameof(pageSize));
-        var clauses = tokens.Select((_, index) => allowFuzzyMatching == true ? $"(T.Token = @Token{index} OR T.Token LIKE CONCAT(@Token{index}, '%'))" : $"T.Token = @Token{index}").ToArray();
+        var clauses = tokens.Select((_, index) => $"(T.Token = @SearchToken{index} OR T.Token LIKE CONCAT(@SearchToken{index}, '%'))").ToArray();
         var parameters = new DynamicParameters();
-        for (var index = 0; index < tokens.Length; index++) parameters.Add($"Token{index}", tokens[index]);
-        parameters.Add("TokenCount", tokens.Length);
-        parameters.Add("PageSize", size);
-        parameters.Add("Offset", checked((pageNumber - 1) * size));
+        if (allowFuzzyMatching == true)
+        {
+            for (var index = 0; index < tokens.Length; index++) parameters.Add($"SearchToken{index}", tokens[index]);
+        }
+        else
+        {
+            parameters.Add("SearchTokens", tokens);
+        }
+        parameters.Add("RequiredTokenCount", tokens.Length);
+        parameters.Add("SearchPageSize", size);
+        parameters.Add("SearchOffset", checked((pageNumber - 1) * size));
         await using var session = await _connectionFactory.OpenSessionAsync(cancellationToken);
+        var tokenPredicate = allowFuzzyMatching == true ? string.Join(" OR ", clauses) : "T.Token IN @SearchTokens";
         var sql = $"""
             SELECT P.Id, P.Name, P.`Namespace`, P.Navigation, P.Description, P.Revision,
                    P.CreatedByUserId, P.CreatedDate, P.ModifiedByUserId, P.ModifiedDate,
-                   COUNT(DISTINCT T.Token) / @TokenCount * 100.0 AS Score,
-                   COUNT(DISTINCT T.Token) / @TokenCount AS `Match`,
-                   SUM(T.Weight) AS Weight,
-                   @PageSize AS PaginationPageSize,
-                   CEILING(COUNT(*) OVER () / @PageSize) AS PaginationPageCount
+                   COUNT(DISTINCT T.Token) / @RequiredTokenCount * 100.0 AS Score,
+                   COUNT(DISTINCT T.Token) / @RequiredTokenCount AS `Match`,
+                   SUM(T.Weight) AS Weight
             FROM Page P JOIN PageToken T ON T.PageId = P.Id
-            WHERE P.IsDeleted = FALSE AND ({string.Join(" OR ", clauses)})
+            WHERE P.IsDeleted = FALSE AND ({tokenPredicate})
             GROUP BY P.Id, P.Name, P.`Namespace`, P.Navigation, P.Description, P.Revision,
                      P.CreatedByUserId, P.CreatedDate, P.ModifiedByUserId, P.ModifiedDate
-            HAVING COUNT(DISTINCT T.Token) >= @TokenCount
+            HAVING COUNT(DISTINCT T.Token) >= @RequiredTokenCount
             ORDER BY Score DESC, P.Name, P.Id
-            LIMIT @PageSize OFFSET @Offset;
+            LIMIT @SearchPageSize OFFSET @SearchOffset;
             """;
         var rows = await session.Connection.QueryAsync<TwPage>(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken));
-        return rows.AsList();
+        var results = rows.AsList();
+        if (results.Count == 0) return results;
+
+        // MariaDB does not reliably preserve the original windowed projection
+        // here when this query follows other grouped page operations. Keep the
+        // result projection provider-neutral and calculate pagination from a
+        // separate grouped count instead.
+        var countSql = $"""
+            SELECT COUNT(*)
+            FROM (
+                SELECT P.Id
+                FROM Page P JOIN PageToken T ON T.PageId = P.Id
+                WHERE P.IsDeleted = FALSE AND ({tokenPredicate})
+                GROUP BY P.Id
+                HAVING COUNT(DISTINCT T.Token) >= @RequiredTokenCount
+            ) Matches;
+            """;
+        var total = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition(countSql, parameters, cancellationToken: cancellationToken));
+        var pageCount = (int)Math.Ceiling(total / (double)size);
+        foreach (var result in results) result.PaginationPageCount = pageCount;
+        return results;
     }
 
     public async Task<List<TwPage>> GetPageInfoByTagAsync(string tag, CancellationToken cancellationToken = default)

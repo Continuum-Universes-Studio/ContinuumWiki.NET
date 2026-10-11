@@ -1,0 +1,595 @@
+{
+  "reportVersion": "cw-m3-005b.4-report-v1",
+  "corpusVersion": "cw-m3-005b.4-v1",
+  "summary": {
+    "totalCases": 20,
+    "executedCases": 18,
+    "supportedCases": 7,
+    "passedCases": 20,
+    "failedCases": 0,
+    "skippedCases": 0,
+    "unsupportedCases": 1,
+    "partialCases": 5,
+    "invalidInputCases": 2,
+    "securityRejectedCases": 5,
+    "requiresVerificationCases": 2,
+    "validationOnlyCases": 2
+  },
+  "cases": [
+    {
+      "caseId": "basic-function",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "ok",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Basic",
+          "sourcePageId": "basic-page@basic-revision",
+          "sourceRevisionId": "basic-revision",
+          "sourceSha256": "0D7622D1BEACA3EB6514F2C26A6A8CC986989518BF75E91267AF10229CBEEA59",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "cyclic-dependencies",
+      "expectedClassification": "SECURITY_REJECTED",
+      "observedClassification": "SECURITY_REJECTED",
+      "executed": false,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "ProtocolError",
+      "actualText": null,
+      "diagnosticCodes": [
+        "CyclicModuleDependency"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "CyclicModuleDependency"
+      ],
+      "failureReason": "The dependency bundle contained a circular module import.",
+      "notes": null
+    },
+    {
+      "caseId": "dynamic-reference",
+      "expectedClassification": "SECURITY_REJECTED",
+      "observedClassification": "SECURITY_REJECTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "UndeclaredModuleDependency"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "UndeclaredModuleDependency"
+      ],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "frame-arguments",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "first|nil|true",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Args",
+          "sourcePageId": "args-page@args-revision",
+          "sourceRevisionId": "args-revision",
+          "sourceSha256": "A8BCC31C85ACBD914EB188C9862A1615B58A9AE220FBA804A34867C7B30F563B",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "frame-title-parent",
+      "expectedClassification": "PARTIALLY_SUPPORTED",
+      "observedClassification": "PARTIALLY_SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "Article|Template:Shell",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Frame",
+          "sourcePageId": "frame-page@frame-revision",
+          "sourceRevisionId": "frame-revision",
+          "sourceSha256": "148AA45D843A45327AC444D25B388E1EDF212C61E6EAA4AECF01F60EF690F454",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "historical-new",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "new",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Historical",
+          "sourcePageId": "historical-page@new-revision",
+          "sourceRevisionId": "new-revision",
+          "sourceSha256": "BF8BC4757E49EBBC07DB7D44950FE3AFF909B66181742C0B711A96BED2C3110A",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "historical-old",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "old",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Historical",
+          "sourcePageId": "historical-page@old-revision",
+          "sourceRevisionId": "old-revision",
+          "sourceSha256": "F9C4A9F5D9DAA23468B1D816AE6356947F302FBA0933FC1CD580DEFEE14296BA",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "load-data-immutable",
+      "expectedClassification": "PARTIALLY_SUPPORTED",
+      "observedClassification": "PARTIALLY_SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "ImmutableDataViolation"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "ImmutableDataViolation"
+      ],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "load-json-data",
+      "expectedClassification": "PARTIALLY_SUPPORTED",
+      "observedClassification": "PARTIALLY_SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "J|2",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:JsonRoot",
+          "sourcePageId": "json-root@json-root-revision",
+          "sourceRevisionId": "json-root-revision",
+          "sourceSha256": "8C007F0EA48D085DA9DAE5834B9BCA72DA06A4641B93EF293D6B60A4957532D7",
+          "status": "Executed"
+        },
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Json",
+          "sourcePageId": "json-page",
+          "sourceRevisionId": "json-revision",
+          "sourceSha256": "4e3ccde50f2d51d79a2190dc17760f272770da75d7220bf6e0eb1b0f2ea6fb08",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "lua-version-difference",
+      "expectedClassification": "PARTIALLY_SUPPORTED",
+      "observedClassification": "PARTIALLY_SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "LuaSyntaxError"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "LuaSyntaxError"
+      ],
+      "failureReason": null,
+      "notes": "This probes a Lua-version-sensitive operator/library surface; exact Scribunto parity requires differential reference testing."
+    },
+    {
+      "caseId": "malformed-json",
+      "expectedClassification": "INVALID_INPUT",
+      "observedClassification": "INVALID_INPUT",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "MalformedJsonData"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "MalformedJsonData"
+      ],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "missing-export",
+      "expectedClassification": "INVALID_INPUT",
+      "observedClassification": "INVALID_INPUT",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "ExportNotFound"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "ExportNotFound"
+      ],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "mw-text-subset",
+      "expectedClassification": "PARTIALLY_SUPPORTED",
+      "observedClassification": "PARTIALLY_SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "x|\u0026lt;",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Text",
+          "sourcePageId": "text-page@text-revision",
+          "sourceRevisionId": "text-revision",
+          "sourceSha256": "3BC056258E30AFBB15B51496525B1E693D1420EBA311CBAB4E91E3E301A998C5",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": "The exercised literal subset is supported; complete MediaWiki/PHP edge semantics require differential verification."
+    },
+    {
+      "caseId": "nested-require",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "B",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Root",
+          "sourcePageId": "root-page@root-revision",
+          "sourceRevisionId": "root-revision",
+          "sourceSha256": "6ED573B6FD4BD866BB88FA50F22E182741F6EFDDB928EB1E55AFC0D6E460F9BE",
+          "status": "Executed"
+        },
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:B",
+          "sourcePageId": "b-page",
+          "sourceRevisionId": "b-revision",
+          "sourceSha256": "c7c1b9586b5009041f4049c985319f2a346c8e40c73be7f0415dc950e8e56407",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "security-capability-escalation",
+      "expectedClassification": "SECURITY_REJECTED",
+      "observedClassification": "SECURITY_REJECTED",
+      "executed": false,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "ProtocolError",
+      "actualText": null,
+      "diagnosticCodes": [
+        "UnsupportedCapability"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "UnsupportedCapability"
+      ],
+      "failureReason": "The request contained an unsupported capability.",
+      "notes": null
+    },
+    {
+      "caseId": "security-filesystem",
+      "expectedClassification": "SECURITY_REJECTED",
+      "observedClassification": "SECURITY_REJECTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "LuaRuntimeError"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "LuaRuntimeError"
+      ],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "shared-require",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "BB",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:SharedRoot",
+          "sourcePageId": "shared-root@shared-revision",
+          "sourceRevisionId": "shared-revision",
+          "sourceSha256": "1A73B13C29CFD194ACFF592A3327C6945DCBD12E922645C5DE797BA9D3DCE82F",
+          "status": "Executed"
+        },
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:B",
+          "sourcePageId": "b-page",
+          "sourceRevisionId": "b-revision",
+          "sourceSha256": "c7c1b9586b5009041f4049c985319f2a346c8e40c73be7f0415dc950e8e56407",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "unicode-strings",
+      "expectedClassification": "SUPPORTED",
+      "observedClassification": "SUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Succeeded",
+      "actualText": "3|\u00C9",
+      "diagnosticCodes": [
+        "ScribuntoWorkerCompleted"
+      ],
+      "dependencies": [
+        {
+          "sourceWikiIdentity": "synthetic-corpus",
+          "canonicalModuleTitle": "Module:Unicode",
+          "sourcePageId": "unicode-page@unicode-revision",
+          "sourceRevisionId": "unicode-revision",
+          "sourceSha256": "E037A0454CECF7377BEA92D633628B3AE4E447C2163442ACA762A4D0640AC60A",
+          "status": "Executed"
+        }
+      ],
+      "expectedDiagnosticCodes": [],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "unsupported-frame-callback",
+      "expectedClassification": "UNSUPPORTED",
+      "observedClassification": "UNSUPPORTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "LuaRuntimeError"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "LuaRuntimeError"
+      ],
+      "failureReason": null,
+      "notes": null
+    },
+    {
+      "caseId": "work-budget",
+      "expectedClassification": "SECURITY_REJECTED",
+      "observedClassification": "SECURITY_REJECTED",
+      "executed": true,
+      "passed": true,
+      "skipped": false,
+      "actualStatus": "Failed",
+      "actualText": null,
+      "diagnosticCodes": [
+        "InstructionLimitExceeded"
+      ],
+      "dependencies": [],
+      "expectedDiagnosticCodes": [
+        "InstructionLimitExceeded"
+      ],
+      "failureReason": null,
+      "notes": null
+    }
+  ],
+  "apiGapInventory": [
+    {
+      "gapId": "module.require",
+      "surface": "module loading",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "Bundle-only explicit-edge require with invocation-local caching.",
+      "differenceOrSecurityBoundary": "No dynamic lookup, package path, or complete Scribunto module semantics.",
+      "recommendedPriority": "high",
+      "fixtureCount": 6
+    },
+    {
+      "gapId": "dynamic-loader-security",
+      "surface": "security boundary",
+      "classification": "SECURITY_REJECTED",
+      "currentBehavior": "Undeclared/dynamic module references are rejected.",
+      "differenceOrSecurityBoundary": "Filesystem, network, CLR, environment, process, database, and unrestricted package access remain denied.",
+      "recommendedPriority": "critical",
+      "fixtureCount": 5
+    },
+    {
+      "gapId": "frame.args",
+      "surface": "frame",
+      "classification": "SUPPORTED",
+      "currentBehavior": "Bounded scalar positional/named arguments with nil-versus-empty behavior.",
+      "differenceOrSecurityBoundary": "No live parent argument expansion or host callback access.",
+      "recommendedPriority": "low",
+      "fixtureCount": 2
+    },
+    {
+      "gapId": "mw.loadJsonData",
+      "surface": "module loading",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "Bounded immutable JSON scalar/table conversion.",
+      "differenceOrSecurityBoundary": "MediaWiki JSON conversion edge cases remain unverified.",
+      "recommendedPriority": "medium",
+      "fixtureCount": 2
+    },
+    {
+      "gapId": "frame.host-callbacks",
+      "surface": "frame callbacks",
+      "classification": "UNSUPPORTED",
+      "currentBehavior": "preprocess, expandTemplate, and callParserFunction are rejected.",
+      "differenceOrSecurityBoundary": "No typed callback protocol exists and no host services are exposed.",
+      "recommendedPriority": "high",
+      "fixtureCount": 1
+    },
+    {
+      "gapId": "frame.title-parent",
+      "surface": "frame",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "Trusted getTitle/getParent title metadata is available.",
+      "differenceOrSecurityBoundary": "Parent arguments and ambiguous frame relationships are not synthesized.",
+      "recommendedPriority": "medium",
+      "fixtureCount": 1
+    },
+    {
+      "gapId": "lua-version-semantics",
+      "surface": "Lua language",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "MoonSharp 2.0.0 provides its documented Lua-compatible subset.",
+      "differenceOrSecurityBoundary": "MoonSharp is not Scribunto\u0027s Lua 5.1 runtime; differences require differential testing.",
+      "recommendedPriority": "high",
+      "fixtureCount": 1
+    },
+    {
+      "gapId": "mw.loadData",
+      "surface": "module loading",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "Bounded immutable Lua-table subset.",
+      "differenceOrSecurityBoundary": "Complete Scribunto immutable-table and error semantics require differential verification.",
+      "recommendedPriority": "high",
+      "fixtureCount": 1
+    },
+    {
+      "gapId": "mw.text",
+      "surface": "mw.text",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "Bounded trim, literal split, nowiki, encode, decode, and listToText subset.",
+      "differenceOrSecurityBoundary": "Pattern/context-sensitive and PHP edge semantics remain unverified.",
+      "recommendedPriority": "high",
+      "fixtureCount": 1
+    },
+    {
+      "gapId": "mw.ustring",
+      "surface": "mw.ustring",
+      "classification": "PARTIALLY_SUPPORTED",
+      "currentBehavior": "Unicode scalar len, case, sub, and literal find subset.",
+      "differenceOrSecurityBoundary": "Full Scribunto pattern and grapheme semantics are not implemented.",
+      "recommendedPriority": "high",
+      "fixtureCount": 1
+    },
+    {
+      "gapId": "os-sandbox",
+      "surface": "deployment security",
+      "classification": "SECURITY_REJECTED",
+      "currentBehavior": "Application executor requires explicit opt-in and bubblewrap.",
+      "differenceOrSecurityBoundary": "Current host cannot certify the private-network namespace; production Lua remains disabled.",
+      "recommendedPriority": "critical",
+      "fixtureCount": 0
+    }
+  ]
+}

@@ -13,8 +13,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Scripts\MySql\**\*.sql" />
-		<EmbeddedResource Include="..\Data\config.db" Link="SeedSources\config.db" />
-		<EmbeddedResource Include="..\TightWiki\Translations\Translations.db" Link="SeedSources\Translations.db" />
+		<EmbeddedResource Include="SeedData\*.json.gz" />
 		<PackageReference Include="MySqlConnector" Version="2.6.2" />
 		<None Remove="Defaults\defaults.db" />
 		<None Remove="Scripts\AnonymizeProfile.sql" />

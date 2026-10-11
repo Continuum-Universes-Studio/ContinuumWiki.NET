@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo>
+    <sitename>Continuum Synthetic Template Wiki</sitename>
+    <base>https://template.synthetic.invalid/wiki</base>
+    <generator>MediaWiki 1.42</generator>
+    <case>first-letter</case>
+    <namespaces>
+      <namespace key="0" case="first-letter" />
+      <namespace key="10" case="first-letter">Template</namespace>
+      <namespace key="14" case="first-letter">Category</namespace>
+    </namespaces>
+  </siteinfo>
+  <page>
+    <title>TemplateArticle</title><ns>0</ns><id>700</id>
+    <revision>
+      <id>7001</id><timestamp>2025-01-01T00:30:00Z</timestamp>
+      <contributor><username>Article author</username><id>70</id></contributor>
+      <comment>historical template rendering</comment><model>wikitext</model><format>text/x-wiki</format>
+      <text xml:space="preserve">== Template demo ==
+{{Infobox|name=Koozarii|origin=Aerenda}}
+{{OnlyincludeDemo|historical}}
+{{#if:yes|Visible|{{CycleA}}}} {{#ifeq:1|1|Equal|Wrong}}
+{{#switch: beta|alpha=Wrong|beta={{Inner|value=Nested}}|#default=Default}}
+{{#expr:2+3*4}} {{#ifexpr:2&gt;1|Arithmetic yes|No}}
+[[Category:Templates]] &lt;ref name="fixture"&gt;Template reference&lt;/ref&gt; &lt;references /&gt;</text>
+    </revision>
+    <revision>
+      <id>7002</id><parentid>7001</parentid><timestamp>2025-01-03T00:30:00Z</timestamp>
+      <contributor><username>Article author</username><id>70</id></contributor>
+      <comment>current template rendering</comment><model>wikitext</model><format>text/x-wiki</format>
+      <text xml:space="preserve">{{Infobox|name=Current|origin=Aerenda}} {{OnlyincludeDemo|current}} {{#ifexpr:4&gt;2|Current arithmetic|No}}</text>
+    </revision>
+  </page>
+  <page>
+    <title>Infobox</title><ns>10</ns><id>701</id>
+    <revision>
+      <id>7011</id><timestamp>2025-01-01T00:00:00Z</timestamp>
+      <contributor><username>Template author</username><id>71</id></contributor>
+      <comment>initial infobox</comment><model>wikitext</model><format>text/x-wiki</format>
+      <text xml:space="preserve">&lt;noinclude&gt;Documentation&lt;/noinclude&gt;Name={{{name|Unknown}}}; Origin={{{origin|Unknown}}}; {{Inner|value={{{name|Unknown}}}}}</text>
+    </revision>
+    <revision>
+      <id>7012</id><parentid>7011</parentid><timestamp>2025-01-02T00:00:00Z</timestamp>
+      <contributor><username>Template author</username><id>71</id></contributor>
+      <comment>updated infobox label</comment><model>wikitext</model><format>text/x-wiki</format>
+      <text xml:space="preserve">&lt;noinclude&gt;Documentation&lt;/noinclude&gt;Updated name={{{name|Unknown}}}; Origin={{{origin|Unknown}}}; {{Inner|value={{{name|Unknown}}}}}</text>
+    </revision>
+  </page>
+  <page>
+    <title>Inner</title><ns>10</ns><id>702</id>
+    <revision>
+      <id>7021</id><timestamp>2025-01-01T00:00:00Z</timestamp>
+      <contributor><username>Template author</username><id>71</id></contributor>
+      <comment>nested template</comment><model>wikitext</model><format>text/x-wiki</format>
+      <text xml:space="preserve">Inner {{{value|none}}}</text>
+    </revision>
+  </page>
+  <page>
+    <title>OnlyincludeDemo</title><ns>10</ns><id>703</id>
+    <revision>
+      <id>7031</id><timestamp>2025-01-01T00:00:00Z</timestamp>
+      <contributor><username>Template author</username><id>71</id></contributor>
+      <comment>inclusion rules</comment><model>wikitext</model><format>text/x-wiki</format>
+      <text xml:space="preserve">before&lt;onlyinclude&gt;Only {{{1|default}}}&lt;/onlyinclude&gt;after</text>
+    </revision>
+  </page>
+  <page>
+    <title>CycleA</title><ns>10</ns><id>704</id>
+    <revision><id>7041</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Template author</username><id>71</id></contributor><model>wikitext</model><text xml:space="preserve">CycleA {{CycleB}}</text></revision>
+  </page>
+  <page>
+    <title>CycleB</title><ns>10</ns><id>705</id>
+    <revision><id>7051</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Template author</username><id>71</id></contributor><model>wikitext</model><text xml:space="preserve">CycleB {{CycleA}}</text></revision>
+  </page>
+</mediawiki>

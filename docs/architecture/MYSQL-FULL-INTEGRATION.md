@@ -1,5 +1,85 @@
 # MySQL full-integration assessment
 
+## CW-M3-001 current MariaDB result
+
+The current primary target is MariaDB 11.8, not Oracle MySQL. A fresh
+disposable MariaDB 11.8 installation initialized without SQLite source files;
+all 161 configured tests passed with zero skips, the authenticated HTTP
+workflow and REC-01 through REC-17 passed, backup/restore counts reconciled,
+and Debug build plus Release publish succeeded. Production remains behind the
+explicit `Database:MySql:ProductionReady` gate and was not deployed or
+modified. The production source remains MediaWiki; CW-M2-006C is historical
+development evidence and **NOT APPLICABLE — LEGACY SQLITE CUTOVER**.
+
+## CW-M2-006B current MariaDB verification
+
+The current provider-validation target is MariaDB, not Oracle MySQL. On
+2026-10-09, a disposable `docker.io/library/mariadb:11.8` host reported
+`11.8.9-MariaDB-ubu2404` with the `mariadb.org binary distribution` server
+comment. The migration utility normalizes the MySQL-only
+`utf8mb4_0900_ai_ci` schema collation to MariaDB's
+`utf8mb4_unicode_ci` at the schema execution boundary; source SQLite files
+remain untouched.
+
+CW-M2-006B completed the standalone SQLite-to-MariaDB preflight, dry-run, and
+execute flow against an isolated synthetic source copy. It preserved Identity
+IDs, page/revision/support data, translations, themes, menus, and attachment
+bytes, recorded source hashes, rejected the repository's known orphaned source
+rows instead of silently dropping them, and wrote a completion marker only
+after destination verification. The migrated application then started against
+MariaDB and served restored page, historical revision, attachment, search,
+profile, and administrator routes. A separate MariaDB logical dump/restore
+rehearsal passed all REC-01 through REC-17 HTTP checks, including both
+attachment SHA-256 comparisons. See
+[`SQLITE-TO-MARIADB-MIGRATION.md`](../operations/SQLITE-TO-MARIADB-MIGRATION.md)
+for the command evidence and machine-readable report paths.
+
+The following CW-M2-006A sections are retained as historical Oracle MySQL 8.4
+baseline records; they are not current MariaDB evidence.
+
+## Historical: CW-M2-006A.1 Oracle MySQL recovery drill
+
+On 2026-10-09, a disposable Oracle MySQL 8.4 Podman container was used for a
+source/restore rehearsal. `continuumwiki_source` was dumped with transaction
+snapshot, routines, events, triggers, hex-blob, and utf8mb4 options and
+restored into the separate `continuumwiki_restore` database. The 2,336,619-byte
+dump checksum was `30ec81a61b9a1424264f04717809b3947240aeb0d8cd7f883e63f3e0490ba234`.
+
+Thirteen selected page/page-support/maintenance integration tests passed while
+generating the source fixture. Source and restore counts matched for pages,
+revisions, attachments, references, tags, Identity users, configuration, menus,
+and translations. Stable page/revision hashes and both attachment binary hashes
+matched. A modified artifact failed checksum comparison. No production database
+was accessed. This is not binary-log point-in-time recovery, and restored HTTP
+application smoke testing was not claimed by this drill.
+
+CW-M2-006A.2 closed the application-level gap with a fresh disposable source
+initialized through the normal development-only runtime, a logical dump, and a
+restore into `continuumwiki_restore`. The restored application started on
+`127.0.0.1:5086` with the MySQL development gate enabled. Login, protected
+database administration, home, search, logout, and anonymous authorization
+checks returned 302/200 as expected. Durable source/restore counts matched
+after startup; no SQLite fallback was configured or observed. Full page-history,
+attachment-download, comments, and localization HTTP coverage remains limited
+to the previously recorded 005H.1 smoke run and was not repeated against this
+fresh artifact.
+
+CW-M2-006A.3B corrected the disposable lifecycle with
+`scripts/mysql-recovery-drill.sh`, which retains one Oracle MySQL 8.4
+container through all supplied phases and collects diagnostics before cleanup.
+The three page-support tests passed 3/3 and the complete configured MySQL
+Integration filter passed 19/19. A confirmed `CHAR(36)` to `Guid` Dapper
+mapping defect was fixed at the MySQL connection boundary; no SQLite or
+production path was changed.
+
+CW-M2-006A.3D.1 executed the complete disposable recovery pipeline. Synthetic
+fixtures were created before backup, restored into a distinct database, and
+verified through the application HTTP driver. All REC-01 through REC-17 checks
+passed, including current and historical attachment SHA-256 comparisons and
+the unsupported in-app backup operation. The source/restore run used only the
+development-only MySQL gate; the Podman container and application were cleaned
+up after evidence collection.
+
 CW-M2-005H.0 extends the independently testable MySQL persistence surface with an isolated development runtime. The application remains SQLite by default and rejects MySQL outside Development with `Database:MySql:DevelopmentOnly=true`. Legacy SQLite-shaped consumers are explicitly gated; they do not cause a mixed-provider startup or silent SQLite fallback.
 
 ## Coverage matrix
@@ -28,8 +108,8 @@ MySQL schemas use InnoDB, utf8mb4, explicit keys/indexes, and UTC `DATETIME(6)`.
 
 ## Runtime and smoke results
 
-The MySQL branch is wired for disposable development startup. On 2026-10-09,
-fresh Oracle MySQL 8.4 disposable hosts started the application and exercised
+The MySQL-compatible branch is wired for disposable development startup. The
+historical 006A run used fresh Oracle MySQL 8.4 hosts and exercised
 login/logout, admin authorization, page create/edit/display/rename, revision
 history/specific revision/compare, stale-revision rejection, Unicode and
 internal-link rendering, search, comments, attachment upload/replacement/
@@ -39,14 +119,16 @@ rejection over HTTP. The root route's existing redirect completed with HTTP
 cover only the bounded slices in the matrix; they are not full application
 coverage.
 
-The final configured MySQL test run used
+The historical configured MySQL test run used
 `CONTINUUMWIKI_RUN_MYSQL_TESTS=1` and a fresh dedicated connection to the
 disposable port 33334: 25 discovered, 25 executed, 25 passed, 0 failed, and
 0 skipped. The default suite remained 155 discovered, 136 passed, 19 explicit
 MySQL skips, and 0 failed because it was intentionally run without the MySQL
 environment variables.
 
-The current verification is 136 passing SQLite tests with 18 explicit MySQL skips, and 25 passing MySQL tests when run against disposable Oracle MySQL 8.4. The published validation artifact contains `TightWiki.dll` and `Translations/Translations.db`; no production data was accessed.
+Those counts describe the historical Oracle MySQL baseline. Current 006B
+MariaDB migration and recovery evidence is recorded separately in the linked
+operation document; no production data was accessed.
 
 ## Provider-neutral contracts and plugin compatibility
 
@@ -105,6 +187,12 @@ remains green; MySQL-specific tests are skipped only when the explicit disposabl
 test connection is not configured.
 
 ## Plugin compatibility and cutover readiness
+
+CW-M2-006C recorded the source-integrity, exclusion-policy, reconciliation, and
+rollback gates in [`MARIADB-CUTOVER-READINESS.md`](../operations/MARIADB-CUTOVER-READINESS.md).
+The repaired-copy rehearsal is successful, but the unchanged source remains
+blocked until an operator approves the four orphan exclusions and the four
+canonical-default exclusions.
 
 Existing plugin interfaces are unchanged. A broad static ban on SQLite would be incorrect because SQLite remains supported; active MySQL application mode is limited to the isolated development branch and explicitly rejects unsupported legacy operations. CW-M2-006 is not cutover-ready: it must first rehearse export/import, preserve Identity IDs and revision history, compare row counts/checksums, validate foreign keys, run full-application disposable smoke tests, verify backup/restore, and define rollback. No production cutover was performed here.
 

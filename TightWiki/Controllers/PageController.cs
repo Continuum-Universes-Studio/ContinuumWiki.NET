@@ -14,6 +14,7 @@ using System.Xml.Serialization;
 using TightWiki.Library;
 using TightWiki.Library.Caching;
 using TightWiki.Library.Security;
+using TightWiki.Engine.MediaWiki;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
 using TightWiki.Plugin.Interfaces.Persistence;
@@ -35,6 +36,8 @@ namespace TightWiki.Controllers
             ITwEngine tightEngine,
             ITwApplicationPageRepository applicationPageRepository,
             ITwApplicationPageSupportRepository applicationPageSupportRepository,
+            ITwMediaWikiImportRepository mediaWikiImportRepository,
+            MediaWikiWikitextRenderer mediaWikiRenderer,
             ITwApplicationOperationsRepository applicationOperationsRepository,
             ITwApplicationConfigurationRepository applicationConfigurationRepository,
             PageMetadataRebuilder metadataRebuilder,
@@ -230,16 +233,27 @@ namespace TightWiki.Controllers
                     model.ModifiedDate = SessionState.LocalizeDateTime(page.ModifiedDate);
 
                     await SessionState.SetPageId(page.Id, pageRevision);
+                    var renderSource = await mediaWikiImportRepository.GetRenderSourceAsync(page.Id, page.Revision, HttpContext.RequestAborted);
 
                     if (WikiConfiguration.PageCacheSeconds > 0)
                     {
+                        var expansionContext = renderSource.Format == TwPageSourceFormat.ImportedMediaWiki
+                            ? mediaWikiRenderer.CreateExpansionContext(renderSource, CultureInfo.CurrentUICulture, SessionState.GetPreferredTimeZone())
+                            : null;
                         string queryKey = string.Empty;
                         foreach (var query in Request.Query)
                         {
                             queryKey += $"{query.Key}:{query.Value}";
                         }
 
-                        var cacheKey = MemCacheKeyFunction.Build(MemCache.Category.Page, [page.Navigation, page.Revision, queryKey]);
+                        var templateCacheVersion = renderSource.Format == TwPageSourceFormat.ImportedMediaWiki
+                            ? await mediaWikiImportRepository.GetTemplateCacheVersionAsync(renderSource.ImportBatchId ?? 0, renderSource.SourceTimestampUtc, HttpContext.RequestAborted)
+                            : "native";
+                        var moduleCacheVersion = renderSource.Format == TwPageSourceFormat.ImportedMediaWiki
+                            ? await mediaWikiImportRepository.GetModuleCacheVersionAsync(renderSource.ImportBatchId ?? 0, renderSource.SourceTimestampUtc, HttpContext.RequestAborted)
+                            : "native";
+                        var renderContextKey = expansionContext is null ? "native" : mediaWikiRenderer.BuildCacheContextKey(expansionContext);
+                        var cacheKey = MemCacheKeyFunction.Build(MemCache.Category.Page, [page.Navigation, page.Revision, queryKey, renderSource.CacheKey, templateCacheVersion, moduleCacheVersion, renderContextKey]);
                         if (MemCache.TryGet<TwPageCache>(cacheKey, out var cached))
                         {
                             model.Body = cached.Body;
@@ -248,15 +262,15 @@ namespace TightWiki.Controllers
                         }
                         else
                         {
-                            var state = await tightEngine.Transform(Localizer, SessionState, page, pageRevision);
-                            SessionState.PageTitle = state.PageTitle;
+                            var rendered = await RenderPageAsync(page, pageRevision, renderSource, tightEngine, mediaWikiRenderer, expansionContext);
+                            SessionState.PageTitle = rendered.PageTitle;
 
-                            model.Body = state.HtmlResult;
-                            if (state.ProcessingInstructions.Contains(TwInstruction.NoCache) == false)
+                            model.Body = rendered.Body;
+                            if (rendered.NoCache == false)
                             {
-                                var toBeCached = new TwPageCache(state.HtmlResult)
+                                var toBeCached = new TwPageCache(rendered.Body)
                                 {
-                                    PageTitle = state.PageTitle
+                                    PageTitle = rendered.PageTitle
                                 };
 
                                 MemCache.Set(cacheKey, toBeCached); //This is cleared with the call to Cache.ClearCategory($"Page:{page.Navigation}");
@@ -265,9 +279,10 @@ namespace TightWiki.Controllers
                     }
                     else
                     {
-                        var state = await tightEngine.Transform(Localizer, SessionState, page, pageRevision);
-
-                        model.Body = state.HtmlResult;
+                        var expansionContext = renderSource.Format == TwPageSourceFormat.ImportedMediaWiki
+                            ? mediaWikiRenderer.CreateExpansionContext(renderSource, CultureInfo.CurrentUICulture, SessionState.GetPreferredTimeZone())
+                            : null;
+                        model.Body = (await RenderPageAsync(page, pageRevision, renderSource, tightEngine, mediaWikiRenderer, expansionContext)).Body;
                     }
 
                     if (WikiConfiguration.EnablePageComments && WikiConfiguration.ShowCommentsOnPageFooter && model.HideFooterComments == false)
@@ -342,6 +357,24 @@ namespace TightWiki.Controllers
                 Logger.LogError(ex, "An error occurred while displaying page with navigation {Navigation} and revision {Revision}.", givenCanonical, pageRevision);
                 throw;
             }
+        }
+
+        private async Task<(string Body, string? PageTitle, bool NoCache)> RenderPageAsync(
+            TwPage page,
+            int? requestedRevision,
+            TwMediaWikiRenderSource renderSource,
+            ITwEngine tightEngine,
+            MediaWikiWikitextRenderer mediaWikiRenderer,
+            MediaWikiExpansionContext? expansionContext = null)
+        {
+            if (renderSource.Format == TwPageSourceFormat.ImportedMediaWiki)
+            {
+                var result = await mediaWikiRenderer.RenderAsync(page.Body, renderSource, HttpContext.RequestAborted, expansionContext);
+                return (result.HtmlResult, null, result.DependsOnCurrentTime);
+            }
+
+            var state = await tightEngine.Transform(Localizer, SessionState, page, requestedRevision);
+            return (state.HtmlResult, state.PageTitle, state.ProcessingInstructions.Contains(TwInstruction.NoCache));
         }
 
         /// <summary>

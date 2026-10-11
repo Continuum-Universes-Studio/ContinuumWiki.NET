@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NTDLS.Helpers;
 using TightWiki.Engine;
+using TightWiki.Engine.MediaWiki;
 using TightWiki.Library;
 using TightWiki.Library.Database;
 using TightWiki.Library.Dummy;
@@ -124,6 +125,8 @@ namespace TightWiki
             builder.Services.AddSingleton<ITwPageRepository>(databaseManager.PageRepository);
             builder.Services.AddSingleton<ITwApplicationPageRepository>(new SqliteApplicationPageRepository(databaseManager.PageRepository));
             builder.Services.AddSingleton<ITwApplicationPageSupportRepository>(new SqliteApplicationPageSupportRepository(databaseManager.PageRepository));
+            builder.Services.AddSingleton<ITwMediaWikiImportRepository, SqliteMediaWikiImportRepository>();
+            builder.Services.AddSingleton<MediaWikiWikitextRenderer>();
             builder.Services.AddSingleton<PageMetadataRebuilder>();
             builder.Services.AddSingleton<ITwUsersRepository>(databaseManager.UsersRepository);
             builder.Services.AddSingleton<ITwDatabaseManager>(databaseManager);

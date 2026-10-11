@@ -1,0 +1,1 @@
+<?xml version="1.0"?><!DOCTYPE mediawiki [<!ENTITY secret SYSTEM "file:///etc/passwd">]><mediawiki><page><title>&secret;</title></page></mediawiki>

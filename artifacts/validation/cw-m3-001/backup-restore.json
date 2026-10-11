@@ -1,0 +1,15 @@
+{
+  "backup": {
+    "artifact": "mariadb-backup.sql",
+    "sha256": "7cc69d35280d7c8beeee832023614a5f24ba871dfb34f0c050ac211292eefeb0"
+  },
+  "restore": {
+    "sourcePages": 105,
+    "restorePages": 105,
+    "sourceRevisions": 106,
+    "restoreRevisions": 106,
+    "sourceTranslations": 932,
+    "restoreTranslations": 932,
+    "countsReconciled": true
+  }
+}

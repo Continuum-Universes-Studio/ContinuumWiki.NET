@@ -1,0 +1,69 @@
+{
+  "reviewStatus": "BLOCKED_UNTIL_OPERATOR_POLICY",
+  "provenanceAudit": {
+    "report": "default-provenance-comparison.json",
+    "canonicalSource": {
+      "path": "TightWiki.Repository/Defaults/defaults.db",
+      "commit": "35c534b37d1c8a013dd64c1afe8b93a70013a493",
+      "commitDate": "2026-10-03T12:54:07-04:00",
+      "commitSubject": "db update.",
+      "sha256": "6e716393661200b6276a2b5b72a51ddc73e35d72834f1ef16e1ad8ba93b29dab"
+    },
+    "recordsExamined": 265,
+    "classifications": {
+      "CANONICAL_MATCH": 265,
+      "CUSTOMIZED": 0,
+      "CANONICAL_VERSION_DIFFERENCE": 0,
+      "UNKNOWN_PROVENANCE": 0
+    },
+    "automaticApproval": false,
+    "operatorApprovalRequired": true
+  },
+  "exclusions": [
+    {
+      "source": "defaults.db.DefaultConfiguration",
+      "rows": 73,
+      "userAuthored": false,
+      "recoverableElsewhere": true,
+      "applicationDependency": "Target default initialization consumes the repository defaults artifact; the provenance audit, not the seeder, establishes canonicality",
+      "impact": "No user configuration is imported; canonical defaults must be seeded on target",
+      "provenanceClassification": "CANONICAL_MATCH",
+      "productionAcceptable": "Canonical provenance is evidenced by default-provenance-comparison.json; omission still requires explicit operator approval",
+      "requiresOperatorApproval": true
+    },
+    {
+      "source": "defaults.db.DefaultThemes",
+      "rows": 27,
+      "userAuthored": false,
+      "recoverableElsewhere": true,
+      "applicationDependency": "Target default initialization consumes the repository defaults artifact; the provenance audit, not the seeder, establishes canonicality",
+      "impact": "No shipped theme rows are imported",
+      "provenanceClassification": "CANONICAL_MATCH",
+      "productionAcceptable": "Canonical provenance is evidenced by default-provenance-comparison.json; omission still requires explicit operator approval",
+      "requiresOperatorApproval": true
+    },
+    {
+      "source": "defaults.db.DefaultFeatureTemplates",
+      "rows": 61,
+      "userAuthored": false,
+      "recoverableElsewhere": true,
+      "applicationDependency": "Target default initialization consumes the repository defaults artifact; the provenance audit, not the seeder, establishes canonicality",
+      "impact": "No shipped feature-template rows are imported",
+      "provenanceClassification": "CANONICAL_MATCH",
+      "productionAcceptable": "Canonical provenance is evidenced by default-provenance-comparison.json; omission still requires explicit operator approval",
+      "requiresOperatorApproval": true
+    },
+    {
+      "source": "defaults.db.DefaultWikiPages",
+      "rows": 104,
+      "userAuthored": false,
+      "recoverableElsewhere": true,
+      "applicationDependency": "Target default initialization consumes the repository defaults artifact; the provenance audit, not the seeder, establishes canonicality",
+      "impact": "No shipped help/include/builtin page rows are imported",
+      "provenanceClassification": "CANONICAL_MATCH",
+      "productionAcceptable": "Canonical provenance is evidenced by default-provenance-comparison.json; omission still requires explicit operator approval",
+      "requiresOperatorApproval": true
+    }
+  ],
+  "policy": "These are explicit exclusions, not silent loss. Any row later shown to be customized or user-authored changes classification to blocking and requires source-specific migration."
+}

@@ -15,7 +15,7 @@ public sealed class MySqlPageSchemaInitializer
 
         foreach (var resource in new[] { "MySql.Pages.V1__PageSchema.sql", "MySql.Pages.V2__PageSupportSchema.sql", "MySql.Pages.V3__DeletedRevisionSchema.sql" })
         {
-            foreach (var statement in EmbeddedResourceReader.LoadText(resource)
+            foreach (var statement in MariaDbSqlCompatibility.Normalize(EmbeddedResourceReader.LoadText(resource))
                 .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
                 await session.Connection.ExecuteAsync(new CommandDefinition(

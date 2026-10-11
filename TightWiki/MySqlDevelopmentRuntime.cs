@@ -4,12 +4,14 @@ using Dapper;
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using TightWiki.Engine;
+using TightWiki.Engine.MediaWiki;
 using TightWiki.Library;
 using TightWiki.Library.Database;
 using TightWiki.Plugin;
@@ -23,7 +25,7 @@ using static TightWiki.Plugin.TwConstants;
 
 namespace TightWiki;
 
-/// <summary>Explicitly development-only MySQL application startup.</summary>
+/// <summary>MariaDB-native application startup. SQLite is never constructed on this path.</summary>
 internal static class MySqlDevelopmentRuntime
 {
     public static async Task RunAsync(string[] args)
@@ -32,13 +34,14 @@ internal static class MySqlDevelopmentRuntime
         var configuration = builder.Configuration;
         if (DatabaseProviderConfiguration.GetProvider(configuration) != DatabaseProviderConfiguration.MySQL)
             throw new InvalidOperationException("The MySQL development runtime can only be selected with Database:Provider=mysql.");
-        if (!builder.Environment.IsDevelopment() || !configuration.GetValue<bool>("Database:MySql:DevelopmentOnly"))
-            throw new InvalidOperationException("MySQL runtime activation is limited to an ASP.NET Development environment with Database:MySql:DevelopmentOnly=true. Production hosting remains blocked.");
-
+        if (!builder.Environment.IsDevelopment() && !configuration.GetValue<bool>("Database:MySql:ProductionReady"))
+            throw new InvalidOperationException("MariaDB production startup is not authorized. Set Database:MySql:ProductionReady=true only after the disposable readiness checklist and explicit operations approval are complete.");
         var connectionString = configuration.GetConnectionString("MySql")
             ?? configuration["Database:MySql:ConnectionString"]
-            ?? throw new InvalidOperationException("A MySQL connection string is required for development startup.");
+            ?? throw new InvalidOperationException("A MariaDB connection string is required when Database:Provider=mysql.");
         var factory = new MySqlDatabaseConnectionFactory(connectionString);
+        builder.Services.AddSingleton(factory);
+        await MySqlRuntimeReadiness.ValidateServerAsync(factory);
         await new MySqlSchemaInitializer().InitializeAsync(factory);
         var seeder = new MySqlDefaultContentSeeder(factory);
         await seeder.SeedAsync([
@@ -50,8 +53,11 @@ internal static class MySqlDevelopmentRuntime
 
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
+        ConfigureDataProtection(builder);
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddMySqlApplicationPersistence(configuration);
+        builder.Services.AddSingleton<ITwMediaWikiImportRepository, MySqlMediaWikiImportRepository>();
+        builder.Services.AddSingleton<MediaWikiWikitextRenderer>();
         builder.Services.AddMySqlIdentity(connectionString, options =>
         {
             options.SignIn.RequireConfirmedAccount = false;
@@ -94,11 +100,13 @@ internal static class MySqlDevelopmentRuntime
 
         var app = builder.Build();
         await EnsureDevelopmentAdministratorAsync(app.Services, factory, seeder);
-        TwSignedUrl.Initialize(app.Services.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>());
+        await MySqlRuntimeReadiness.ValidateInstallationAsync(factory);
+        TwSignedUrl.Initialize(app.Services.GetRequiredService<IDataProtectionProvider>());
         LocalizerFactory.Initialize(app.Services);
         PluginLoader.LoadPlugins(app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("PluginLoader"), Path.Combine(Environment.CurrentDirectory, "Plugins"), TwPersistenceProvider.MySQL);
 
-        app.UseDeveloperExceptionPage();
+        if (app.Environment.IsDevelopment()) app.UseDeveloperExceptionPage();
+        else app.UseExceptionHandler("/Error");
         app.UseStaticFiles();
         app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
         app.UseRouting();
@@ -107,6 +115,20 @@ internal static class MySqlDevelopmentRuntime
         app.MapRazorPages();
         app.MapControllerRoute("default", "{controller=Page}/{action=Display}");
         app.MapControllerRoute("Page_Edit", "Page/{givenCanonical}/Edit");
+        app.MapGet("/health/live", () => Results.Ok(new { status = "live" }));
+        app.MapGet("/health/ready", async (MySqlDatabaseConnectionFactory readinessFactory, CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                await MySqlRuntimeReadiness.ValidateServerAsync(readinessFactory, cancellationToken);
+                await MySqlSchemaCompatibility.ValidateSupportedVersionsAsync(readinessFactory, cancellationToken);
+                return Results.Ok(new { status = "ready", provider = "mariadb", target = "11.8" });
+            }
+            catch (Exception exception)
+            {
+                return Results.Json(new { status = "not-ready", error = exception.GetBaseException().Message }, statusCode: StatusCodes.Status503ServiceUnavailable);
+            }
+        });
         await app.RunAsync();
     }
 
@@ -120,6 +142,35 @@ internal static class MySqlDevelopmentRuntime
         services.AddSingleton<ITwPageRepository>(_ => MySqlLegacyDependencyGate.Create<ITwPageRepository>());
         services.AddSingleton<ITwEmojiRepository>(_ => MySqlLegacyDependencyGate.Create<ITwEmojiRepository>());
         services.AddSingleton<ITwLoggingRepository>(_ => MySqlLegacyDependencyGate.Create<ITwLoggingRepository>());
+    }
+
+    private static void ConfigureDataProtection(WebApplicationBuilder builder)
+    {
+        var keysPath = builder.Configuration["DataProtection:KeysPath"];
+        if (string.IsNullOrWhiteSpace(keysPath))
+        {
+            if (!builder.Environment.IsDevelopment())
+                throw new InvalidOperationException("MariaDB production startup requires DataProtection:KeysPath for persistent authentication and signed-link keys.");
+            return;
+        }
+
+        var directory = new DirectoryInfo(keysPath);
+        if (!directory.Exists)
+            directory.Create();
+        var probe = Path.Combine(directory.FullName, $".continuumwiki-write-test-{Guid.NewGuid():N}");
+        try
+        {
+            using (File.Create(probe)) { }
+            File.Delete(probe);
+        }
+        catch (Exception exception)
+        {
+            throw new InvalidOperationException($"MariaDB startup cannot write DataProtection:KeysPath '{directory.FullName}'.", exception);
+        }
+
+        builder.Services.AddDataProtection()
+            .PersistKeysToFileSystem(directory)
+            .SetApplicationName("ContinuumWiki.NET");
     }
 
     private static async Task EnsureDevelopmentAdministratorAsync(IServiceProvider services, MySqlDatabaseConnectionFactory factory, MySqlDefaultContentSeeder seeder)
@@ -150,6 +201,20 @@ internal static class MySqlDevelopmentRuntime
                 await identity.CreateProfileAsync(userId, userName);
             var roleId = await session.Connection.ExecuteScalarAsync<int>("SELECT Id FROM Role WHERE Name = 'Administrator';");
             await session.Connection.ExecuteAsync("INSERT IGNORE INTO AccountRole (UserId, RoleId) VALUES (@UserId, @RoleId);", new { UserId = user.Id, RoleId = roleId });
+            await session.Connection.ExecuteAsync("""
+                INSERT IGNORE INTO RolePermission (RoleId, PermissionId, Namespace, PageId, PermissionDispositionId)
+                SELECT @RoleId, P.Id, NULL, NULL, PD.Id
+                FROM Permission P
+                CROSS JOIN PermissionDisposition PD
+                WHERE PD.Name = 'Allow';
+                """, new { RoleId = roleId });
+            await session.Connection.ExecuteAsync("""
+                INSERT IGNORE INTO AccountPermission (UserId, PermissionId, Namespace, PageId, PermissionDispositionId)
+                SELECT @UserId, P.Id, NULL, NULL, PD.Id
+                FROM Permission P
+                CROSS JOIN PermissionDisposition PD
+                WHERE PD.Name = 'Allow';
+                """, new { UserId = user.Id });
         }
 
         await seeder.SeedAsync([

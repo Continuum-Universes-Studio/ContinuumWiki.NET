@@ -1,0 +1,8 @@
+{
+  "Version": "fixture-1",
+  "Mappings": [
+    { "SourceNamespaceId": "0", "TargetNamespace": "", "Aliases": ["Main", ""] },
+    { "SourceNamespaceId": "6", "TargetNamespace": "File", "Aliases": ["File", "Image"] },
+    { "SourceNamespaceId": "10", "TargetNamespace": "Template", "Aliases": ["Template"] }
+  ]
+}

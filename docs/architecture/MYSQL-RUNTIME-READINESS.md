@@ -1,12 +1,42 @@
-# MySQL development runtime readiness
+# MariaDB runtime readiness
 
-CW-M2-005H.0 adds an isolated, development-only MySQL application path. It
-does not enable production MySQL hosting or claim backup and restore support.
+## CW-M3-001 current status
+
+ContinuumWiki.NET is MariaDB-native when `Database:Provider=mysql` is selected.
+The supported target is MariaDB 11.8. The runtime initializes the MariaDB
+schema and canonical embedded defaults, configures Identity and provider-neutral
+services, validates installation readiness, and never constructs or opens the
+legacy SQLite database path. Production startup requires the explicit
+`Database:MySql:ProductionReady=true` operations gate plus persistent Data
+Protection keys and the disposable readiness evidence; this task does not
+authorize or perform production deployment.
+
+Fresh MariaDB 11.8 installation, 161/161 configured integration tests,
+REC-01 through REC-17, authenticated page create/edit/revision workflows,
+homepage/tags/localization/theme smoke checks, backup/restore reconciliation,
+Debug build, and Release publish were verified against disposable
+infrastructure. The machine-readable HTTP result is
+`artifacts/validation/cw-m3-001/recovery-http.json`.
+
+## Current provider target: MariaDB
+
+CW-M2-006B validated the development-only MySQL-compatible runtime against a
+disposable `docker.io/library/mariadb:11.8` host (`11.8.9-MariaDB-ubu2404`).
+The historical CW-M2 migration and cutover reports remain available for
+development provenance. CW-M2-006C is not applicable to production deployment:
+the production source is MediaWiki and the future migration path is
+MediaWiki → ContinuumWiki.NET.
+The older Oracle MySQL 8.4 results below remain useful historical baseline
+records but must not be read as MariaDB verification.
+
+CW-M2-005H.0 is retained as historical implementation context. CW-M3-001
+adds the installable MariaDB runtime and explicit production-readiness gate.
 
 ## Activation boundary
 
-The MySQL path is selected only when `Database:Provider=mysql`, the ASP.NET
-Core environment is `Development`, and `Database:MySql:DevelopmentOnly=true`.
+The MariaDB path is selected when `Database:Provider=mysql`. Development mode
+supports disposable administrator bootstrap; non-development mode additionally
+requires `Database:MySql:ProductionReady=true`.
 The connection string may be supplied as `ConnectionStrings:MySql` or
 `Database:MySql:ConnectionString`. No SQLite `DatabaseManager` is constructed
 in this branch; invalid or incomplete settings fail rather than falling back.
@@ -16,7 +46,6 @@ Example (credentials are intentionally omitted):
 ```bash
 ASPNETCORE_ENVIRONMENT=Development \
 Database__Provider=mysql \
-Database__MySql__DevelopmentOnly=true \
 Database__MySql__DevelopmentAdminPassword='<disposable-password>' \
 ConnectionStrings__MySql='Server=127.0.0.1;Port=3306;Database=continuumwiki;User ID=<user>;Password=<password>;Allow User Variables=True;' \
 dotnet run --project TightWiki/TightWiki.csproj --configuration Debug
@@ -42,7 +71,7 @@ legacy gate, and SQLite retains its original repository behavior.
 
 ## Readiness checklist
 
-- [x] Provider selection and development-only activation are explicit.
+- [x] Provider selection and MariaDB 11.8 activation are explicit.
 - [x] Schema compatibility and required initialization run before requests.
 - [x] Configuration, translations, menus, and supported page seed content use
   the MySQL seed boundary.
@@ -50,12 +79,41 @@ legacy gate, and SQLite retains its original repository behavior.
   use consistent identifiers.
 - [x] No SQLite fallback is registered or opened by the MySQL branch.
 - [x] Legacy plugin compatibility remains enforced.
-- [ ] Production cutover, backup, restore, migration rehearsal, rollback, and
-  operational monitoring remain separate prerequisites.
+- [x] Production startup fails closed unless the explicit readiness gate,
+  persistent Data Protection keys, supported server, schema, Identity, and
+  seeded-content checks pass.
+- [ ] Actual production deployment, MediaWiki migration, final backup/restore
+  drill, rollback, and operational monitoring authorization remain separate
+  operations work.
 
-HTTP smoke results must be recorded from an actual disposable MySQL host. A
+Historical CW-M2-006A.1 additionally restored a disposable Oracle MySQL 8.4 logical dump into a
+distinct disposable database and reconciled deterministic counts, page/revision
+hashes, and attachment binary hashes. HTTP recovery smoke coverage remains
+separate and is not implied by this result.
+
+HTTP smoke results must be recorded from the actual target MariaDB host. A
 successful build or filtered repository test run is not evidence that login,
 page CRUD, search, attachments, or administrative routes work over HTTP.
+
+Historical CW-M2-006A.2 verified the restored application path on 2026-10-09 using a
+fresh disposable Oracle MySQL 8.4 source/restore pair. The restored process started
+with the development-only gate, authenticated the runtime-created synthetic
+administrator, returned HTTP 200 for the protected database administration
+route, home, and search, and returned HTTP 302 for anonymous administration
+access. No SQLite provider was configured or opened in that run.
+
+Historical CW-M2-006A.3B added `scripts/mysql-recovery-drill.sh` as the repeatable
+disposable lifecycle wrapper. It keeps the MySQL 8.4 container alive through
+fixture/test phases and collects logs before cleanup. Its readiness probe uses
+TCP after MySQL initialization, preventing the prior temporary-socket race.
+The three page-support tests passed 3/3 and the configured MySQL integration
+filter passed 19/19 under this lifecycle.
+
+Historical CW-M2-006A.3D.1 completed the restored-data HTTP pipeline on 2026-10-09.
+REC-01 through REC-17 passed against pre-backup fixture records after restore,
+including page/revision routes, current and historical attachment downloads,
+comments, localization/theme/profile/menu routes, administrator authorization,
+unsupported backup rejection, and logout. No SQLite fallback was configured.
 
 The 2026-10-09 disposable-host smoke run started the application on
 `127.0.0.1:5085` against MySQL 8.4, loaded the login page with HTTP 200,
@@ -87,8 +145,9 @@ database or credentials were used.
 
 ## Production prerequisites
 
-Before production activation, separately verify backup and restore, source-data
-migration, user/profile/role and revision integrity, attachment hashes,
-rollback, deployment secret handling, monitoring, and the complete supported
-and unsupported administrative surface. This development path does not provide
-or imply those capabilities.
+Before production activation, separately verify deployment secret handling,
+HTTPS or a trusted reverse proxy, persistent key permissions, monitoring,
+rollback, MediaWiki source migration, and the complete supported and
+unsupported administrative surface. The application validates its MariaDB
+server, schema, Identity, seeded content, and key-path prerequisites; it does
+not itself authorize or perform production deployment.

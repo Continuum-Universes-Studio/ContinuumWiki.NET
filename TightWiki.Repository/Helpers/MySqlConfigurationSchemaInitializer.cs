@@ -15,7 +15,7 @@ namespace TightWiki.Repository.Helpers
 
             foreach (var resource in new[] { "MySql.ConfigurationSchema.sql", "MySql.Configuration.V2__ConfigurationSupportSchema.sql" })
             {
-                foreach (var statement in EmbeddedResourceReader.LoadText(resource)
+                foreach (var statement in MariaDbSqlCompatibility.Normalize(EmbeddedResourceReader.LoadText(resource))
                     .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                     await session.Connection.ExecuteAsync(new CommandDefinition(statement, transaction: transaction.Transaction, cancellationToken: cancellationToken));
             }

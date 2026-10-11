@@ -1,0 +1,107 @@
+// Imported MediaWiki presentation is deliberately scoped to cw-mediawiki-
+// classes so native TightWiki tables and content keep their existing theme.
+.cw-mediawiki-table-wrap {
+    max-width: 100%;
+    margin-block: @cw-space-3;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.cw-mediawiki-table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    color: var(--cw-primary-text);
+    background: var(--cw-surface-background);
+
+    caption {
+        padding: @cw-space-2;
+        color: var(--cw-primary-text);
+        font-weight: 600;
+        text-align: left;
+    }
+
+    th,
+    td {
+        min-width: 2.5rem;
+        padding: @cw-space-2;
+        border: 1px solid var(--cw-border);
+        vertical-align: top;
+        overflow-wrap: anywhere;
+    }
+
+    th {
+        background: var(--cw-elevated-surface);
+        font-weight: 600;
+    }
+}
+
+.cw-mediawiki-infobox {
+    width: min(100%, 24rem);
+    margin-inline-start: @cw-space-3;
+    float: right;
+
+    @media (max-width: 48rem) {
+        width: 100%;
+        margin-inline-start: 0;
+        float: none;
+    }
+}
+
+.cw-mediawiki-table-caption,
+.cw-mediawiki-caption {
+    color: var(--cw-secondary-text);
+}
+
+.cw-mediawiki-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: @cw-space-2;
+    margin-block: @cw-space-3;
+}
+
+.cw-mediawiki-gallery-item,
+.cw-mediawiki-media-figure {
+    min-width: 0;
+    margin: 0;
+    padding: @cw-space-2;
+    border: 1px solid var(--cw-border);
+    background: var(--cw-surface-background);
+    text-align: center;
+}
+
+.cw-mediawiki-gallery-item img,
+.cw-mediawiki-media,
+.cw-mediawiki-media-figure img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+    object-fit: contain;
+}
+
+.cw-mediawiki-media-align-left {
+    margin-inline-start: 0;
+    margin-inline-end: auto;
+}
+
+.cw-mediawiki-media-align-right {
+    margin-inline-start: auto;
+    margin-inline-end: 0;
+}
+
+.cw-mediawiki-media-align-center {
+    margin-inline: auto;
+}
+
+.cw-mediawiki-media-border {
+    border: 1px solid var(--cw-border);
+}
+
+.cw-mediawiki-unresolved-media {
+    display: inline-block;
+    padding: @cw-space-unit @cw-space-2;
+    border: 1px dashed var(--cw-border);
+    color: var(--cw-secondary-text);
+}

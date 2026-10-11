@@ -1,5 +1,7 @@
 using System.Data.Common;
+using Dapper;
 using MySqlConnector;
+using TightWiki.Library;
 using TightWiki.Library.Database;
 
 namespace TightWiki.Repository.Helpers
@@ -20,6 +22,11 @@ namespace TightWiki.Repository.Helpers
             {
                 Pooling = true
             };
+            // Provider-neutral repositories return Guid identity values from
+            // MySQL CHAR(36) columns. Register the handler at the provider
+            // boundary so direct repository consumers and the application
+            // runtime use the same mapping.
+            SqlMapper.AddTypeHandler(new GuidTypeHandler());
             _connectionString = builder.ConnectionString;
         }
 

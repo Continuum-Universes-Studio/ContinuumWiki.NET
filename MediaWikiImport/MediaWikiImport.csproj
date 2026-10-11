@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MediaWikiInventory\MediaWikiInventory.csproj" />
+    <ProjectReference Include="..\TightWiki.Library\TightWiki.Library.csproj" />
+    <ProjectReference Include="..\TightWiki.Plugin\TightWiki.Plugin.csproj" />
+    <ProjectReference Include="..\TightWiki.Repository\TightWiki.Repository.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo><sitename>Scribunto Boundary Wiki</sitename><base>https://scribunto.synthetic.invalid/wiki</base><generator>MediaWiki 1.42</generator><case>first-letter</case>
+    <namespaces><namespace key="0" case="first-letter" /><namespace key="10" case="first-letter">Template</namespace><namespace key="828" case="first-letter">Module</namespace></namespaces>
+  </siteinfo>
+  <page><title>Invocation Article</title><ns>0</ns><id>1</id>
+    <revision><id>101</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Author</username><id>1</id></contributor><model>wikitext</model><text>{{#invoke:Tools|render|first|name=value}} {{Invoker|x}} {{#invoke:Missing|run}} {{#invoke:Module:世界|run}} {{#invoke:Broken</text></revision>
+  </page>
+  <page><title>Invoker</title><ns>10</ns><id>2</id>
+    <revision><id>201</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Author</username><id>1</id></contributor><model>wikitext</model><text>{{#invoke:Tools|render|from-template}}</text></revision>
+  </page>
+  <page><title>Tools</title><ns>828</ns><id>3</id>
+    <revision><id>301</id><timestamp>2024-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>2</id></contributor><model>Scribunto</model><text>local data = require('Module:Data') return data</text></revision>
+    <revision><id>302</id><parentid>301</parentid><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>2</id></contributor><model>Scribunto</model><text>return function.render</text></revision>
+  </page>
+  <page><title>Data</title><ns>828</ns><id>4</id>
+    <revision><id>401</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>2</id></contributor><model>Scribunto</model><text>return mw.loadData(dynamicName)</text></revision>
+  </page>
+  <page><title>A</title><ns>828</ns><id>5</id>
+    <revision><id>501</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>2</id></contributor><model>Scribunto</model><text>return require('Module:B')</text></revision>
+  </page>
+  <page><title>B</title><ns>828</ns><id>6</id>
+    <revision><id>601</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>2</id></contributor><model>Scribunto</model><text>return require('Module:A')</text></revision>
+  </page>
+  <page><title>世界</title><ns>828</ns><id>7</id>
+    <revision><id>701</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>2</id></contributor><model>Scribunto</model><text>return '世界'</text></revision>
+  </page>
+  <page><title>Json Page</title><ns>0</ns><id>8</id>
+    <revision><id>801</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Author</username><id>1</id></contributor><model>json</model><text>{"value":1}</text></revision>
+  </page>
+</mediawiki>

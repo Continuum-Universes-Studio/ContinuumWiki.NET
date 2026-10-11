@@ -1,0 +1,23 @@
+{
+  "backup": {
+    "artifact": "/tmp/cw-m2-006c-mariadb.sql",
+    "size": 35983486,
+    "sha256": "2fa23027f027cfff7dc4405b47cdb371fc84b46a6da95bd18ddf57e26a99a317",
+    "sourceDatabase": "cw006c_source7"
+  },
+  "rollback": {
+    "targetDatabase": "cw006c_restore7",
+    "restored": true,
+    "pageCountBeforeSmoke": 110,
+    "pageCountAfterRestore": 110,
+    "revisionCountBeforeSmoke": 114,
+    "revisionCountAfterRestore": 114,
+    "countsReconciled": true,
+    "postCutoverFixturePageCount": 111,
+    "postCutoverWritesAutomaticallyPreserved": false
+  },
+  "http": {
+    "artifact": "artifacts/validation/cw-m2-006c/migrated-http.json",
+    "checks": 17
+  }
+}

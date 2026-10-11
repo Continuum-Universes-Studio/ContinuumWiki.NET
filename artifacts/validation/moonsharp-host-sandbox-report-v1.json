@@ -1,0 +1,158 @@
+{
+  "reportVersion": "cw-m3-005b.5-host-sandbox-v1",
+  "verdict": "HOST_CERTIFICATION_UNAVAILABLE",
+  "worker": {
+    "assembly": "/home/cdjensen94/Projects/ContinuumWiki.NET/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll",
+    "identity": "systemd User=continuumwiki-scribunto"
+  },
+  "cgroupPath": "",
+  "dotnetRoot": "/opt/dotnet",
+  "summary": {
+    "total": 20,
+    "passed": 5,
+    "failed": 0,
+    "unavailable": 15
+  },
+  "checks": [
+    {
+      "name": "linux",
+      "required": true,
+      "status": "PASS",
+      "evidence": "Linux",
+      "message": "Linux host detected."
+    },
+    {
+      "name": "required-tools",
+      "required": true,
+      "status": "PASS",
+      "evidence": "dotnet bwrap prlimit systemctl systemd-run timeout jq",
+      "message": "Required host tools are present."
+    },
+    {
+      "name": "dotnet-runtime",
+      "required": true,
+      "status": "PASS",
+      "evidence": "/opt/dotnet",
+      "message": "Resolved the .NET runtime without a fixed installation-path assumption."
+    },
+    {
+      "name": "worker-artifacts",
+      "required": true,
+      "status": "PASS",
+      "evidence": "/home/cdjensen94/Projects/ContinuumWiki.NET/ScribuntoWorker/bin/Debug/net10.0/ContinuumWiki.ScribuntoWorker.dll",
+      "message": "Worker, certification runner, and OS probe assemblies are present."
+    },
+    {
+      "name": "unprivileged-launcher",
+      "required": true,
+      "status": "PASS",
+      "evidence": "uid=1000,gid=1000",
+      "message": "The launcher was not started as root."
+    },
+    {
+      "name": "worker-cgroup",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "",
+      "message": "Provide an administrator-provisioned dedicated cgroup v2 directory through CW_SCRIBUNTO_WORKER_CGROUP_PATH."
+    },
+    {
+      "name": "memory-cgroup",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "task-cgroup",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "namespace-support",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-identity",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-filesystem-read",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-filesystem-write",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-network",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-environment",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-process",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-library",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-memory",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-tasks",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "os-cpu",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    },
+    {
+      "name": "worker-adversarial-suite",
+      "required": true,
+      "status": "UNAVAILABLE",
+      "evidence": "worker cgroup unavailable",
+      "message": "Mandatory check was not run because host prerequisites were unavailable."
+    }
+  ]
+}

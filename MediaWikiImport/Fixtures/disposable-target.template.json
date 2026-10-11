@@ -1,0 +1,6 @@
+{
+  "ConnectionStringEnvironmentVariable": "CONTINUUMWIKI_M3_TARGET_CONNECTION",
+  "DatabaseName": "cw_m3_003a",
+  "Purpose": "disposable-mariadb",
+  "RequireEmptyTarget": true
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo><sitename>Synthetic</sitename><namespaces><namespace key="0" /><namespace key="6">File</namespace><namespace key="10">Template</namespace></namespaces></siteinfo>
+  <page><title>世界/Template</title><ns>10</ns><id>7</id>
+    <revision><id>101</id><timestamp>2024-01-01T00:00:00Z</timestamp><contributor><username>Alice</username><id>1</id></contributor><text>{{Infobox|name=世界}} [[Category:Lore]] [[File:Map.png|thumb]] <ref name="a">source</ref> {{#if:yes|ok}} {{#invoke:World|render}} [[世界]] https://example.test __TOC__ -{zh-cn:世界;zh-tw:世界}-</text></revision>
+    <revision><id>102</id><timestamp>2024-01-02T00:00:00Z</timestamp><contributor><ip>192.0.2.1</ip></contributor><text>#REDIRECT [[世界]]</text></revision>
+  </page>
+  <page><title>世界</title><ns>0</ns><id>8</id><langlinks><ll lang="fr">Monde</ll></langlinks><revision><id>103</id><timestamp>2024-01-03T00:00:00Z</timestamp><contributor><username>Alice</username></contributor><text>Text <references /> <custom-tag>extension</custom-tag></text></revision></page>
+  <page><title>Map.png</title><ns>6</ns><id>9</id><revision><id>104</id><timestamp>2024-01-04T00:00:00Z</timestamp><contributor><ip>192.0.2.2</ip></contributor><sha1>abc123</sha1><size>4</size><width>2</width><height>2</height><text>File description</text></revision></page>
+</mediawiki>

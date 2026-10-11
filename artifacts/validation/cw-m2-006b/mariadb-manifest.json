@@ -1,0 +1,1 @@
+{"provider":"mariadb","image":"docker.io/library/mariadb:11.8","serverVersion":"11.8.9-MariaDB-ubu2404","serverComment":"mariadb.org binary distribution","sourceDatabase":"cw_mariadb_source","artifact":"/tmp/cw-006b-mariadb-source.sql","size":2671009,"sha256":"6f2753023b85af81d81de4ff9b457f6b4031e34d8d10f66043c8bb97fe62a863"}

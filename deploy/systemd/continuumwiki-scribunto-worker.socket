@@ -1,0 +1,14 @@
+[Unit]
+Description=ContinuumWiki Lua Engine worker socket
+
+[Socket]
+ListenStream=/run/continuumwiki/scribunto-worker.sock
+SocketUser=continuumwiki-scribunto
+SocketGroup=continuumwiki-scribunto
+SocketMode=0660
+Accept=yes
+RemoveOnStop=yes
+DirectoryMode=0750
+
+[Install]
+WantedBy=sockets.target

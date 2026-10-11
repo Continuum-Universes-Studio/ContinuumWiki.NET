@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# Administrator-installed fixed launcher for the socket-activated service.
+# The application and wiki content cannot supply paths, argv, or unit options.
+install_root=/srv/continuumwiki/current
+worker_directory="$install_root/ScribuntoWorker/bin/Release/net10.0"
+worker_assembly="$worker_directory/ContinuumWiki.ScribuntoWorker.dll"
+export PATH=/usr/local/bin:/usr/bin:/bin
+
+dotnet_executable="$(command -v dotnet)"
+dotnet_executable="$(readlink -f "$dotnet_executable")"
+dotnet_root="$(dirname "$dotnet_executable")"
+[[ -x "$dotnet_executable" && -d "$dotnet_root" && -f "$worker_assembly" ]]
+
+args=(
+    --die-with-parent --unshare-all --new-session --clearenv
+    --ro-bind "$dotnet_root" /dotnet
+    --ro-bind "$worker_directory" /worker
+)
+for runtime_library_directory in /lib /lib64 /usr/lib /usr/lib64; do
+    if [[ -d "$runtime_library_directory" ]]; then
+        args+=(--ro-bind "$runtime_library_directory" "$runtime_library_directory")
+    fi
+done
+args+=(
+    --proc /proc --dev /dev --tmpfs /tmp --chdir /worker
+    --setenv DOTNET_ROOT /dotnet
+    --setenv DOTNET_ROOT_X64 /dotnet
+    --setenv HOME /tmp
+    --setenv TMPDIR /tmp
+    --setenv PATH /dotnet
+    -- /dotnet/dotnet /worker/ContinuumWiki.ScribuntoWorker.dll
+)
+
+exec /usr/bin/prlimit --as=1073741824 --cpu=2 --nofile=256 /usr/bin/bwrap "${args[@]}"

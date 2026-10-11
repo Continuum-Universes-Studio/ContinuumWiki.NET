@@ -1,0 +1,180 @@
+{
+  "originalCopyBeforeRepair": [
+    {
+      "path": "/tmp/cw-006c.2whsay/original/Translations.db",
+      "sha256": "bcd513f2a89abefb8f0241232038104f1ac485c285e683f9fa530e77b8ddcde3"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/config.db",
+      "sha256": "b060d4ffb40f714546b49a1dd92b825041ea2bc4a9eeb9900941de1a647418d5"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/defaults.db",
+      "sha256": "6e716393661200b6276a2b5b72a51ddc73e35d72834f1ef16e1ad8ba93b29dab"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/deletedpagerevisions.db",
+      "sha256": "7c622cb5a643336c9ccc8b30188a44724dbacaa45be0210a6872929ea612b6c7"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/deletedpages.db",
+      "sha256": "f92faf70d19752f509aac0d050fc79620905704a2f33bc6437d07a94b5ea056d"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/emoji.db",
+      "sha256": "2af53cd3e9456eebdf06186a4f5260bbe75e8b541ce78fd925e1889adace8bb7"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/logging.db",
+      "sha256": "5831dec0d2e730d856d4755ea324c8f9e026b63470d413775cdcb773b1a38373"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/pages.db",
+      "sha256": "cfde1c4439bc572d7835a78d7840dab77827b3311a6bed69554940d67a036330"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/statistics.db",
+      "sha256": "305152b7101a16b39ca1fc81c8437256bc150289f48c683f586cd2542ff6534c"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/users.db",
+      "sha256": "d7eb58808ee4ac733251d743dc5e847f831e9d99892d12848f9652378de6fa64"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/Translations.db",
+      "sha256": "bcd513f2a89abefb8f0241232038104f1ac485c285e683f9fa530e77b8ddcde3"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/original/defaults.db",
+      "sha256": "6e716393661200b6276a2b5b72a51ddc73e35d72834f1ef16e1ad8ba93b29dab"
+    }
+  ],
+  "repairedCopyAfterRepair": [
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/Translations.db",
+      "sha256": "bcd513f2a89abefb8f0241232038104f1ac485c285e683f9fa530e77b8ddcde3"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/config.db",
+      "sha256": "b060d4ffb40f714546b49a1dd92b825041ea2bc4a9eeb9900941de1a647418d5"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/defaults.db",
+      "sha256": "6e716393661200b6276a2b5b72a51ddc73e35d72834f1ef16e1ad8ba93b29dab"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/deletedpagerevisions.db",
+      "sha256": "7c622cb5a643336c9ccc8b30188a44724dbacaa45be0210a6872929ea612b6c7"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/deletedpages.db",
+      "sha256": "dbf47dcb01d437e76abcb9bc22ab73b9bc0c3ebddb5285d7f8eb8acfdfcef1e8"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/emoji.db",
+      "sha256": "2af53cd3e9456eebdf06186a4f5260bbe75e8b541ce78fd925e1889adace8bb7"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/logging.db",
+      "sha256": "5831dec0d2e730d856d4755ea324c8f9e026b63470d413775cdcb773b1a38373"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/pages.db",
+      "sha256": "cfde1c4439bc572d7835a78d7840dab77827b3311a6bed69554940d67a036330"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/statistics.db",
+      "sha256": "efa4c14b84cd5d8f240a5d993e8d4d0d26ba294c1e792a36c7da5960187b5105"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/users.db",
+      "sha256": "d7eb58808ee4ac733251d743dc5e847f831e9d99892d12848f9652378de6fa64"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/Translations.db",
+      "sha256": "bcd513f2a89abefb8f0241232038104f1ac485c285e683f9fa530e77b8ddcde3"
+    },
+    {
+      "path": "/tmp/cw-006c.2whsay/repaired/defaults.db",
+      "sha256": "6e716393661200b6276a2b5b72a51ddc73e35d72834f1ef16e1ad8ba93b29dab"
+    }
+  ],
+  "repositorySourceAfterRehearsal": [
+    {
+      "path": "Data/config.db",
+      "sha256": "b060d4ffb40f714546b49a1dd92b825041ea2bc4a9eeb9900941de1a647418d5"
+    },
+    {
+      "path": "Data/deletedpagerevisions.db",
+      "sha256": "7c622cb5a643336c9ccc8b30188a44724dbacaa45be0210a6872929ea612b6c7"
+    },
+    {
+      "path": "Data/deletedpages.db",
+      "sha256": "f92faf70d19752f509aac0d050fc79620905704a2f33bc6437d07a94b5ea056d"
+    },
+    {
+      "path": "Data/emoji.db",
+      "sha256": "2af53cd3e9456eebdf06186a4f5260bbe75e8b541ce78fd925e1889adace8bb7"
+    },
+    {
+      "path": "Data/logging.db",
+      "sha256": "5831dec0d2e730d856d4755ea324c8f9e026b63470d413775cdcb773b1a38373"
+    },
+    {
+      "path": "Data/pages.db",
+      "sha256": "cfde1c4439bc572d7835a78d7840dab77827b3311a6bed69554940d67a036330"
+    },
+    {
+      "path": "Data/statistics.db",
+      "sha256": "305152b7101a16b39ca1fc81c8437256bc150289f48c683f586cd2542ff6534c"
+    },
+    {
+      "path": "Data/users.db",
+      "sha256": "d7eb58808ee4ac733251d743dc5e847f831e9d99892d12848f9652378de6fa64"
+    },
+    {
+      "path": "TightWiki/Translations/Translations.db",
+      "sha256": "bcd513f2a89abefb8f0241232038104f1ac485c285e683f9fa530e77b8ddcde3"
+    },
+    {
+      "path": "TightWiki.Repository/Defaults/defaults.db",
+      "sha256": "6e716393661200b6276a2b5b72a51ddc73e35d72834f1ef16e1ad8ba93b29dab"
+    }
+  ],
+  "originalCopyMatchesRepository": true,
+  "changedStores": [
+    "deletedpages.db",
+    "statistics.db"
+  ],
+  "expectedChangedStores": [
+    "deletedpages.db",
+    "statistics.db"
+  ],
+  "repairRecords": [
+    {
+      "store": "deletedpages.db",
+      "table": "PageToken",
+      "recordKeys": [
+        "128:profiles",
+        "128:sidebar"
+      ],
+      "action": "DELETE only on isolated repaired copy"
+    },
+    {
+      "store": "deletedpages.db",
+      "table": "PageProcessingInstruction",
+      "recordKeys": [
+        "128:hidefootercomments"
+      ],
+      "action": "DELETE only on isolated repaired copy"
+    },
+    {
+      "store": "statistics.db",
+      "table": "PageStatistics",
+      "recordKeys": [
+        "0"
+      ],
+      "action": "DELETE only on isolated repaired copy"
+    }
+  ]
+}

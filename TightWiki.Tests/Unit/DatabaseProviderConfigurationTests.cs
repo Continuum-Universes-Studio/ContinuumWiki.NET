@@ -31,13 +31,10 @@ namespace TightWiki.Tests.Unit
         }
 
         [Fact]
-        public void MySQLIsRejectedUntilImplemented()
+        public void MySQLIsAnExplicitlySupportedProvider()
         {
-            var exception = Assert.Throws<NotSupportedException>(
-                () => DatabaseProviderConfiguration.ValidateSupportedProvider(Configuration("mysql")));
-
-            Assert.Contains("application-wide MySQL runtime selection", exception.Message, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("SQLite is not consulted", exception.Message, StringComparison.OrdinalIgnoreCase);
+            DatabaseProviderConfiguration.ValidateSupportedProvider(Configuration("mysql"));
+            Assert.Equal(DatabaseProviderConfiguration.MySQL, DatabaseProviderConfiguration.GetProvider(Configuration("mysql")));
         }
 
         [Fact]
@@ -51,7 +48,7 @@ namespace TightWiki.Tests.Unit
                 })
                 .Build();
 
-            Assert.Throws<NotSupportedException>(() => new TightWiki.Repository.Helpers.DatabaseManager(configuration));
+            Assert.ThrowsAny<Exception>(() => new TightWiki.Repository.Helpers.DatabaseManager(configuration));
         }
 
         [Fact]

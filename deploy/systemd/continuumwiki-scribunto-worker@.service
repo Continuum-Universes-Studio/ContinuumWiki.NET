@@ -1,0 +1,34 @@
+[Unit]
+Description=ContinuumWiki Lua Engine disposable worker (%i)
+After=local-fs.target
+
+[Service]
+Type=simple
+User=continuumwiki-scribunto
+Group=continuumwiki-scribunto
+ExecStart=/usr/local/libexec/continuumwiki-scribunto-worker-launcher
+Delegate=yes
+StandardInput=socket
+StandardOutput=socket
+StandardError=null
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+PrivateNetwork=yes
+MemoryMax=256M
+TasksMax=32
+CPUQuota=100%
+LimitCPU=2
+LimitNOFILE=256
+KillMode=control-group
+TimeoutStopSec=2s
+UMask=077
+
+# The executable is administrator-installed and has fixed paths, mounts, and
+# environment handling. No wiki request can supply unit properties or argv.

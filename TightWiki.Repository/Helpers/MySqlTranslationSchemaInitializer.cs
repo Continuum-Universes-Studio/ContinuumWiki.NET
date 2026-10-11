@@ -13,7 +13,7 @@ public sealed class MySqlTranslationSchemaInitializer
         await using var transaction = await session.BeginTransactionAsync(cancellationToken);
         try
         {
-            foreach (var statement in EmbeddedResourceReader.LoadText("MySql.Support.V1__TranslationSchema.sql")
+            foreach (var statement in MariaDbSqlCompatibility.Normalize(EmbeddedResourceReader.LoadText("MySql.Support.V1__TranslationSchema.sql"))
                 .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 await session.Connection.ExecuteAsync(new CommandDefinition(statement, transaction: transaction.Transaction, cancellationToken: cancellationToken));
             await transaction.CommitAsync(cancellationToken);

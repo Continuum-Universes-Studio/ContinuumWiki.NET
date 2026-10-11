@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo>
+    <sitename>Continuum Synthetic Magic Wiki</sitename><base>https://magic.synthetic.invalid/wiki</base><generator>MediaWiki 1.42</generator><case>first-letter</case>
+    <namespaces>
+      <namespace key="0" case="first-letter" />
+      <namespace key="1" case="first-letter">Talk</namespace>
+      <namespace key="10" case="first-letter">Template</namespace>
+      <namespace key="14" case="first-letter">Category</namespace>
+      <namespace key="828" case="first-letter">Module</namespace>
+    </namespaces>
+  </siteinfo>
+  <page><title>Wiki About</title><ns>0</ns><id>1000</id>
+    <revision><id>10001</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>About author</username><id>1</id></contributor><text>About</text></revision>
+  </page>
+  <page><title>Magic Article</title><ns>0</ns><id>1010</id>
+    <revision><id>10101</id><timestamp>2024-12-31T23:59:58Z</timestamp><contributor><username>Article author</username><id>2</id></contributor><text>Historical {{PAGENAME}} {{REVISIONID}} {{Context|state=old}} {{#titleparts:One/Two/Three|2|1}}</text></revision>
+    <revision><id>10102</id><parentid>10101</parentid><timestamp>2025-01-02T03:04:05Z</timestamp><contributor><username>Article author</username><id>2</id></contributor><text>Current {{PAGENAME}} {{FULLPAGENAME}} {{PAGENAMEE}} {{NAMESPACE}} {{NAMESPACENUMBER}} {{TALKPAGENAME}} {{SUBJECTPAGENAME}} {{SITENAME}} {{CONTENTLANGUAGE}} {{REVISIONID}} {{REVISIONTIMESTAMP}} {{Context|state=new}} {{lc:HeLLo}} {{ucfirst:world}} {{padleft:7|3|0}} {{formatnum:12345.5}} {{#rel2abs:../Sibling|Parent/Child/Leaf}} {{#time:%Y-%m-%d|@0}} <ref name="r">safe</ref><references /></text></revision>
+  </page>
+  <page><title>Other Article</title><ns>0</ns><id>1020</id>
+    <revision><id>10201</id><timestamp>2025-01-03T00:00:00Z</timestamp><contributor><username>Other author</username><id>4</id></contributor><text>Other page {{Context|state=other}} {{#invoke:Unsafe|run}}</text></revision>
+  </page>
+  <page><title>Magic Article</title><ns>1</ns><id>1030</id>
+    <revision><id>10301</id><timestamp>2025-01-02T03:05:00Z</timestamp><contributor><username>Talk author</username><id>5</id></contributor><text>Talk page</text></revision>
+  </page>
+  <page><title>Context</title><ns>10</ns><id>1040</id>
+    <revision><id>10401</id><timestamp>2024-12-01T00:00:00Z</timestamp><contributor><username>Template author</username><id>3</id></contributor><text>page={{PAGENAME}} full={{FULLPAGENAME}} ns={{NAMESPACE}} rev={{REVISIONID}} state={{{state|none}}}</text></revision>
+  </page>
+  <page><title>Magic Category</title><ns>14</ns><id>1050</id>
+    <revision><id>10501</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Category author</username><id>6</id></contributor><text>Category page</text></revision>
+  </page>
+  <page><title>Unsafe</title><ns>828</ns><id>1060</id>
+    <revision><id>10601</id><timestamp>2025-01-01T00:00:00Z</timestamp><contributor><username>Module author</username><id>7</id></contributor><text>return unsafe</text></revision>
+  </page>
+</mediawiki>

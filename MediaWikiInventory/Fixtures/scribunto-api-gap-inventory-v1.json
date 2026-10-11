@@ -1,0 +1,101 @@
+[
+  {
+    "gapId": "module.require",
+    "surface": "module loading",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "Bundle-only explicit-edge require with invocation-local caching.",
+    "differenceOrSecurityBoundary": "No dynamic lookup, package path, or complete Scribunto module semantics.",
+    "recommendedPriority": "high",
+    "fixtureCount": 6
+  },
+  {
+    "gapId": "dynamic-loader-security",
+    "surface": "security boundary",
+    "classification": "SECURITY_REJECTED",
+    "currentBehavior": "Undeclared/dynamic module references are rejected.",
+    "differenceOrSecurityBoundary": "Filesystem, network, CLR, environment, process, database, and unrestricted package access remain denied.",
+    "recommendedPriority": "critical",
+    "fixtureCount": 5
+  },
+  {
+    "gapId": "frame.args",
+    "surface": "frame",
+    "classification": "SUPPORTED",
+    "currentBehavior": "Bounded scalar positional/named arguments with nil-versus-empty behavior.",
+    "differenceOrSecurityBoundary": "No live parent argument expansion or host callback access.",
+    "recommendedPriority": "low",
+    "fixtureCount": 2
+  },
+  {
+    "gapId": "mw.loadJsonData",
+    "surface": "module loading",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "Bounded immutable JSON scalar/table conversion.",
+    "differenceOrSecurityBoundary": "MediaWiki JSON conversion edge cases remain unverified.",
+    "recommendedPriority": "medium",
+    "fixtureCount": 2
+  },
+  {
+    "gapId": "frame.host-callbacks",
+    "surface": "frame callbacks",
+    "classification": "UNSUPPORTED",
+    "currentBehavior": "preprocess, expandTemplate, and callParserFunction are rejected.",
+    "differenceOrSecurityBoundary": "No typed callback protocol exists and no host services are exposed.",
+    "recommendedPriority": "high",
+    "fixtureCount": 1
+  },
+  {
+    "gapId": "frame.title-parent",
+    "surface": "frame",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "Trusted getTitle/getParent title metadata is available.",
+    "differenceOrSecurityBoundary": "Parent arguments and ambiguous frame relationships are not synthesized.",
+    "recommendedPriority": "medium",
+    "fixtureCount": 1
+  },
+  {
+    "gapId": "lua-version-semantics",
+    "surface": "Lua language",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "MoonSharp 2.0.0 provides its documented Lua-compatible subset.",
+    "differenceOrSecurityBoundary": "MoonSharp is not Scribunto\u0027s Lua 5.1 runtime; differences require differential testing.",
+    "recommendedPriority": "high",
+    "fixtureCount": 1
+  },
+  {
+    "gapId": "mw.loadData",
+    "surface": "module loading",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "Bounded immutable Lua-table subset.",
+    "differenceOrSecurityBoundary": "Complete Scribunto immutable-table and error semantics require differential verification.",
+    "recommendedPriority": "high",
+    "fixtureCount": 1
+  },
+  {
+    "gapId": "mw.text",
+    "surface": "mw.text",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "Bounded trim, literal split, nowiki, encode, decode, and listToText subset.",
+    "differenceOrSecurityBoundary": "Pattern/context-sensitive and PHP edge semantics remain unverified.",
+    "recommendedPriority": "high",
+    "fixtureCount": 1
+  },
+  {
+    "gapId": "mw.ustring",
+    "surface": "mw.ustring",
+    "classification": "PARTIALLY_SUPPORTED",
+    "currentBehavior": "Unicode scalar len, case, sub, and literal find subset.",
+    "differenceOrSecurityBoundary": "Full Scribunto pattern and grapheme semantics are not implemented.",
+    "recommendedPriority": "high",
+    "fixtureCount": 1
+  },
+  {
+    "gapId": "os-sandbox",
+    "surface": "deployment security",
+    "classification": "SECURITY_REJECTED",
+    "currentBehavior": "Application executor requires explicit opt-in and bubblewrap.",
+    "differenceOrSecurityBoundary": "Current host cannot certify the private-network namespace; production Lua remains disabled.",
+    "recommendedPriority": "critical",
+    "fixtureCount": 0
+  }
+]

@@ -1,0 +1,109 @@
+{
+  "sourceRoot": "/tmp/cw-006c.2whsay/original",
+  "readOnly": true,
+  "sourceFilesPresent": {
+    "status": "PASS",
+    "missing": 0
+  },
+  "sqliteIntegrityCheck": {
+    "status": "PASS",
+    "stores": [
+      "config.db",
+      "users.db",
+      "pages.db",
+      "deletedpages.db",
+      "deletedpagerevisions.db",
+      "logging.db",
+      "statistics.db",
+      "emoji.db",
+      "Translations.db",
+      "defaults.db"
+    ],
+    "observed": "ok for every store"
+  },
+  "declaredForeignKeyCheck": {
+    "status": "PASS",
+    "violations": 0,
+    "observed": "PRAGMA foreign_key_check returned no rows"
+  },
+  "structuralChecks": [
+    {
+      "id": "page-revision-parent",
+      "status": "PASS",
+      "count": 0,
+      "observed": "No PageRevision row references a missing Page."
+    },
+    {
+      "id": "current-revision",
+      "status": "PASS",
+      "count": 0,
+      "observed": "Every Page.Revision has a matching PageRevision."
+    },
+    {
+      "id": "page-and-revision-authors",
+      "status": "PASS",
+      "count": 0,
+      "observed": "All tested page, revision, comment, and attachment authors resolve to users."
+    },
+    {
+      "id": "identity-security-relationships",
+      "status": "PASS",
+      "count": 0,
+      "observed": "Claims, role memberships, account roles, account permissions, and role permissions resolve."
+    },
+    {
+      "id": "attachment-relationships",
+      "status": "PASS",
+      "count": 0,
+      "observed": "PageFile, PageFileRevision, and PageRevisionAttachment parent checks resolve."
+    },
+    {
+      "id": "attachment-size",
+      "status": "PASS",
+      "count": 0,
+      "observed": "No PageFileRevision length(Data) differs from Size."
+    },
+    {
+      "id": "navigation-collisions",
+      "status": "PASS",
+      "count": 0,
+      "observed": "No case-insensitive duplicate live navigation."
+    },
+    {
+      "id": "live-deleted-overlap",
+      "status": "PASS",
+      "count": 0,
+      "observed": "No live/deleted ID or case-insensitive navigation overlap."
+    },
+    {
+      "id": "invalid-revision-numbers",
+      "status": "PASS",
+      "count": 0,
+      "observed": "No negative page or revision numbers."
+    },
+    {
+      "id": "missing-source-stores",
+      "status": "PASS",
+      "count": 0,
+      "observed": "All ten required source stores are present."
+    },
+    {
+      "id": "schema-version",
+      "status": "PASS",
+      "observed": "config.VersionState Version=2.40.0"
+    },
+    {
+      "id": "statistics-orphans",
+      "status": "FAIL",
+      "count": 1,
+      "observed": "PageStatistics.PageId=0 has no live or deleted parent; detailed finding is in original-integrity.json."
+    }
+  ],
+  "knownFindings": [
+    "deleted-pages.PageToken 128:profiles",
+    "deleted-pages.PageToken 128:sidebar",
+    "deleted-pages.PageProcessingInstruction 128:hidefootercomments",
+    "statistics.PageStatistics PageId=0"
+  ],
+  "classificationPolicy": "The four findings are ExplicitlyExcludable only with operator approval and remain blocking until approved."
+}

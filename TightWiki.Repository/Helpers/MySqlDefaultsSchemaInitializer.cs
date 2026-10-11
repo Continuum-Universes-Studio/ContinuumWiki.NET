@@ -14,7 +14,7 @@ public sealed class MySqlDefaultsSchemaInitializer
         try
         {
             foreach (var resource in new[] { "MySql.Support.V1__DefaultsSchema.sql", "MySql.Support.V2__DefaultsSeedState.sql" })
-                foreach (var statement in EmbeddedResourceReader.LoadText(resource)
+                foreach (var statement in MariaDbSqlCompatibility.Normalize(EmbeddedResourceReader.LoadText(resource))
                     .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                     await session.Connection.ExecuteAsync(new CommandDefinition(statement, transaction: transaction.Transaction, cancellationToken: cancellationToken));
             await transaction.CommitAsync(cancellationToken);

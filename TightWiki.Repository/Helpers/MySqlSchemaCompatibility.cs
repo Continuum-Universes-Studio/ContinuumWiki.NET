@@ -3,7 +3,7 @@ using TightWiki.Library.Database;
 
 namespace TightWiki.Repository.Helpers;
 
-internal static class MySqlSchemaCompatibility
+public static class MySqlSchemaCompatibility
 {
     public static async Task ValidateSupportedVersionsAsync(IDatabaseConnectionFactory connectionFactory, CancellationToken cancellationToken)
     {
@@ -13,6 +13,7 @@ internal static class MySqlSchemaCompatibility
         await EnsureNotNewerAsync(session, "MySqlPageSchemaVersion", "SELECT COALESCE(MAX(Version), 0) FROM MySqlPageSchemaVersion;", 3, cancellationToken);
         await EnsureNotNewerAsync(session, "MySqlOperationsSchemaVersion", "SELECT COALESCE(MAX(Version), 0) FROM MySqlOperationsSchemaVersion;", 1, cancellationToken);
         await EnsureNotNewerAsync(session, "MySqlDefaultsSchemaVersion", "SELECT COALESCE(MAX(Version), 0) FROM MySqlDefaultsSchemaVersion;", 2, cancellationToken);
+        await EnsureNotNewerAsync(session, "MediaWikiImportSchemaVersion", "SELECT COALESCE(MAX(Version), 0) FROM MediaWikiImportSchemaVersion;", 2, cancellationToken);
     }
 
     private static async Task EnsureNotNewerAsync(IDatabaseSession session, string tableName, string versionSql, int supportedVersion, CancellationToken cancellationToken)

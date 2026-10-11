@@ -1,7 +1,8 @@
 using Dapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.Sqlite;
+using System.IO.Compression;
 using System.Reflection;
+using System.Text.Json;
 using TightWiki.Library;
 using TightWiki.Library.Database;
 using TightWiki.Plugin;
@@ -11,9 +12,8 @@ using TightWiki.Plugin.Models.Defaults;
 namespace TightWiki.Repository.Helpers;
 
 /// <summary>
-/// Imports typed records from the canonical defaults artifact into MySQL. The
-/// artifact is read-only seed input; it is never attached to or used as the
-/// application's runtime database.
+/// Imports typed records from immutable, provider-neutral seed resources into
+/// MariaDB. The MariaDB runtime never opens or materializes a SQLite database.
 /// </summary>
 public sealed class MySqlDefaultContentSeeder
 {
@@ -134,7 +134,7 @@ public sealed class MySqlDefaultContentSeeder
                     """, new { page.Name, page.Namespace, page.Navigation, page.Description, page.Revision, page.Body, page.DataHash, AuthorId = authorId, Now = DateTime.UtcNow }, transaction.Transaction, cancellationToken));
             }
 
-            var sourceVersion = typeof(DefaultsRepository).Assembly.GetName().Version?.ToString() ?? "unknown";
+            var sourceVersion = typeof(MySqlDefaultContentSeeder).Assembly.GetName().Version?.ToString() ?? "unknown";
             foreach (var seedKey in requested.Distinct().Select(value => value.ToString()))
                 await session.Connection.ExecuteAsync(Command("INSERT INTO MySqlSeedState (SeedKey, SourceVersion, AppliedAtUtc) VALUES (@SeedKey, @SourceVersion, @AppliedAtUtc) ON DUPLICATE KEY UPDATE SourceVersion = VALUES(SourceVersion), AppliedAtUtc = VALUES(AppliedAtUtc);", new { SeedKey = seedKey, SourceVersion = sourceVersion, AppliedAtUtc = DateTime.UtcNow }, transaction.Transaction, cancellationToken));
 
@@ -159,45 +159,20 @@ public sealed class MySqlDefaultContentSeeder
     }
 
     private static List<TwDefaultConfiguration> ReadConfigurations()
-        => WithSeedSource(repository => repository.DefaultsFactory.Query<TwDefaultConfiguration>("Scripts\\Defaults\\GetDefaultConfigurations.sql").ToList());
+        => ReadSeedData<TwDefaultConfiguration>("configurations.json.gz");
 
     private static List<TwDefaultTheme> ReadThemes()
-        => WithSeedSource(repository => repository.DefaultsFactory.Query<TwDefaultTheme>("Scripts\\Defaults\\GetDefaultThemes.sql").ToList());
+        => ReadSeedData<TwDefaultTheme>("themes.json.gz");
 
     private static List<TwDefaultFeatureTemplate> ReadFeatureTemplates()
-        => WithSeedSource(repository => repository.DefaultsFactory.Query<TwDefaultFeatureTemplate>("Scripts\\Defaults\\GetDefaultFeatureTemplates.sql").ToList());
+        => ReadSeedData<TwDefaultFeatureTemplate>("feature-templates.json.gz");
 
     private static List<CanonicalTranslation> ReadTranslations()
-        => WithSqliteSource("SeedSources\\Translations.db", path =>
-        {
-            using var connection = new SqliteConnection($"Data Source={path};Mode=ReadOnly;");
-            connection.Open();
-            using var command = connection.CreateCommand();
-            command.CommandText = $"SELECT {string.Join(", ", TranslationColumns.Select(QuoteIdentifier))} FROM Translation;";
-            using var reader = command.ExecuteReader();
-            var results = new List<CanonicalTranslation>();
-            while (reader.Read())
-            {
-                var values = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
-                for (var index = 0; index < TranslationColumns.Length; index++)
-                    values[TranslationColumns[index]] = reader.IsDBNull(index) ? null : reader.GetString(index);
-                results.Add(new CanonicalTranslation(values));
-            }
-            return results;
-        });
+        => ReadSeedData<Dictionary<string, string?>>("translations.json.gz")
+            .Select(values => new CanonicalTranslation(values)).ToList();
 
     private static List<CanonicalMenu> ReadMenus()
-        => WithSqliteSource("SeedSources\\config.db", path =>
-        {
-            using var connection = new SqliteConnection($"Data Source={path};Mode=ReadOnly;");
-            connection.Open();
-            using var command = connection.CreateCommand();
-            command.CommandText = "SELECT Id, Name, Link, Ordinal FROM MenuItem ORDER BY Ordinal, Id;";
-            using var reader = command.ExecuteReader();
-            var results = new List<CanonicalMenu>();
-            while (reader.Read()) results.Add(new CanonicalMenu(reader.GetInt32(0), reader.GetString(1), reader.GetString(2), reader.GetInt32(3)));
-            return results;
-        });
+        => ReadSeedData<CanonicalMenu>("menus.json.gz");
 
     private static List<TwDefaultWikiPage> ReadWikiPages(IReadOnlyCollection<TwDefaultDataType> requested)
     {
@@ -210,37 +185,20 @@ public sealed class MySqlDefaultContentSeeder
         })
         {
             if (requested.Contains(type))
-                pages.AddRange(WithSeedSource(repository => repository.DefaultsFactory.Query<TwDefaultWikiPage>("Scripts\\Defaults\\GetDefaultWikiPages.sql", new { Namespace = ns }).ToList()));
+                pages.AddRange(ReadSeedData<TwDefaultWikiPage>("wiki-pages.json.gz").Where(page => page.Namespace == ns));
         }
         return pages;
     }
 
-    private static T WithSeedSource<T>(Func<DefaultsRepository, T> read)
+    private static List<T> ReadSeedData<T>(string fileName)
     {
-        var path = Path.Combine(Path.GetTempPath(), $"continuumwiki-defaults-{Guid.NewGuid():N}.db");
-        try
-        {
-            File.WriteAllBytes(path, EmbeddedResourceReader.LoadBytes("Defaults\\defaults.db"));
-            return read(new DefaultsRepository(path));
-        }
-        finally
-        {
-            if (File.Exists(path)) File.Delete(path);
-        }
-    }
-
-    private static T WithSqliteSource<T>(string resourceName, Func<string, T> read)
-    {
-        var path = Path.Combine(Path.GetTempPath(), $"continuumwiki-seed-{Guid.NewGuid():N}.db");
-        try
-        {
-            File.WriteAllBytes(path, EmbeddedResourceReader.LoadBytes(resourceName));
-            return read(path);
-        }
-        finally
-        {
-            if (File.Exists(path)) File.Delete(path);
-        }
+        var resource = typeof(MySqlDefaultContentSeeder).Assembly.GetManifestResourceNames()
+            .Single(name => name.EndsWith($"SeedData.{fileName.Replace('\\', '.')}", StringComparison.OrdinalIgnoreCase));
+        using var stream = typeof(MySqlDefaultContentSeeder).Assembly.GetManifestResourceStream(resource)
+            ?? throw new InvalidOperationException($"MariaDB seed resource '{fileName}' is unavailable.");
+        using var gzip = new GZipStream(stream, CompressionMode.Decompress);
+        return JsonSerializer.Deserialize<List<T>>(gzip, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? throw new InvalidOperationException($"MariaDB seed resource '{fileName}' is empty or invalid.");
     }
 
     private static string QuoteIdentifier(string identifier) => $"`{identifier.Replace("`", "``", StringComparison.Ordinal)}`";

@@ -1,0 +1,15 @@
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.GeneratedMSBuildEditorConfig.editorconfig
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.AssemblyInfoInputs.cache
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.AssemblyInfo.cs
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.csproj.CoreCompileInputs.cache
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.sourcelink.json
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/bin/Debug/net10.0/MediaWikiInventory
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/bin/Debug/net10.0/MediaWikiInventory.deps.json
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/bin/Debug/net10.0/MediaWikiInventory.runtimeconfig.json
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/bin/Debug/net10.0/MediaWikiInventory.dll
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/bin/Debug/net10.0/MediaWikiInventory.pdb
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.dll
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/refint/MediaWikiInventory.dll
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.pdb
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/MediaWikiInventory.genruntimeconfig.cache
+/home/cdjensen94/Projects/ContinuumWiki.NET/MediaWikiInventory/obj/Debug/net10.0/ref/MediaWikiInventory.dll

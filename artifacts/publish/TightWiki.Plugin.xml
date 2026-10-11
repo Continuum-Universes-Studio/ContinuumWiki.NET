@@ -849,6 +849,9 @@
             Gets the database manager used to perform database operations.
             </summary>
         </member>
+        <member name="P:TightWiki.Plugin.Interfaces.ITwEngine.ApplicationPageRepository">
+            <summary>Provider-neutral page access for built-in engine handlers.</summary>
+        </member>
         <member name="P:TightWiki.Plugin.Interfaces.ITwEngine.Logger">
             <summary>
             Gets the logger instance used for logging diagnostic and operational information for the engine.
@@ -1652,6 +1655,12 @@
         </member>
         <member name="M:TightWiki.Plugin.Interfaces.Persistence.ITwApplicationTranslationRepository.GetTranslationAsync(System.String,System.String,System.Threading.CancellationToken)">
             <summary>Gets a localized translation or null when no value exists.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Interfaces.Persistence.ITwMediaWikiImportRepository">
+            <summary>
+            Selects the source format for one target page revision and resolves the
+            source titles retained by the MediaWiki import provenance tables.
+            </summary>
         </member>
         <member name="T:TightWiki.Plugin.Interfaces.Persistence.TwPersistenceProvider">
             <summary>Identifies a supported application persistence provider.</summary>
@@ -3883,6 +3892,12 @@
             The total number of pages available when paginating log entry lists.
             </summary>
         </member>
+        <member name="T:TightWiki.Plugin.Models.TwMediaWikiRenderSource">
+            <summary>Immutable provenance descriptor for the revision being rendered.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwMediaWikiRenderSource.#ctor(TightWiki.Plugin.Models.TwPageSourceFormat,System.Nullable{System.Int64},System.String,System.String,System.String,System.Boolean,System.String,System.String,System.String,System.Nullable{System.DateTime},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
+            <summary>Immutable provenance descriptor for the revision being rendered.</summary>
+        </member>
         <member name="T:TightWiki.Plugin.Models.TwMenuItem">
             <summary>
             Represents a single item in the wiki's navigation menu,
@@ -5539,6 +5554,9 @@
             <summary>
             The display name of the wiki site.
             </summary>
+        </member>
+        <member name="P:TightWiki.Plugin.TwConfiguration.ContentLanguage">
+            <summary>The MediaWiki-compatible content language used by imported expansion metadata.</summary>
         </member>
         <member name="P:TightWiki.Plugin.TwConfiguration.FooterBlurb">
             <summary>

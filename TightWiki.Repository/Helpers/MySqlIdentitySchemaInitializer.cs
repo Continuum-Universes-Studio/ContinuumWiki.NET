@@ -13,8 +13,8 @@ public sealed class MySqlIdentitySchemaInitializer
         await using var session = await connectionFactory.OpenSessionAsync(cancellationToken);
         await using var transaction = await session.BeginTransactionAsync(cancellationToken);
 
-        foreach (var statement in EmbeddedResourceReader
-            .LoadText("MySql.Identity.V1__IdentityAndUsersSchema.sql")
+        foreach (var statement in MariaDbSqlCompatibility.Normalize(EmbeddedResourceReader
+            .LoadText("MySql.Identity.V1__IdentityAndUsersSchema.sql"))
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             await session.Connection.ExecuteAsync(new CommandDefinition(

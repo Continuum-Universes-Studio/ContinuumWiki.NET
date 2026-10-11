@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mediawiki version="0.11" xmlns="http://www.mediawiki.org/xml/export-0.11/">
+  <siteinfo>
+    <sitename>Continuum Synthetic Media Wiki</sitename><base>https://media.synthetic.invalid/wiki</base><generator>MediaWiki 1.42</generator><case>first-letter</case>
+    <namespaces><namespace key="0" case="first-letter" /><namespace key="6" case="first-letter">File</namespace></namespaces>
+  </siteinfo>
+  <page><title>Media gallery</title><ns>0</ns><id>500</id>
+    <revision><id>5001</id><timestamp>2025-03-01T00:00:00Z</timestamp><contributor><username>Article author</username><id>20</id></contributor><text>[[File:Example.png|thumb]] [[Image:地图.jpg]] [[File:ファイル.png]]</text></revision>
+    <revision><id>5002</id><parentid>5001</parentid><timestamp>2025-03-02T00:00:00Z</timestamp><contributor><ip>192.0.2.50</ip></contributor><text>[[File:Example.png|thumb|updated]] [[Image:地图.jpg]] [[File:ファイル.png]]</text></revision>
+  </page>
+  <page><title>Example.png</title><ns>6</ns><id>600</id>
+    <revision><id>6001</id><timestamp>2025-03-01T01:00:00Z</timestamp><contributor><username>Media author</username><id>21</id></contributor><text>Example file page</text></revision>
+    <revision><id>6002</id><parentid>6001</parentid><timestamp>2025-03-02T01:00:00Z</timestamp><contributor><ip>192.0.2.51</ip></contributor><text>Updated example file page</text></revision>
+  </page>
+  <page><title>地图.jpg</title><ns>6</ns><id>601</id>
+    <revision><id>6011</id><timestamp>2025-03-01T02:00:00Z</timestamp><contributor><username>Map author</username><id>22</id></contributor><text>Map file page</text></revision>
+  </page>
+  <page><title>ファイル.png</title><ns>6</ns><id>602</id>
+    <revision><id>6021</id><timestamp>2025-03-01T03:00:00Z</timestamp><contributor><ip>192.0.2.52</ip></contributor><text>Unicode file page</text></revision>
+  </page>
+</mediawiki>
