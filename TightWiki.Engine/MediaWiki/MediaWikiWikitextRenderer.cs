@@ -220,6 +220,9 @@ public sealed class MediaWikiWikitextRenderer(
             case ListBlock list:
                 await RenderListAsync(context, document, provenance, list, cancellationToken);
                 break;
+            case DefinitionListBlock definitionList:
+                await RenderDefinitionListAsync(context, document, provenance, definitionList, cancellationToken);
+                break;
             case RedirectBlock redirect:
                 context.Append("<p class=\"cw-mediawiki-redirect\">Redirect to ");
                 await AppendPageLinkAsync(context, provenance, redirect.Target, redirect.Target, redirect.Target, redirect.Offset, cancellationToken);
@@ -340,16 +343,34 @@ public sealed class MediaWikiWikitextRenderer(
     private async Task RenderListLevelAsync(RenderContext context, Document document, TwMediaWikiRenderSource provenance, IReadOnlyList<TreeListItem> items, CancellationToken cancellationToken)
     {
         if (items.Count == 0) return;
-        var tag = items[0].Item.Ordered ? "ol" : "ul";
-        context.Append("<" + tag + ">");
-        foreach (var item in items)
+        var index = 0;
+        while (index < items.Count)
         {
-            context.Append("<li>");
-            await RenderInlineAsync(context, document, provenance, item.Item.Inlines, cancellationToken);
-            await RenderListLevelAsync(context, document, provenance, item.Children, cancellationToken);
-            context.Append("</li>");
+            var tag = items[index].Item.Ordered ? "ol" : "ul";
+            context.Append("<" + tag + ">");
+            while (index < items.Count && items[index].Item.Ordered == (tag == "ol"))
+            {
+                var item = items[index++];
+                context.Append("<li>");
+                await RenderInlineAsync(context, document, provenance, item.Item.Inlines, cancellationToken);
+                await RenderListLevelAsync(context, document, provenance, item.Children, cancellationToken);
+                context.Append("</li>");
+            }
+            context.Append("</" + tag + ">");
         }
-        context.Append("</" + tag + ">");
+    }
+
+    private async Task RenderDefinitionListAsync(RenderContext context, Document document, TwMediaWikiRenderSource provenance, DefinitionListBlock list, CancellationToken cancellationToken)
+    {
+        context.Append("<dl>");
+        foreach (var item in list.Items)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            context.Append(item.IsTerm ? "<dt>" : "<dd>");
+            await RenderInlineAsync(context, document, provenance, item.Inlines, cancellationToken);
+            context.Append(item.IsTerm ? "</dt>" : "</dd>");
+        }
+        context.Append("</dl>");
     }
 
     private async Task RenderInlineAsync(RenderContext context, Document document, TwMediaWikiRenderSource provenance, IReadOnlyList<InlineNode> nodes, CancellationToken cancellationToken)
@@ -774,10 +795,12 @@ public sealed class MediaWikiWikitextRenderer(
     private sealed record HorizontalRuleBlock(int Offset) : Block(Offset);
     private sealed record RedirectBlock(string Target, int Offset) : Block(Offset);
     private sealed record ListBlock(IReadOnlyList<ListItem> Items, int Offset) : Block(Offset);
+    private sealed record DefinitionListBlock(IReadOnlyList<DefinitionItem> Items, int Offset) : Block(Offset);
     private sealed record TableBlock(TableAttributeSet Attributes, TableCaption? Caption, IReadOnlyList<TableRow> Rows, int Offset) : Block(Offset);
     private sealed record GalleryBlock(GalleryOptions Options, IReadOnlyList<GalleryItem> Items, int Offset) : Block(Offset);
     private sealed record InfoboxBlock(InfoboxNode Node) : Block(Node.Offset);
     private sealed record ListItem(int Depth, bool Ordered, IReadOnlyList<InlineNode> Inlines, int Offset);
+    private sealed record DefinitionItem(bool IsTerm, IReadOnlyList<InlineNode> Inlines, int Offset);
     private sealed class TreeListItem(ListItem item)
     {
         public ListItem Item { get; } = item;
@@ -852,6 +875,7 @@ public sealed class MediaWikiWikitextRenderer(
             var paragraph = new StringBuilder();
             var paragraphOffset = 0;
             var listItems = new List<ListItem>();
+            var definitionItems = new List<DefinitionItem>();
             bool? listOrdered = null;
             var lines = _source.Split('\n');
             var lineOffsets = new int[lines.Length];
@@ -872,6 +896,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     _document.Blocks.Add(redirect);
                     continue;
@@ -881,6 +906,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     continue;
                 }
@@ -889,6 +915,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     AddBlock(table);
                     continue;
@@ -898,6 +925,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     AddBlock(gallery);
                     continue;
@@ -907,6 +935,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     AddBlock(new InfoboxBlock(new InfoboxNode(infobox, lineOffset + line.IndexOf(trimmed, StringComparison.Ordinal), trimmed.Length)));
                     continue;
@@ -916,6 +945,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     _document.Blocks.Add(heading);
                     continue;
@@ -925,6 +955,7 @@ public sealed class MediaWikiWikitextRenderer(
                 {
                     FlushParagraph(paragraph, paragraphOffset);
                     FlushList(listItems, lineOffset);
+                    FlushDefinitionList(definitionItems);
                     listOrdered = null;
                     _document.Blocks.Add(new HorizontalRuleBlock(lineOffset));
                     continue;
@@ -933,13 +964,28 @@ public sealed class MediaWikiWikitextRenderer(
                 if (TryParseListItem(line, lineOffset, out var item))
                 {
                     FlushParagraph(paragraph, paragraphOffset);
-                    if (listOrdered.HasValue && listOrdered.Value != item.Ordered) FlushList(listItems, lineOffset);
-                    listOrdered ??= item.Ordered;
+                    FlushDefinitionList(definitionItems);
+                    if (item.Depth == 0 && listOrdered.HasValue && listOrdered.Value != item.Ordered)
+                    {
+                        FlushList(listItems, lineOffset);
+                        listOrdered = item.Ordered;
+                    }
+                    if (item.Depth == 0) listOrdered ??= item.Ordered;
                     listItems.Add(item);
                     continue;
                 }
 
+                if (TryParseDefinitionItem(line, lineOffset, out var definition))
+                {
+                    FlushParagraph(paragraph, paragraphOffset);
+                    FlushList(listItems, lineOffset);
+                    listOrdered = null;
+                    definitionItems.Add(definition);
+                    continue;
+                }
+
                 FlushList(listItems, lineOffset);
+                FlushDefinitionList(definitionItems);
                 listOrdered = null;
                 if (paragraph.Length == 0) paragraphOffset = lineOffset;
                 else paragraph.Append('\n');
@@ -948,6 +994,7 @@ public sealed class MediaWikiWikitextRenderer(
 
             FlushParagraph(paragraph, paragraphOffset);
             FlushList(listItems, _source.Length);
+            FlushDefinitionList(definitionItems);
             for (var index = 0; index < _document.Diagnostics.Count; index++)
             {
                 var diagnostic = _document.Diagnostics[index];
@@ -971,6 +1018,13 @@ public sealed class MediaWikiWikitextRenderer(
         {
             if (items.Count == 0) return;
             AddBlock(new ListBlock(items.ToList(), items[0].Offset));
+            items.Clear();
+        }
+
+        private void FlushDefinitionList(List<DefinitionItem> items)
+        {
+            if (items.Count == 0) return;
+            AddBlock(new DefinitionListBlock(items.ToList(), items[0].Offset));
             items.Clear();
         }
 
@@ -1769,9 +1823,20 @@ public sealed class MediaWikiWikitextRenderer(
                 item = null!;
                 return false;
             }
-            var ordered = line[0] == '#';
+            var ordered = line[depth - 1] == '#';
             var body = line[depth..].TrimStart();
             item = new ListItem(depth - 1, ordered, ParseInline(body, offset + depth, 0), offset);
+            return true;
+        }
+
+        private bool TryParseDefinitionItem(string line, int offset, out DefinitionItem item)
+        {
+            item = null!;
+            var trimmed = line.TrimStart();
+            if (trimmed.Length < 2 || trimmed[0] is not (';' or ':')) return false;
+            var body = trimmed[1..].TrimStart();
+            if (body.Length == 0) return false;
+            item = new DefinitionItem(trimmed[0] == ';', ParseInline(body, offset + line.IndexOf(body, StringComparison.Ordinal), 0), offset);
             return true;
         }
 

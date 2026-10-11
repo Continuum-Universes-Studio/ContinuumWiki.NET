@@ -355,3 +355,37 @@ Evidence is recorded in
 not complete MediaWiki title parity, exact HTML parity, migration readiness,
 Lua/Cargo certification, or host-worker certification; disposable MariaDB
 execution remains an independent evidence gate.
+
+### CW-M5-007 — historical revision visibility and restriction diagnostics
+
+HISTORICAL_REVISION_VISIBILITY_PARTIALLY_VERIFIED. The imported revision
+schema retains authoritative `IsDeleted`, `IsSuppressed`, `SourceTextPresent`,
+`SourceTextState`, `SourceTimestamp`, and content-model metadata. The resolver
+now preserves internal reasons for no eligible revision, deleted, suppressed,
+and unavailable source-body cases while retaining the existing conservative
+public `RestrictedTemplate` and TemplateStyles not-found behavior. Missing
+source text can no longer be executed as an empty target placeholder.
+
+The evidence is recorded in
+`docs/architecture/CW-M5-007-HISTORICAL-REVISION-VISIBILITY.md` and
+`artifacts/validation/mediawiki-historical-revision-visibility-v1.json`.
+No historical requester-authorization timeline exists, so AccessDenied is
+not inferred from lookup failure. This milestone does not change strict
+migration readiness, production data, Lua/Cargo defaults, worker isolation,
+or TemplateStyles authorization.
+
+### CW-M5-008 — structural Wikitext and HTML rendering compatibility
+
+STRUCTURAL_WIKITEXT_RENDERING_PARTIALLY_VERIFIED. The existing typed renderer
+was audited without introducing a parallel parser. A confirmed mixed-list
+defect was corrected so marker runs such as `*#` preserve ordered child
+semantics, and definition-list markers now produce bounded `<dl>`/`<dt>`/
+`<dd>` structures instead of paragraph text. Existing heading, table,
+attribute-security, link, emphasis, paragraph, template-expanded structure,
+and resource-limit behavior remains covered by the bounded renderer tests.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-008-STRUCTURAL-WIKITEXT-RENDERING.md` and
+`artifacts/validation/mediawiki-structural-wikitext-rendering-v1.json`.
+This does not establish complete MediaWiki HTML parity, historical parity,
+Lua/Cargo parity, host authorization certification, or migration readiness.

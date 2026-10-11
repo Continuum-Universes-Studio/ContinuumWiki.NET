@@ -89,56 +89,8 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         return row is null ? null : new TwMediaWikiMediaTarget(row.SourceFileName, row.PageNavigation, row.FileNavigation, row.ContentType, row.FileRevision is null ? null : checked((int)row.FileRevision.Value), row.Resolved != 0);
     }
 
-    public async Task<TwMediaWikiTemplateTarget> ResolveTemplateAsync(long importBatchId, string sourceTitle, DateTime? asOfUtc = null, CancellationToken cancellationToken = default)
-    {
-        var normalized = NormalizeTemplateTitle(sourceTitle);
-        if (string.IsNullOrWhiteSpace(normalized))
-            return new(TwMediaWikiTemplateResolutionStatus.Missing, sourceTitle);
-
-        await using var session = await connectionFactory.OpenSessionAsync(cancellationToken);
-        var rows = (await session.Connection.QueryAsync<TemplateTargetRow>(new CommandDefinition("""
-            SELECT P.OriginalTitle AS SourceTitle, P.SourcePageId, R.SourceRevisionId,
-                   R.TargetRevision, PR.Body, R.SourceTimestamp, R.ContentModel
-            FROM MediaWikiImportPage P
-            INNER JOIN MediaWikiImportRevision R
-                ON R.ImportBatchId = P.ImportBatchId AND R.SourcePageId = P.SourcePageId
-            INNER JOIN Page TP ON TP.Id = R.TargetPageId AND TP.IsDeleted = FALSE
-            INNER JOIN PageRevision PR ON PR.PageId = R.TargetPageId AND PR.Revision = R.TargetRevision
-            INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
-            WHERE P.ImportBatchId = @ImportBatchId
-              AND P.SourceNamespaceId = '10'
-              AND (REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
-                   OR REPLACE(P.OriginalTitle, '_', ' ') = CONCAT('Template:', @SourceTitle))
-              AND P.IsRedirect = FALSE
-              AND R.IsDeleted = FALSE
-              AND B.Status = 'Completed'
-              AND (@AsOfUtc IS NULL OR R.SourceTimestamp IS NULL OR R.SourceTimestamp <= @AsOfUtc)
-              AND R.IsSuppressed = FALSE
-            ORDER BY R.SourceTimestamp DESC, R.TargetRevision DESC;
-            """, new { ImportBatchId = importBatchId, SourceTitle = normalized, AsOfUtc = asOfUtc }, cancellationToken: cancellationToken))).AsList();
-
-        var byPage = rows.GroupBy(row => row.SourcePageId, StringComparer.Ordinal).ToArray();
-        if (byPage.Length > 1)
-            return new(TwMediaWikiTemplateResolutionStatus.Ambiguous, normalized);
-        var row = rows.FirstOrDefault();
-        if (row is not null)
-            return new(TwMediaWikiTemplateResolutionStatus.Resolved, row.SourceTitle, row.SourcePageId,
-                row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel);
-
-        var exists = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition("""
-            SELECT COUNT(*)
-            FROM MediaWikiImportPage P
-            INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
-            WHERE P.ImportBatchId = @ImportBatchId
-              AND P.SourceNamespaceId = '10'
-              AND (REPLACE(P.OriginalTitle, '_', ' ') = @SourceTitle
-                   OR REPLACE(P.OriginalTitle, '_', ' ') = CONCAT('Template:', @SourceTitle))
-              AND B.Status = 'Completed';
-            """, new { ImportBatchId = importBatchId, SourceTitle = normalized }, cancellationToken: cancellationToken));
-        return exists > 0
-            ? new(TwMediaWikiTemplateResolutionStatus.Restricted, normalized)
-            : new(TwMediaWikiTemplateResolutionStatus.Missing, normalized);
-    }
+    public Task<TwMediaWikiTemplateTarget> ResolveTemplateAsync(long importBatchId, string sourceTitle, DateTime? asOfUtc = null, CancellationToken cancellationToken = default)
+        => ResolveTransclusionAsync(importBatchId, 10, NormalizeTemplateTitle(sourceTitle), asOfUtc, cancellationToken);
 
     public async Task<TwMediaWikiTemplateTarget> ResolveTransclusionAsync(
         long importBatchId,
@@ -155,7 +107,9 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         await using var session = await connectionFactory.OpenSessionAsync(cancellationToken);
         var rows = (await session.Connection.QueryAsync<TemplateTargetRow>(new CommandDefinition("""
             SELECT P.OriginalTitle AS SourceTitle, P.SourcePageId, R.SourceRevisionId,
-                   R.TargetRevision, PR.Body, R.SourceTimestamp, R.ContentModel
+                   R.TargetRevision,
+                   CASE WHEN R.SourceTextPresent = TRUE THEN PR.Body ELSE NULL END AS Body,
+                   R.SourceTimestamp, R.ContentModel
             FROM MediaWikiImportPage P
             INNER JOIN MediaWikiImportRevision R
                 ON R.ImportBatchId = P.ImportBatchId AND R.SourcePageId = P.SourcePageId
@@ -194,11 +148,15 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         var row = rows.FirstOrDefault();
         if (row is not null)
             return new(TwMediaWikiTemplateResolutionStatus.Resolved, row.SourceTitle, row.SourcePageId,
-                row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel, namespaceId);
+                row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel, namespaceId,
+                row.Body is null ? TwMediaWikiRevisionResolutionReason.SourceBodyUnavailable : TwMediaWikiRevisionResolutionReason.None);
 
-        var exists = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition("""
-            SELECT COUNT(*)
+        var metadata = (await session.Connection.QueryAsync<RevisionVisibilityRow>(new CommandDefinition("""
+            SELECT P.SourcePageId, R.SourceTimestamp, R.IsDeleted, R.IsSuppressed,
+                   R.SourceTextPresent, R.SourceTextState
             FROM MediaWikiImportPage P
+            INNER JOIN MediaWikiImportRevision R
+                ON R.ImportBatchId = P.ImportBatchId AND R.SourcePageId = P.SourcePageId
             INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
             WHERE P.ImportBatchId = @ImportBatchId
               AND P.SourceNamespaceId = @SourceNamespaceId
@@ -210,6 +168,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
                         OR TRIM(SUBSTRING_INDEX(REPLACE(P.OriginalTitle, '_', ' '), ':', -1)) = @SourceTitle
                     ))
                   )
+              AND P.IsRedirect = FALSE
               AND B.Status = 'Completed';
             """, new
         {
@@ -217,10 +176,23 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
             SourceNamespaceId = namespaceId,
             SourceNamespaceName = sourceNamespaceId == 10 ? "Template" : string.Empty,
             SourceTitle = normalized
-        }, cancellationToken: cancellationToken));
-        return exists > 0
-            ? new(TwMediaWikiTemplateResolutionStatus.Restricted, normalized, SourceNamespaceId: namespaceId)
-            : new(TwMediaWikiTemplateResolutionStatus.Missing, normalized, SourceNamespaceId: namespaceId);
+        }, cancellationToken: cancellationToken))).AsList();
+
+        var metadataByPage = metadata.GroupBy(row => row.SourcePageId, StringComparer.Ordinal).ToArray();
+        if (metadataByPage.Length == 0)
+            return new(TwMediaWikiTemplateResolutionStatus.Missing, normalized, SourceNamespaceId: namespaceId);
+        if (metadataByPage.Length > 1)
+            return new(TwMediaWikiTemplateResolutionStatus.Ambiguous, normalized, SourceNamespaceId: namespaceId);
+
+        var eligible = metadata.Where(row => asOfUtc is null || row.SourceTimestamp is null || row.SourceTimestamp <= asOfUtc).ToArray();
+        var reason = eligible.Any(row => row.IsSuppressed)
+            ? TwMediaWikiRevisionResolutionReason.SuppressedRevision
+            : eligible.Any(row => row.IsDeleted)
+                ? TwMediaWikiRevisionResolutionReason.DeletedRevision
+                : eligible.Length == 0
+                    ? TwMediaWikiRevisionResolutionReason.NoEligibleRevision
+                    : TwMediaWikiRevisionResolutionReason.SourceBodyUnavailable;
+        return new(TwMediaWikiTemplateResolutionStatus.Restricted, normalized, SourceNamespaceId: namespaceId, ResolutionReason: reason);
     }
 
     public async Task<string> GetTemplateCacheVersionAsync(long importBatchId, DateTime? asOfUtc = null, CancellationToken cancellationToken = default)
@@ -256,7 +228,9 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         await using var session = await connectionFactory.OpenSessionAsync(cancellationToken);
         var rows = (await session.Connection.QueryAsync<ModuleTargetRow>(new CommandDefinition("""
             SELECT P.OriginalTitle AS SourceTitle, P.SourcePageId, R.SourceRevisionId,
-                   R.TargetRevision, PR.Body, R.SourceTimestamp, R.ContentModel
+                   R.TargetRevision,
+                   CASE WHEN R.SourceTextPresent = TRUE THEN PR.Body ELSE NULL END AS Body,
+                   R.SourceTimestamp, R.ContentModel
             FROM MediaWikiImportPage P
             INNER JOIN MediaWikiImportRevision R ON R.ImportBatchId = P.ImportBatchId AND R.SourcePageId = P.SourcePageId
             INNER JOIN Page TP ON TP.Id = R.TargetPageId AND TP.IsDeleted = FALSE
@@ -270,7 +244,8 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
             """, new { ImportBatchId = importBatchId, SourceTitle = normalized, AsOfUtc = asOfUtc }, cancellationToken: cancellationToken))).AsList();
         if (rows.GroupBy(row => row.SourcePageId, StringComparer.Ordinal).Count() > 1) return new(TwMediaWikiModuleResolutionStatus.Ambiguous, normalized);
         var row = rows.FirstOrDefault();
-        if (row is not null) return new(TwMediaWikiModuleResolutionStatus.Resolved, row.SourceTitle, row.SourcePageId, row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel);
+        if (row is not null) return new(TwMediaWikiModuleResolutionStatus.Resolved, row.SourceTitle, row.SourcePageId, row.SourceRevisionId, checked((int)row.TargetRevision), row.Body, row.SourceTimestamp, row.ContentModel,
+            row.Body is null ? TwMediaWikiRevisionResolutionReason.SourceBodyUnavailable : TwMediaWikiRevisionResolutionReason.None);
         var exists = await session.Connection.ExecuteScalarAsync<int>(new CommandDefinition("""
             SELECT COUNT(*) FROM MediaWikiImportPage P INNER JOIN MediaWikiImportBatch B ON B.ImportBatchId = P.ImportBatchId
             WHERE P.ImportBatchId = @ImportBatchId AND P.SourceNamespaceId = '828'
@@ -300,7 +275,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
     private static string NormalizeTitle(string value)
     {
         try { value = Uri.UnescapeDataString(value); } catch (UriFormatException) { }
-        return value.Trim().Replace('_', ' ');
+        return CollapseWhitespace(value.Replace('_', ' '));
     }
 
     private static string NormalizeModuleTitle(string value)
@@ -318,6 +293,24 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         return normalized.StartsWith("Template:", StringComparison.OrdinalIgnoreCase)
             ? normalized["Template:".Length..].Trim()
             : normalized;
+    }
+
+    private static string CollapseWhitespace(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        var pendingSpace = false;
+        foreach (var character in value)
+        {
+            if (char.IsWhiteSpace(character))
+            {
+                pendingSpace = builder.Length > 0;
+                continue;
+            }
+            if (pendingSpace) builder.Append(' ');
+            builder.Append(character);
+            pendingSpace = false;
+        }
+        return builder.ToString().Trim();
     }
 
     private static bool HasUnsafeMediaPath(string value)
@@ -364,9 +357,19 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         public string SourcePageId { get; set; } = string.Empty;
         public string SourceRevisionId { get; set; } = string.Empty;
         public uint TargetRevision { get; set; }
-        public string Body { get; set; } = string.Empty;
+        public string? Body { get; set; }
         public DateTime? SourceTimestamp { get; set; }
         public string? ContentModel { get; set; }
+    }
+
+    private sealed class RevisionVisibilityRow
+    {
+        public string SourcePageId { get; set; } = string.Empty;
+        public DateTime? SourceTimestamp { get; set; }
+        public bool IsDeleted { get; set; }
+        public bool IsSuppressed { get; set; }
+        public bool SourceTextPresent { get; set; }
+        public string SourceTextState { get; set; } = string.Empty;
     }
 
     private sealed class TemplateVersionRow
@@ -385,7 +388,7 @@ public sealed class MySqlMediaWikiImportRepository(IDatabaseConnectionFactory co
         public string SourcePageId { get; set; } = string.Empty;
         public string SourceRevisionId { get; set; } = string.Empty;
         public uint TargetRevision { get; set; }
-        public string Body { get; set; } = string.Empty;
+        public string? Body { get; set; }
         public DateTime? SourceTimestamp { get; set; }
         public string? ContentModel { get; set; }
     }

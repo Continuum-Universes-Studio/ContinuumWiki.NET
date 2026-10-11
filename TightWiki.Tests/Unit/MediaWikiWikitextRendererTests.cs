@@ -38,6 +38,28 @@ public sealed class MediaWikiWikitextRendererTests
     }
 
     [Fact]
+    public async Task RendersMixedListsAndDefinitionListsWithBalancedStructure()
+    {
+        var renderer = CreateRenderer(new FakeMediaWikiImportRepository());
+
+        var result = await renderer.RenderAsync("""
+            * First
+            *# Numbered child
+            *# Another numbered child
+            ** Bulleted child
+            * Second
+
+            ; Term
+            : Definition
+            """, ImportedSource());
+
+        Assert.Contains("<ul><li>First<ol><li>Numbered child</li><li>Another numbered child</li></ol><ul><li>Bulleted child</li></ul></li><li>Second</li></ul>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("<dl><dt>Term</dt><dd>Definition</dd></dl>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain("<p>* First", result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain("<p>; Term", result.HtmlResult, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task RecognizesReferencesCategoriesAndHistoricalMedia()
     {
         var repository = new FakeMediaWikiImportRepository();
@@ -500,7 +522,7 @@ public sealed class MediaWikiWikitextRendererTests
             TemplateResolutionException = new InvalidOperationException("private connection details"),
             Templates =
             {
-                ["BodyMissing"] = new(TwMediaWikiTemplateResolutionStatus.Resolved, "Template:BodyMissing", "page-1", "rev-1", 1, null, null, "wikitext")
+                ["BodyMissing"] = new(TwMediaWikiTemplateResolutionStatus.Resolved, "Template:BodyMissing", "page-1", "rev-1", 1, null, null, "wikitext", ResolutionReason: TwMediaWikiRevisionResolutionReason.SourceBodyUnavailable)
             }
         };
         var renderer = CreateRenderer(repository);
@@ -758,6 +780,27 @@ public sealed class MediaWikiWikitextRendererTests
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "UnsafeExternalUrl");
         Assert.DoesNotContain("javascript:", result.HtmlResult, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("alert(1)", result.HtmlResult, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task KeepsProtectedRevisionReasonsInternalAndPublicDiagnosticsGeneric()
+    {
+        var repository = new FakeMediaWikiImportRepository();
+        repository.Templates["Deleted"] = new(
+            TwMediaWikiTemplateResolutionStatus.Restricted,
+            "Template:Deleted",
+            ResolutionReason: TwMediaWikiRevisionResolutionReason.DeletedRevision);
+        repository.Templates["Suppressed"] = new(
+            TwMediaWikiTemplateResolutionStatus.Restricted,
+            "Template:Suppressed",
+            ResolutionReason: TwMediaWikiRevisionResolutionReason.SuppressedRevision);
+
+        var result = await CreateRenderer(repository).RenderAsync("{{Deleted}} {{Suppressed}}", ImportedSource(repository));
+
+        Assert.Equal(2, result.Diagnostics.Count(diagnostic => diagnostic.Code == "RestrictedTemplate"));
+        Assert.DoesNotContain(result.Diagnostics, diagnostic => diagnostic.Message.Contains("revision", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain("DeletedRevision", result.HtmlResult, StringComparison.Ordinal);
+        Assert.DoesNotContain("SuppressedRevision", result.HtmlResult, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1068,6 +1111,10 @@ public sealed class MediaWikiWikitextRendererTests
         var repository = new FakeMediaWikiImportRepository();
         repository.Templates["Example/not-css"] = Template("Template:Example/not-css", ".x { color: red; }", "text-rev", contentModel: "wikitext");
         repository.Templates["Example/styles.css"] = Template("Template:Example/styles.css", ".x { color: red; }", "css-rev", contentModel: "css");
+        repository.Templates["Example/suppressed.css"] = new(
+            TwMediaWikiTemplateResolutionStatus.Restricted,
+            "Template:Example/suppressed.css",
+            ResolutionReason: TwMediaWikiRevisionResolutionReason.SuppressedRevision);
         var renderer = CreateRenderer(repository);
 
         var result = await renderer.RenderAsync("""
@@ -1075,12 +1122,14 @@ public sealed class MediaWikiWikitextRendererTests
             <templatestyles src="https://example.invalid/style.css" />
             <templatestyles src="Template:Missing/styles.css" />
             <templatestyles src="Template:Example/not-css" />
+            <templatestyles src="Template:Example/suppressed.css" />
             """, ImportedSource(repository));
 
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "TemplateStylesMissingSource");
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "TemplateStylesInvalidSource");
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "TemplateStylesSourceUnavailable");
         Assert.Contains(result.Diagnostics, diagnostic => diagnostic.Code == "TemplateStylesUnsupportedContentModel");
+        Assert.Single(result.Diagnostics, diagnostic => diagnostic.Code == "TemplateStylesSourceRevisionUnavailable");
         Assert.Empty(result.Stylesheets!);
     }
 

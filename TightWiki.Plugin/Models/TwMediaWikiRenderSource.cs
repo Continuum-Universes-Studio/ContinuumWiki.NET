@@ -54,6 +54,23 @@ public enum TwMediaWikiTemplateResolutionStatus
     Ambiguous = 3
 }
 
+/// <summary>
+/// Internal evidence attached to a template/transclusion resolution. Public
+/// rendering continues to use the conservative Restricted/Unavailable
+/// diagnostics and never exposes these protected distinctions to viewers.
+/// </summary>
+public enum TwMediaWikiRevisionResolutionReason
+{
+    None = 0,
+    NoEligibleRevision = 1,
+    SourceBodyUnavailable = 2,
+    DeletedRevision = 3,
+    SuppressedRevision = 4,
+    AccessDenied = 5,
+    UnsupportedContentModel = 6,
+    ResolutionFailed = 7
+}
+
 public sealed record TwMediaWikiTemplateTarget(
     TwMediaWikiTemplateResolutionStatus Status,
     string SourceTitle,
@@ -63,7 +80,8 @@ public sealed record TwMediaWikiTemplateTarget(
     string? Body = null,
     DateTime? SourceTimestampUtc = null,
     string? ContentModel = null,
-    string SourceNamespaceId = "10")
+    string SourceNamespaceId = "10",
+    TwMediaWikiRevisionResolutionReason ResolutionReason = TwMediaWikiRevisionResolutionReason.None)
 {
     public bool IsResolved => Status == TwMediaWikiTemplateResolutionStatus.Resolved
         && SourcePageId is not null
@@ -91,7 +109,8 @@ public sealed record TwMediaWikiModuleTarget(
     int? TargetRevision = null,
     string? Body = null,
     DateTime? SourceTimestampUtc = null,
-    string? ContentModel = null)
+    string? ContentModel = null,
+    TwMediaWikiRevisionResolutionReason ResolutionReason = TwMediaWikiRevisionResolutionReason.None)
 {
     public bool IsResolved => Status == TwMediaWikiModuleResolutionStatus.Resolved
         && SourcePageId is not null && SourceRevisionId is not null && Body is not null;

@@ -3905,6 +3905,13 @@
         <member name="M:TightWiki.Plugin.Models.TwMediaWikiRenderSource.#ctor(TightWiki.Plugin.Models.TwPageSourceFormat,System.Nullable{System.Int64},System.String,System.String,System.String,System.Boolean,System.String,System.String,System.String,System.Nullable{System.DateTime},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
             <summary>Immutable provenance descriptor for the revision being rendered.</summary>
         </member>
+        <member name="T:TightWiki.Plugin.Models.TwMediaWikiRevisionResolutionReason">
+            <summary>
+            Internal evidence attached to a template/transclusion resolution. Public
+            rendering continues to use the conservative Restricted/Unavailable
+            diagnostics and never exposes these protected distinctions to viewers.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Models.TwMediaWikiStylesheet">
             <summary>
             Immutable, renderer-produced identity for one sanitized MediaWiki

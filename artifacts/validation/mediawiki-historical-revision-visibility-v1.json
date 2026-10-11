@@ -1,0 +1,87 @@
+{
+  "ReportVersion": "cw-m5-007-historical-revision-visibility-v1",
+  "GeneratedAtUtc": "2026-10-11T20:13:40Z",
+  "RepositoryRevision": "6d58cb224689f96a54a1fd4d308bc58a8dcc77ef",
+  "Outcome": "HISTORICAL_REVISION_VISIBILITY_PARTIALLY_VERIFIED",
+  "Scope": "Imported MediaWiki revision visibility metadata, historical cutoff selection, conservative renderer diagnostics, and TemplateStyles disclosure safety.",
+  "PersistenceEvidence": [
+    { "Field": "SourceRevisionId", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Preserved source revision identity." },
+    { "Field": "SourceTimestamp", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Historical cutoff eligibility." },
+    { "Field": "IsDeleted", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Imported deleted-state evidence; never rendered." },
+    { "Field": "IsSuppressed", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Imported suppression evidence; never rendered." },
+    { "Field": "SourceTextPresent", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Prevents empty target placeholders from being treated as source content." },
+    { "Field": "SourceTextState", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Retained import state label." },
+    { "Field": "ContentModel", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Existing strict planner and TemplateStyles content-model gates." },
+    { "Field": "PageRevision.Body", "Classification": "AMBIGUOUS", "Use": "Target body alone cannot prove source text was available." },
+    { "Field": "Current permissions and Page.IsDeleted", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "Use": "Present-day access only, not historical visibility." }
+  ],
+  "ResolutionStates": [
+    { "State": "PageMissing", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "PublicMapping": "MissingTemplate" },
+    { "State": "NoEligibleRevision", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "PublicMapping": "RestrictedTemplate" },
+    { "State": "SourceBodyUnavailable", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "PublicMapping": "TemplateSourceUnavailable or TemplateStylesSourceRevisionUnavailable" },
+    { "State": "RevisionDeleted", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE_FROM_IMPORTED_METADATA", "PublicMapping": "RestrictedTemplate or TemplateStylesSourceRevisionUnavailable" },
+    { "State": "RevisionSuppressed", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE_FROM_IMPORTED_METADATA", "PublicMapping": "RestrictedTemplate or TemplateStylesSourceRevisionUnavailable" },
+    { "State": "AccessDenied", "Classification": "METADATA_UNAVAILABLE_IN_IMPORT_REPOSITORY", "PublicMapping": "Generic not-found/restricted behavior" },
+    { "State": "UnsupportedContentModel", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE_BY_PLANNER_OR_TEMPLATESTYLES", "PublicMapping": "Existing strict/content-model diagnostic" },
+    { "State": "ResolutionFailed", "Classification": "AUTHORITATIVELY_DISTINGUISHABLE", "PublicMapping": "Sanitized TemplateResolutionFailed" }
+  ],
+  "Corrections": [
+    {
+      "Area": "Missing source body",
+      "Classification": "CONFIRMED_DEFECT_FIXED",
+      "Evidence": "PageRevision.Body is required and can contain an empty placeholder even when MediaWikiImportRevision.SourceTextPresent is false. Resolver SQL now returns NULL for absent source text, preserving TemplateSourceUnavailable and preventing execution."
+    },
+    {
+      "Area": "Restricted-state precision",
+      "Classification": "CONFIRMED_DEFECT_FIXED_INTERNALLY",
+      "Evidence": "Retained eligible metadata now distinguishes no eligible revision, deleted, suppressed, and source-body-unavailable reasons without changing public Restricted diagnostics. Suppressed takes precedence when both protected flags are set."
+    },
+    {
+      "Area": "Unauthorized historical visibility",
+      "Classification": "UNSUPPORTED_BY_SCHEMA",
+      "Evidence": "No historical requester authorization field or timeline exists; the repository does not infer AccessDenied from lookup failure."
+    }
+  ],
+  "HistoricalCutoff": {
+    "Rule": "SourceTimestamp <= viewed timestamp, with existing null-timestamp behavior",
+    "Ordering": "SourceTimestamp descending, then TargetRevision descending",
+    "FutureFallback": false,
+    "ExactBoundary": "Covered by existing regression tests",
+    "HistoricalVisibilityReconstruction": "NOT_CLAIMED"
+  },
+  "PublicDisclosureVerification": {
+    "ProtectedReasonsInHtml": false,
+    "RevisionIdsInPublicDiagnostics": false,
+    "TimestampsInPublicDiagnostics": false,
+    "BodiesInFailureDiagnostics": false,
+    "TemplateStylesProtectedAssetResponse": "404 NotFound",
+    "ResolverExceptionDetails": "Sanitized",
+    "FirstCausePreserved": true
+  },
+  "Tests": {
+    "FocusedRendererTests": "57 passed, 0 failed",
+    "FullDebugTests": "314 passed, 23 skipped, 0 failed, total 337",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASS",
+    "GitDiffCheck": "PASS",
+    "DatabaseAuthorizationCertification": "NOT RUN",
+    "ProductionDatabaseAccess": "NONE"
+  },
+  "SecurityPreservation": {
+    "StrictMigrationPlanner": "UNCHANGED",
+    "ProductionLua": "DISABLED",
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "CargoProvider": "REJECTING_DEFAULT",
+    "WorkerSystemdBubblewrapSelinux": "UNCHANGED",
+    "ProductionMediaWiki": "NOT ACCESSED",
+    "ProductionSchema": "NOT MODIFIED",
+    "ExpansionBudgets": "UNCHANGED"
+  },
+  "RemainingLimitations": [
+    "No historical requester-authorization timeline is stored.",
+    "No production or disposable MariaDB authorization certification was run.",
+    "Deleted/suppressed distinctions are internal imported-evidence classifications, not public parity claims.",
+    "Complete MediaWiki revision-deletion and suppression parity remains unverified."
+  ],
+  "RecommendedNextMilestone": "Run the existing disposable MariaDB import and focused authorization harness against synthetic imported revision metadata, then keep host certification and strict migration readiness as independent gates."
+}

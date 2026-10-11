@@ -1,0 +1,64 @@
+{
+  "ReportVersion": "cw-m5-008-structural-wikitext-rendering-v1",
+  "GeneratedAtUtc": "2026-10-11T20:23:45Z",
+  "RepositoryRevision": "6d58cb224689f96a54a1fd4d308bc58a8dcc77ef",
+  "Outcome": "STRUCTURAL_WIKITEXT_RENDERING_PARTIALLY_VERIFIED",
+  "Scope": "Bounded structural Wikitext parsing and sanitized HTML rendering; no complete MediaWiki HTML parity claim.",
+  "Architecture": {
+    "Expansion": "MediaWikiTemplateExpander runs first with historical provenance and unchanged budgets.",
+    "Parsing": "MediaWikiWikitextRenderer.Parser creates a typed block/inline AST after expansion.",
+    "BlockPrecedence": ["redirect", "table", "gallery", "typed-infobox", "heading", "horizontal-rule", "list", "definition-list", "paragraph"],
+    "InlinePipeline": ["links", "media", "categories", "references", "emphasis", "TemplateStyles", "static Mermaid", "unsupported constructs"]
+  },
+  "AuditFindings": [
+    { "Area": "Headings", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing parser recognizes matching delimiter levels 1 through 6 and routes content through safe inline rendering." },
+    { "Area": "Unordered and ordered lists", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing typed list tree renderer produces balanced ul/ol structures within parse-depth and block bounds." },
+    { "Area": "Mixed list markers", "Classification": "VERIFIED_CORRECT", "Evidence": "A confirmed marker-selection defect was fixed; the marker at each nesting level now selects that level's list tag, so *# produces an ordered child under an unordered parent." },
+    { "Area": "Definition lists", "Classification": "VERIFIED_CORRECT", "Evidence": "A confirmed paragraph-classification defect was fixed; ; term and : definition lines now produce a typed dl/dt/dd block instead of paragraph text." },
+    { "Area": "Tables and nested tables", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing typed parser and renderer cover table boundaries, rows, headers, cells, captions, spans, nested tables, and malformed-input diagnostics." },
+    { "Area": "Table attribute security", "Classification": "VERIFIED_CORRECT", "Evidence": "Only bounded allow-listed attributes are emitted; styles, event handlers, unsafe URLs, unsupported attributes, and excessive values are rejected or ignored." },
+    { "Area": "Internal and external links", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing imported-page/media resolution and HTTP/HTTPS URL policy remain unchanged and covered by tests." },
+    { "Area": "Bold and italic nesting", "Classification": "VERIFIED_CORRECT", "Evidence": "Existing apostrophe parser produces balanced strong/em nodes and sanitizes surrounding inline content." },
+    { "Area": "Paragraph/block transitions", "Classification": "VERIFIED_CORRECT", "Evidence": "Blank lines and recognized blocks flush paragraph/list/definition state; expanded structures use the same AST pipeline." },
+    { "Area": "Unsupported advanced syntax", "Classification": "UNSUPPORTED_BEHAVIOR", "Evidence": "Full MediaWiki list continuation, complete definition grammar, unrestricted table attributes, and complete file/category semantics remain outside the bounded subset." }
+  ],
+  "ModifiedFiles": [
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-008-STRUCTURAL-WIKITEXT-RENDERING.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-structural-wikitext-rendering-v1.json"
+  ],
+  "AddedRegressionTests": [
+    "RendersMixedListsAndDefinitionListsWithBalancedStructure"
+  ],
+  "Verification": {
+    "FocusedRendererSuite": "58 passed, 0 failed",
+    "FullDebugTests": "315 passed, 0 failed",
+    "IntentionalSkips": "23 skipped",
+    "ReleaseBuild": "0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "GitDiffCheck": "PASSED"
+  },
+  "SecurityPreservation": {
+    "RawHtmlExecution": "NOT INTRODUCED",
+    "UnsafeLinkSchemes": "EXISTING POLICY PRESERVED",
+    "RawTableAttributes": "NOT TRUSTED",
+    "InlineCss": "REJECTED OUTSIDE TEMPLATESTYLES",
+    "TemplateStylesSanitization": "UNCHANGED",
+    "ExpansionBudgets": "UNCHANGED",
+    "StrictMigrationPlanner": "UNCHANGED",
+    "ProductionLua": "DISABLED",
+    "DefaultScribuntoExecutor": "RejectingMediaWikiScribuntoExecutor",
+    "CargoProvider": "REJECTING_DEFAULT",
+    "ProductionDatabaseOrMediaWiki": "NOT ACCESSED",
+    "AuthenticatedEvidence": "UNCHANGED"
+  },
+  "KnownLimitations": [
+    "No complete MediaWiki 1.45 structural or HTML parity claim.",
+    "Definition-list same-line continuation and advanced list continuation are outside the subset.",
+    "Heading IDs remain governed by existing conventions; this renderer does not introduce a new ID scheme.",
+    "Database-backed authorization, historical source acquisition, Cargo parity, Lua worker certification, and migration readiness remain independent gates."
+  ],
+  "RecommendedNextMilestone": "Run the full structural regression and then audit any remaining renderer differences against independently captured reference HTML without changing production evidence or security boundaries."
+}
