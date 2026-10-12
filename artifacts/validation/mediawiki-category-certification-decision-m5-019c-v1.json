@@ -1,0 +1,76 @@
+{
+  "ReportVersion": "cw-m5-019c-certification-decision-v1",
+  "GeneratedAtUtc": "2026-10-12T01:50:40Z",
+  "Milestone": "CW-M5-019C",
+  "Classification": "CATEGORY_OPERATOR_AUTHORIZATION_PENDING",
+  "Authorization": {
+    "ManifestVersion": "cw-m5-019-authorization-v2",
+    "PermissionModel": "separate-certification-and-destructive-scopes-v2",
+    "AuthoritativeManifestPath": "secure/evidence/cw-m5-019-authorization.json",
+    "AuthoritativeManifestPresent": false,
+    "ApprovalSupplied": true,
+    "ApprovalState": "CERTIFICATION_SCOPE_SUPPLIED_DESTRUCTIVE_SCOPE_PROHIBITED",
+    "PreflightStatus": "NOT_RUN",
+    "CandidateStatus": "REJECTED_AS_NON_AUTHORIZING_EXIT_3"
+  },
+  "SourceOnlyContractChange": {
+    "Status": "IMPLEMENTED_AND_SOURCE_VERIFIED",
+    "ManifestVersion": "cw-m5-019-authorization-v2",
+    "CertificationPermissions": ["Connect", "ApplyV1Migration", "ApplyV2Migration", "CategoryMutations", "ConcurrencyAndCrashTests", "RetainSanitizedEvidence"],
+    "SeparateDestructivePermissions": ["CreateDisposableSchema", "DeleteDisposableSchema", "DatabaseCleanup", "ContainerVolumeDeletion"],
+    "LegacyPermissionsRejected": ["DropDisposableSchema", "Cleanup"],
+    "AuthoritativeManifestCreated": false
+  },
+  "TargetEvidence": {
+    "ProvisioningMetadata": "secure/evidence/cw-m5-019a-provisioning-operator4.json",
+    "InspectionReport": "secure/evidence/cw-m5-019a-inspection-operator4.json",
+    "ContainerName": "continuumwiki-m5-019-operator4",
+    "VolumeName": "continuumwiki-m5-019-operator4-data",
+    "DatabaseName": "cw_m5_019_operator4",
+    "Endpoint": "127.0.0.1:13321",
+    "ImageResolvedDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+    "DedicatedApplicationIdentity": "continuumwiki_m5_019_app",
+    "InstanceIdentity": "container=continuumwiki-m5-019-operator4;database=cw_m5_019_operator4;endpoint=127.0.0.1:13321;volume=continuumwiki-m5-019-operator4-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "ProvisioningClassification": "DISPOSABLE_TARGET_PROVISIONED_NOT_AUTHORIZED",
+    "InspectionClassification": "PROVISIONED_TARGET_READY_NOT_AUTHORIZED",
+    "EvidenceAgreement": true
+  },
+  "RequestedScopesForOperatorDecision": {
+    "Connect": "AUTHORIZED",
+    "CreateDisposableSchema": "ALREADY_PROVISIONED; no further creation requested",
+    "ApplyV1Migration": "AUTHORIZED",
+    "ApplyV2Migration": "AUTHORIZED",
+    "CategoryMutations": "AUTHORIZED",
+    "ConcurrencyAndCrashTests": "AUTHORIZED",
+    "RetainSanitizedEvidence": "AUTHORIZED",
+    "DeleteDisposableSchema": "PROHIBITED",
+    "DatabaseCleanup": "PROHIBITED",
+    "ContainerVolumeDeletion": "PROHIBITED"
+  },
+  "MissingApprovalFields": [
+    "Authoritative v2 manifest serialization (intentionally not performed by Codex)",
+    "ApprovedAtUtc recorded at manifest creation",
+    "ExpiresAtUtc set to 24 hours after ApprovedAtUtc",
+    "All target-bound v2 fields, including exact container and volume names",
+    "Provisioning and cleanup ownership fields required by the schema"
+  ],
+  "Execution": {
+    "PreflightCommand": "scripts/preflight-m5-019.sh --manifest $PWD/secure/evidence/cw-m5-019-authorization.json --report $PWD/secure/evidence/cw-m5-019-preflight.json",
+    "PreflightExitCode": null,
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "SqlExecuted": false,
+    "MigrationsExecuted": false,
+    "CertificationTestsExecuted": false,
+    "CleanupExecuted": false,
+    "CleanupStatus": "CLEANUP_NOT_AUTHORIZED"
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "CategoryProviderActivation": "NO_GO",
+    "LuaChanged": false,
+    "WorkerIsolationChanged": false
+  },
+  "SecretsIncluded": false
+}

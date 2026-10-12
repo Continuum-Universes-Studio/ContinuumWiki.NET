@@ -62,4 +62,34 @@ public static class ProviderNeutralPersistenceServiceCollectionExtensions
             new MySqlCategoryMembershipRepository(provider.GetRequiredService<IDatabaseConnectionFactory>()));
         return services;
     }
+
+    /// <summary>
+    /// Explicitly opts a previously proved MariaDB target into the category
+    /// recovery durability store. The default graph remains rejecting and no
+    /// startup path calls this method.
+    /// </summary>
+    public static IServiceCollection AddAuthorizedMySqlCategoryRecoveryDurability(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        MySqlCategoryRecoveryDurabilityReadinessProof readiness)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(readiness);
+
+        if (DatabaseProviderConfiguration.GetProvider(configuration) != DatabaseProviderConfiguration.MySQL)
+            throw new InvalidOperationException("Category recovery durability requires Database:Provider=mysql.");
+        if (!configuration.GetValue<bool>("Database:CategoryRecoveryDurability:Enabled"))
+            throw new InvalidOperationException("Category recovery durability requires explicit Database:CategoryRecoveryDurability:Enabled=true.");
+        if (!string.Equals(configuration["Database:CategoryRecoveryDurability:SchemaVersion"], "2", StringComparison.Ordinal)
+            || readiness.SchemaVersion != MySqlCategoryRecoveryDurabilitySchemaInitializer.CurrentSchemaVersion
+            || string.IsNullOrWhiteSpace(readiness.DatabaseName))
+            throw new InvalidOperationException("Category recovery durability requires an explicitly approved schema version of 2.");
+        if (!services.Any(descriptor => descriptor.ServiceType == typeof(IDatabaseConnectionFactory)))
+            throw new InvalidOperationException("Category recovery durability requires an existing provider connection factory registration.");
+
+        services.AddSingleton<ITwCategoryRecoveryDurabilityStore>(provider =>
+            new MySqlCategoryRecoveryDurabilityStore(provider.GetRequiredService<IDatabaseConnectionFactory>()));
+        return services;
+    }
 }

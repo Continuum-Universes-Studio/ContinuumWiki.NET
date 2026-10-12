@@ -186,6 +186,25 @@ internal static class M5HostCertificationGate
         string? targetDatabase,
         string? targetIdentity,
         string? approvalPath)
+        => EvaluateForScope(
+            runMySqlTests,
+            connectionString,
+            hostAuthorization,
+            targetDatabase,
+            targetIdentity,
+            approvalPath,
+            "cw_m5_003_",
+            "continuumwiki_m5_003_app");
+
+    public static HostCertificationDecision EvaluateForScope(
+        string? runMySqlTests,
+        string? connectionString,
+        string? hostAuthorization,
+        string? targetDatabase,
+        string? targetIdentity,
+        string? approvalPath,
+        string requiredDatabasePrefix,
+        string requiredApplicationIdentity)
     {
         if (!string.Equals(runMySqlTests, "1", StringComparison.Ordinal)
             || !string.Equals(hostAuthorization, "1", StringComparison.Ordinal)
@@ -209,9 +228,10 @@ internal static class M5HostCertificationGate
 
         var databaseName = builder.Database;
         if (!string.Equals(databaseName, targetDatabase, StringComparison.Ordinal)
-            || !databaseName.StartsWith("cw_m5_003_", StringComparison.Ordinal))
+            || string.IsNullOrWhiteSpace(requiredDatabasePrefix)
+            || !databaseName.StartsWith(requiredDatabasePrefix, StringComparison.Ordinal))
         {
-            return new(false, "The connection must name the exact approved disposable cw_m5_003_ database.", databaseName);
+            return new(false, "The connection must name the exact approved disposable target database.", databaseName);
         }
 
         if (!IsLoopback(builder.Server) || builder.Port <= 1024)
@@ -225,12 +245,12 @@ internal static class M5HostCertificationGate
             return new(false, approval.Reason, databaseName);
         }
 
-        if (!string.Equals(builder.UserID, "continuumwiki_m5_003_app", StringComparison.OrdinalIgnoreCase)
+        if (!string.Equals(builder.UserID, requiredApplicationIdentity, StringComparison.OrdinalIgnoreCase)
             || string.Equals(builder.UserID, "root", StringComparison.OrdinalIgnoreCase)
             || string.Equals(builder.UserID, "mysql", StringComparison.OrdinalIgnoreCase)
             || string.Equals(builder.UserID, "mariadb", StringComparison.OrdinalIgnoreCase))
         {
-            return new(false, "The application connection must use the dedicated continuumwiki_m5_003_app identity.", databaseName);
+            return new(false, "The application connection must use the dedicated approved application identity.", databaseName);
         }
 
         return new(true, "Explicit disposable host target authorized.", databaseName);

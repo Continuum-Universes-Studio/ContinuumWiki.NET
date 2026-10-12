@@ -1,0 +1,87 @@
+{
+  "ReportVersion": "cw-m5-022-category-admin-recovery-api-v1",
+  "GeneratedAtUtc": "2026-10-12T03:12:20Z",
+  "Classification": "CATEGORY_ADMIN_RECOVERY_API_SOURCE_VERIFIED",
+  "RunMode": "SOURCE_ONLY",
+  "DatabaseContacts": {
+    "Connections": 0,
+    "Mutations": 0,
+    "LiveTestsRun": false,
+    "Operator4AuthorizationReused": false,
+    "CleanupPerformed": false
+  },
+  "Defaults": {
+    "AdministrativeApiEnabled": false,
+    "OperationAuthorization": "RejectingTwCategoryAdministrativeAuthorization",
+    "ReadinessEvidence": "RejectingTwCategoryOperationalReadinessEvidenceSource",
+    "CategoryMembershipRepository": "RejectingTwCategoryMembershipRepository",
+    "CategoryRecoveryDurabilityStore": "RejectingTwCategoryRecoveryDurabilityStore",
+    "ProductionMigration": "NO_GO",
+    "RepositoryActivation": "NO_GO"
+  },
+  "ConfigurationGate": "ContinuumWiki:CategoryRecovery:AdministrativeApi:Enabled",
+  "Routes": {
+    "Readiness": "GET /Admin/CategoryRecovery/readiness",
+    "Preview": "POST /Admin/CategoryRecovery/preview",
+    "Execute": "POST /Admin/CategoryRecovery/execute",
+    "PreviewAntiForgery": true,
+    "ExecuteAntiForgery": true
+  },
+  "TrustBoundaries": {
+    "ExistingAuthorizeConventionReused": true,
+    "ExistingSessionAdministratorCheckReused": true,
+    "CallerSuppliedActorAccepted": false,
+    "CallerSuppliedRevisionAccepted": false,
+    "CallerSuppliedDatabaseTargetAccepted": false,
+    "CallerSuppliedAuthorizationVerdictAccepted": false,
+    "FreshOperationAuthorizationAtExecute": true,
+    "FreshPageAuthorizationAtExecute": true,
+    "DirectSqlFromEndpoint": false
+  },
+  "Behavior": {
+    "DisabledReturnsWithoutWork": true,
+    "PreviewSideEffectFree": true,
+    "ExecuteRequiresAllowedReadiness": true,
+    "ExecuteUsesDurableRecoveryService": true,
+    "AuditBudgetPreserved": 4096,
+    "BatchLimitPreserved": 100,
+    "IndeterminateOutcomePreserved": true,
+    "CrossStoreAtomicityClaim": false,
+    "BackgroundWorkerAdded": false,
+    "LeaseAdded": false
+  },
+  "Tests": {
+    "FocusedPassed": 15,
+    "FocusedFailed": 0,
+    "FocusedSkipped": 0,
+    "FullDebug": {
+      "Passed": 422,
+      "Failed": 0,
+      "Skipped": 34,
+      "Total": 456
+    },
+    "ReleaseBuild": {
+      "Succeeded": true,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    "JsonValidation": true,
+    "DiffCheck": true,
+    "HttpMutationEndpointActivated": false,
+    "HttpMutationEndpointInvoked": false
+  },
+  "IndependentBlockers": [
+    "explicit operation-authorization adapter and separate approval",
+    "non-source readiness evidence and provider activation",
+    "production deployment and authorization",
+    "live MariaDB/provider certification",
+    "host/container crash and fault certification"
+  ],
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "ServicesChanged": false,
+    "WorkersChanged": false,
+    "ContainersChanged": false
+  }
+}

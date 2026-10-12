@@ -1,0 +1,64 @@
+{
+  "ManifestVersion": "cw-m5-019-authorization-v2",
+  "ApprovalId": "CW-M5-019-OPERATOR4-V2-20261011-001",
+  "ApprovedAtUtc": "2026-10-12T01:58:51Z",
+  "ExpiresAtUtc": "2026-10-13T01:58:51Z",
+  "Approver": {
+    "Name": "Christian Daniel Jensen",
+    "Role": "Project Owner"
+  },
+  "Operator": {
+    "Name": "Christian Daniel Jensen",
+    "Role": "System Administrator"
+  },
+  "TargetOwner": "Christian Daniel Jensen",
+  "Target": {
+    "Disposable": true,
+    "ContainerName": "continuumwiki-m5-019-operator4",
+    "VolumeName": "continuumwiki-m5-019-operator4-data",
+    "DatabaseName": "cw_m5_019_operator4",
+    "Endpoint": "127.0.0.1:13321",
+    "InstanceIdentity": "container=continuumwiki-m5-019-operator4;database=cw_m5_019_operator4;endpoint=127.0.0.1:13321;volume=continuumwiki-m5-019-operator4-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersion": "MariaDB 11.8.x",
+    "DedicatedApplicationIdentity": "continuumwiki_m5_019_app"
+  },
+  "PermittedOperations": {
+    "Connect": true,
+    "CreateDisposableSchema": false,
+    "ApplyV1Migration": true,
+    "ApplyV2Migration": true,
+    "CategoryMutations": true,
+    "ConcurrencyAndCrashTests": true,
+    "RetainSanitizedEvidence": true,
+    "DeleteDisposableSchema": false,
+    "DatabaseCleanup": false,
+    "ContainerVolumeDeletion": false
+  },
+  "Isolation": {
+    "Production": false,
+    "SharedWithProduction": false,
+    "DedicatedCredentials": true,
+    "Proof": "Existing operator4 provisioning and inspection evidence identify a fresh loopback-only disposable MariaDB 11.8 target with a dedicated schema-scoped application identity; no production activation or shared target is authorized."
+  },
+  "Provisioning": {
+    "Procedure": "Existing operator4 provisioning metadata: secure/evidence/cw-m5-019a-provisioning-operator4.json",
+    "CleanupProcedure": "scripts/cw-m5-019/cleanup-mariadb-m5-019.sh with exact operator4 metadata and a separately authorized execute scope; cleanup is prohibited by this manifest.",
+    "CleanupOwner": "Christian Daniel Jensen",
+    "CleanupAttestationPath": "secure/evidence/cw-m5-019a-cleanup-operator4.json"
+  },
+  "TestScope": {
+    "Suite": [
+      "MySqlCategoryPersistenceIntegrationTests",
+      "MediaWikiCategoryRecoveryDurabilityAuthorizationTests"
+    ],
+    "MaxConcurrentWorkers": 1,
+    "MaxPages": 100,
+    "CrashBoundaries": [
+      "before-mutation",
+      "after-mutation-before-audit",
+      "after-audit-before-checkpoint",
+      "during-checkpoint-cas",
+      "after-checkpoint"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "ReportVersion": "cw-m5-019-certification-v1",
+  "GeneratedAtUtc": "2026-10-12T02:06:59Z",
+  "Classification": "DISPOSABLE_CERTIFICATION_EXECUTED",
+  "Authorization": {
+    "ManifestPath": "secure/evidence/cw-m5-019-authorization.json",
+    "ManifestSha256": "f30136a05668fc67c0eee5db34234ba3674db643844d37642506e3a5a6991796",
+    "PreflightPath": "secure/evidence/cw-m5-019-preflight.json",
+    "PreflightSha256": "93249fe91b190e6a229d03266b1249822b282c06d789d9dd336dbd45cb49483e",
+    "PreflightClassification": "CATEGORY_CERTIFICATION_READINESS_SOURCE_VERIFIED",
+    "DestructivePermissions": {
+      "DeleteDisposableSchema": false,
+      "DatabaseCleanup": false,
+      "ContainerVolumeDeletion": false
+    }
+  },
+  "Target": {
+    "ContainerName": "continuumwiki-m5-019-operator4",
+    "VolumeName": "continuumwiki-m5-019-operator4-data",
+    "DatabaseName": "cw_m5_019_operator4",
+    "Endpoint": "127.0.0.1:13321",
+    "DedicatedApplicationIdentity": "continuumwiki_m5_019_app",
+    "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+    "ContainerStatusObserved": "running"
+  },
+  "DatabaseContacts": {
+    "ConnectionsObserved": true,
+    "ConnectionCount": "not instrumented by the existing test runner",
+    "ApplicationConnectionUsed": true,
+    "ProductionConnections": 0,
+    "ProductionMutations": 0,
+    "SchemaMutations": "base schema plus category V1 and recovery V2 initializers executed by the authorized tests",
+    "CategoryMutations": "authorized test rows and role-permission fixtures executed",
+    "DatabaseCleanup": "not executed; explicitly unauthorized"
+  },
+  "SchemaReadback": {
+    "category": 1,
+    "category-recovery": 2
+  },
+  "Tests": {
+    "CommandScope": "TightWiki.Tests Debug, -m:1, M5-019 authorization variables, exact operator4 connection",
+    "Passed": 6,
+    "Failed": 0,
+    "Skipped": 0,
+    "Cases": {
+      "AuthorizationGate": 1,
+      "CategoryPersistence": 4,
+      "RecoveryDurability": 1
+    },
+    "Coverage": [
+      "V1 category schema initialization",
+      "V2 recovery durability schema initialization",
+      "empty index replacement and readback",
+      "stale revision conflict",
+      "transactional replacement validation and retained state",
+      "visibility filtering before bounded pagination",
+      "recovery create/replay, audit idempotence, checkpoint CAS, transitions, and redacted progress"
+    ]
+  },
+  "ObservedDiagnosticRowCounts": {
+    "Page": 31,
+    "PageCategoryMembership": 25,
+    "PageCategoryIndexState": 31,
+    "TwCategoryRecoveryOperation": 13,
+    "TwCategoryRecoveryAuditEvent": 11
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "ProductionServicesChanged": false,
+    "ContainerOrVolumeDeleted": false,
+    "LuaOrWorkerConfigurationChanged": false
+  }
+}

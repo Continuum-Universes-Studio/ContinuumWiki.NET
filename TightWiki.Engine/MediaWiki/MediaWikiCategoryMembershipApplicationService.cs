@@ -65,6 +65,111 @@ public interface ITwCategoryMembershipApplicationService
         TwCategoryReconciliationRequest request,
         Func<TwCategoryIndexAuthorizationContext, CancellationToken, Task<bool>>? authorize,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Invalidates a deleted page's category rows only after the page mutation
+    /// has committed. The repository must validate the deleted state and exact
+    /// authoritative revision inside its own transaction.
+    /// </summary>
+    Task<TwCategoryIndexingResult> InvalidateAfterCommittedDeletionAsync(
+        TwCategoryIndexingRequest request,
+        Func<TwCategoryIndexAuthorizationContext, CancellationToken, Task<bool>>? authorize,
+        CancellationToken cancellationToken = default);
+}
+
+/// <summary>Read-only category-page orchestration over the typed repository.</summary>
+public interface ITwCategoryBrowseService
+{
+    Task<TwCategoryBrowseResult> BrowseAsync(
+        string? categoryTitle,
+        Guid? viewerUserId,
+        int pageNumber = 1,
+        int pageSize = 50,
+        CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Implements category browse without treating repository failures or
+/// unindexed state as an empty category.
+/// </summary>
+public sealed class TwCategoryBrowseService(ITwCategoryMembershipRepository membershipRepository) : ITwCategoryBrowseService
+{
+    public async Task<TwCategoryBrowseResult> BrowseAsync(
+        string? categoryTitle,
+        Guid? viewerUserId,
+        int pageNumber = 1,
+        int pageSize = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageNumber <= 0)
+            return new(TwCategoryBrowseDisposition.InvalidRequest, DiagnosticCode: "InvalidPageNumber");
+        if (pageSize <= 0 || pageSize > TwCategoryMembershipLimits.MaxCategoryMemberPageSize)
+            return new(TwCategoryBrowseDisposition.InvalidRequest, DiagnosticCode: "PageSizeLimitExceeded");
+
+        if (!TwCategoryIdentity.TryCreateFromNavigation(categoryTitle, out var category))
+            return new(TwCategoryBrowseDisposition.InvalidCategory, DiagnosticCode: "InvalidCategoryTitle");
+
+        try
+        {
+            var consistency = await membershipRepository.GetCategoryIndexConsistencyAsync(category, cancellationToken);
+            return await ReadMembersAsync(category, consistency, viewerUserId, pageNumber, pageSize, cancellationToken);
+        }
+        catch (NotSupportedException)
+        {
+            return new(TwCategoryBrowseDisposition.RepositoryUnavailable, category, DiagnosticCode: "CategoryRepositoryUnavailable");
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch
+        {
+            return new(TwCategoryBrowseDisposition.RepositoryUnavailable, category, DiagnosticCode: "CategoryRepositoryUnavailable");
+        }
+    }
+
+    private async Task<TwCategoryBrowseResult> ReadMembersAsync(
+        TwCategoryIdentity category,
+        TwCategoryIndexConsistencyResult consistency,
+        Guid? viewerUserId,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        if (consistency.State == TwCategoryIndexConsistencyState.Unavailable)
+            return new(TwCategoryBrowseDisposition.RepositoryUnavailable, category, Consistency: consistency, DiagnosticCode: consistency.DiagnosticCode ?? "CategoryRepositoryUnavailable");
+        if (consistency.State == TwCategoryIndexConsistencyState.Unindexed)
+            return new(TwCategoryBrowseDisposition.Unindexed, category, Consistency: consistency, DiagnosticCode: consistency.DiagnosticCode ?? "CategoryIndexUnindexed");
+        if (consistency.State != TwCategoryIndexConsistencyState.Current)
+            return new(TwCategoryBrowseDisposition.Inconsistent, category, Consistency: consistency, DiagnosticCode: consistency.DiagnosticCode ?? "CategoryIndexInconsistent");
+
+        try
+        {
+            var members = await membershipRepository.GetMembersAsync(
+                new TwCategoryMemberQuery(category, viewerUserId, pageNumber, pageSize),
+                cancellationToken);
+            return new(
+                members.Members.Count == 0 ? TwCategoryBrowseDisposition.IndexedEmpty : TwCategoryBrowseDisposition.Populated,
+                category,
+                members.Members,
+                members.HasMore,
+                consistency,
+                members.Members.Count == 0 ? "NoVisibleCategoryMembers" : "VisibleCategoryMembersReturned");
+        }
+        catch (NotSupportedException)
+        {
+            return new(TwCategoryBrowseDisposition.RepositoryUnavailable, category, Consistency: consistency, DiagnosticCode: "CategoryRepositoryUnavailable");
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch
+        {
+            return new(TwCategoryBrowseDisposition.RepositoryUnavailable, category, Consistency: consistency, DiagnosticCode: "CategoryRepositoryUnavailable");
+        }
+    }
+
 }
 
 /// <summary>Adapts the existing page and MediaWiki import repositories.</summary>
@@ -288,6 +393,81 @@ public sealed class TwCategoryMembershipApplicationService(
         }
     }
 
+    public async Task<TwCategoryIndexingResult> InvalidateAfterCommittedDeletionAsync(
+        TwCategoryIndexingRequest request,
+        Func<TwCategoryIndexAuthorizationContext, CancellationToken, Task<bool>>? authorize,
+        CancellationToken cancellationToken = default)
+    {
+        if (!TryValidate(request, out var validationCode))
+            return Invalid(request?.PageId ?? 0, validationCode);
+
+        if (authorize is null || request.MutationKind == TwCategoryIndexMutationKind.HistoricalRead)
+            return Unauthorized(request.PageId, request.ExpectedPageRevision, "MutationAuthorizationRequired");
+
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var authorization = new TwCategoryIndexAuthorizationContext(
+                request.PageId,
+                request.PageNavigation,
+                request.ExpectedPageRevision,
+                request.MutationKind,
+                request.ActorUserId);
+            if (!await authorize(authorization, cancellationToken))
+                return Unauthorized(request.PageId, request.ExpectedPageRevision, "MutationAuthorizationRejected");
+
+            var result = await membershipRepository.InvalidateMembershipsAsync(
+                request.PageId,
+                request.ExpectedPageRevision,
+                cancellationToken);
+            return result.Disposition switch
+            {
+                TwCategoryMembershipReplacementDisposition.Applied => new(
+                    TwCategoryIndexingDisposition.Invalidated,
+                    request.PageId,
+                    request.ExpectedPageRevision,
+                    result.DiagnosticCode,
+                    TwCategoryIndexConsistencyState.Unknown,
+                    TwCategoryRecoveryEligibility.EligibleAfterNewAuthorization,
+                    "Deleted-page membership invalidation committed."),
+                TwCategoryMembershipReplacementDisposition.NoChange => new(
+                    TwCategoryIndexingDisposition.NoChange,
+                    request.PageId,
+                    request.ExpectedPageRevision,
+                    result.DiagnosticCode,
+                    TwCategoryIndexConsistencyState.Unknown,
+                    TwCategoryRecoveryEligibility.EligibleAfterNewAuthorization),
+                TwCategoryMembershipReplacementDisposition.RevisionConflict => new(
+                    TwCategoryIndexingDisposition.RevisionConflict,
+                    request.PageId,
+                    result.AppliedPageRevision ?? request.ExpectedPageRevision,
+                    result.DiagnosticCode,
+                    TwCategoryIndexConsistencyState.Stale,
+                    TwCategoryRecoveryEligibility.RequiresCurrentRevision),
+                TwCategoryMembershipReplacementDisposition.PersistenceFailure => new(
+                    TwCategoryIndexingDisposition.PersistenceFailure,
+                    request.PageId,
+                    request.ExpectedPageRevision,
+                    result.DiagnosticCode ?? "CategoryIndexInvalidationFailed",
+                    TwCategoryIndexConsistencyState.Failed,
+                    TwCategoryRecoveryEligibility.EligibleAfterNewAuthorization),
+                _ => Invalid(request.PageId, result.DiagnosticCode ?? "InvalidInvalidationResult")
+            };
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return new(TwCategoryIndexingDisposition.Cancelled, request.PageId, request.ExpectedPageRevision, "CancellationRequested", TwCategoryIndexConsistencyState.Unknown, TwCategoryRecoveryEligibility.EligibleAfterNewAuthorization);
+        }
+        catch (NotSupportedException)
+        {
+            return new(TwCategoryIndexingDisposition.RepositoryUnavailable, request.PageId, request.ExpectedPageRevision, "CategoryRepositoryUnavailable", TwCategoryIndexConsistencyState.Unavailable, TwCategoryRecoveryEligibility.EligibleAfterNewAuthorization);
+        }
+        catch
+        {
+            return new(TwCategoryIndexingDisposition.PersistenceFailure, request.PageId, request.ExpectedPageRevision, "CategoryIndexInvalidationFailed", TwCategoryIndexConsistencyState.Failed, TwCategoryRecoveryEligibility.EligibleAfterNewAuthorization);
+        }
+    }
+
     private async Task<TwCategoryIndexingResult> IndexCoreAsync(
         TwCategoryIndexingRequest request,
         CancellationToken cancellationToken)
@@ -430,6 +610,7 @@ public sealed class TwCategoryMembershipApplicationService(
         {
             TwCategoryIndexingDisposition.Applied => TwCategoryReconciliationDisposition.Reconciled,
             TwCategoryIndexingDisposition.NoChange => TwCategoryReconciliationDisposition.NoChange,
+            TwCategoryIndexingDisposition.Invalidated => TwCategoryReconciliationDisposition.Reconciled,
             TwCategoryIndexingDisposition.IncompleteExtraction => TwCategoryReconciliationDisposition.Incomplete,
             TwCategoryIndexingDisposition.RevisionConflict => TwCategoryReconciliationDisposition.Superseded,
             TwCategoryIndexingDisposition.UnauthorizedMutation => TwCategoryReconciliationDisposition.Unauthorized,
@@ -488,6 +669,9 @@ public sealed class RejectingTwCategoryMembershipRepository : ITwCategoryMembers
         => new("Category membership persistence is not enabled.");
 
     public Task<TwCategoryIndexConsistencyResult> GetIndexConsistencyAsync(int pageId, CancellationToken cancellationToken = default)
+        => Task.FromException<TwCategoryIndexConsistencyResult>(Unavailable());
+
+    public Task<TwCategoryIndexConsistencyResult> GetCategoryIndexConsistencyAsync(TwCategoryIdentity category, CancellationToken cancellationToken = default)
         => Task.FromException<TwCategoryIndexConsistencyResult>(Unavailable());
 
     public Task<IReadOnlyList<TwCategoryMembershipRecord>> GetMembershipsByPageIdAsync(int pageId, CancellationToken cancellationToken = default)

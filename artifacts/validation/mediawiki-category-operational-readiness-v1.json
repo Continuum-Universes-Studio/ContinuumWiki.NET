@@ -1,0 +1,106 @@
+{
+  "ReportVersion": "cw-m5-021-category-operational-readiness-v1",
+  "GeneratedAtUtc": "2026-10-12T03:00:00Z",
+  "Classification": "CATEGORY_OPERATIONAL_READINESS_SOURCE_VERIFIED",
+  "RunMode": "SOURCE_ONLY",
+  "DatabaseContacts": {
+    "Connections": 0,
+    "Mutations": 0,
+    "LiveTestsRun": false,
+    "PreviouslyCertifiedDisposableTargetReused": false,
+    "CleanupPerformed": false
+  },
+  "Defaults": {
+    "CategoryMembershipRepository": "RejectingTwCategoryMembershipRepository",
+    "CategoryRecoveryDurabilityStore": "RejectingTwCategoryRecoveryDurabilityStore",
+    "AutomaticActivation": false,
+    "ProductionMigration": "NO_GO"
+  },
+  "ReadinessStates": [
+    "DisabledByDefault",
+    "AuthorizationMissingOrExpired",
+    "SchemaNotCertified",
+    "ProviderUnavailable",
+    "ReadOnlyReady",
+    "MutationGated",
+    "RecoveryIndeterminate",
+    "Degraded",
+    "ReadyForOperatorReview"
+  ],
+  "Activation": {
+    "DecisionOnly": true,
+    "AllowedForReviewRequires": [
+      "scoped authorization",
+      "target isolation",
+      "category schema certification",
+      "recovery schema certification",
+      "category and recovery provider readiness",
+      "browse and recovery authorization evidence",
+      "bounded concurrency/replay evidence",
+      "rollback plan",
+      "lease assessment",
+      "explicit production approval"
+    ],
+    "WouldMutate": false
+  },
+  "RecoveryAdministration": {
+    "PreviewIsNonMutating": true,
+    "ExecuteRequiresFreshAuthorization": true,
+    "PublicRouteAdded": false,
+    "CrossStoreAtomicityClaim": false
+  },
+  "Observability": {
+    "StructuredEventFields": ["OccurredAtUtc", "Kind", "Outcome", "ReasonCode"],
+    "SensitiveIdentifiersIncluded": false,
+    "UnrestrictedCountsIncluded": false
+  },
+  "LeaseAssessment": {
+    "CurrentConclusion": "NOT_REQUIRED_FOR_SINGLE_OPERATOR_CAS_WORKFLOW",
+    "LeaseImplemented": false,
+    "FutureMultiWorkerLeaseMilestoneRequired": true
+  },
+  "Tests": {
+    "FocusedPassed": 9,
+    "FocusedFailed": 0,
+    "FocusedSkipped": 0,
+    "FullDebug": {
+      "Passed": 407,
+      "Failed": 0,
+      "Skipped": 34,
+      "Total": 441
+    },
+    "ReleaseBuild": {
+      "Succeeded": true,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    "LivePassed": 0,
+    "LiveFailed": 0,
+    "LiveSkipped": 0,
+    "Cases": [
+      "default rejecting registration",
+      "missing and expired authorization",
+      "provider evidence without production readiness",
+      "schema and provider outage states",
+      "indeterminate recovery classification",
+      "administrative preview versus execute",
+      "rollback review-only decision",
+      "bounded operational event metadata"
+    ]
+  },
+  "IndependentBlockers": [
+    "production activation authorization",
+    "future administrative endpoint authentication and authorization",
+    "deployed schema/provider activation evidence",
+    "OS/container/MariaDB crash certification",
+    "live mid-transaction SQL fault certification",
+    "lease protocol if deployment becomes multi-worker"
+  ],
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "ServicesChanged": false,
+    "WorkersChanged": false,
+    "ContainersChanged": false
+  }
+}

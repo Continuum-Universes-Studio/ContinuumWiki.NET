@@ -1,0 +1,54 @@
+{
+  "ReportVersion": "cw-m5-019a-disposable-mariadb-provisioning-v1",
+  "GeneratedAtUtc": "2026-10-12T00:56:05.367429Z",
+  "Milestone": "CW-M5-019A",
+  "Classification": "PROVISIONING_FAILED",
+  "Provisioning": {
+    "Executed": true,
+    "Outcome": "PROVISIONING_FAILED",
+    "RunId": "20261012T005559Z-1301312",
+    "AutomaticCleanup": false,
+    "MigrationsExecuted": false,
+    "CertificationExecuted": false,
+    "AuthorizationCreated": false
+  },
+  "Target": {
+    "ContainerName": "continuumwiki-m5-019-operator3",
+    "VolumeName": "continuumwiki-m5-019-operator3-data",
+    "DatabaseName": "cw_m5_019_operator3",
+    "Port": 13320,
+    "Endpoint": "127.0.0.1:13320",
+    "ImageRequested": "docker.io/library/mariadb:11.8",
+    "ImageResolvedDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersion": "11.8.9-MariaDB-ubu2404",
+    "VersionComment": "mariadb.org binary distribution",
+    "DedicatedApplicationIdentity": "continuumwiki_m5_019_app",
+    "InstanceIdentity": "container=continuumwiki-m5-019-operator3;database=cw_m5_019_operator3;endpoint=127.0.0.1:13320;volume=continuumwiki-m5-019-operator3-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "LoopbackBinding": true,
+    "EmptyBeforeCertification": false
+  },
+  "Credentials": {
+    "EnvironmentFile": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-019/operator3/environment.env",
+    "ApplicationEnvironmentFile": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-019/operator3/application.env",
+    "DirectoryPermissions": "0700",
+    "FilePermissions": "0600",
+    "ValuesIncluded": false
+  },
+  "Authorization": {
+    "Authorized": false,
+    "ManifestGenerated": false,
+    "CertificationAllowed": false
+  },
+  "DatabaseContacts": {
+    "Purpose": "Fresh-target health, identity, grant, and empty-schema validation only",
+    "ApplicationSchemaMigrations": 0,
+    "CertificationConnections": 0,
+    "ProductionConnections": 0,
+    "ProductionMutations": 0
+  },
+  "Cleanup": {
+    "Required": true,
+    "Procedure": "Use the exact metadata and separately authorized CW-M5-019A cleanup command",
+    "Attestation": null
+  }
+}

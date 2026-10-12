@@ -1,0 +1,39 @@
+{
+  "ReportVersion": "cw-m5-019a-disposable-mariadb-provisioning-v1",
+  "GeneratedAtUtc": "2026-10-11T00:00:00Z",
+  "Milestone": "CW-M5-019A",
+  "Classification": "DISPOSABLE_PROVISIONING_WORKFLOW_IMPLEMENTED_NOT_EXECUTED",
+  "Provisioning": {
+    "Executed": false,
+    "Container": "NOT_PROVISIONED",
+    "Database": "NOT_PROVISIONED",
+    "MigrationsExecuted": false,
+    "CertificationExecuted": false,
+    "AuthorizationCreated": false,
+    "AutomaticCleanup": false
+  },
+  "SourceEvidence": {
+    "Provisioner": "scripts/cw-m5-019/provision-mariadb-m5-019.sh",
+    "Inspector": "scripts/cw-m5-019/inspect-mariadb-m5-019.sh",
+    "Cleanup": "scripts/cw-m5-019/cleanup-mariadb-m5-019.sh",
+    "AuthorizationSchema": "docs/operations/cw-m5-019-authorization-manifest.schema.json",
+    "SourceTests": "scripts/test_m5_019a_provisioning.py"
+  },
+  "Security": {
+    "PodmanOnly": true,
+    "LoopbackOnly": true,
+    "MariaDbMajorMinor": "11.8.x",
+    "UniqueResourceNames": true,
+    "SecretValuesRecorded": false,
+    "ProductionConnections": 0,
+    "ProductionMutations": 0,
+    "LuaChanged": false,
+    "WorkerIsolationChanged": false
+  },
+  "OpenGates": [
+    "Operator must execute provisioning against a fresh target.",
+    "Operator must independently approve the exact target and cleanup scope.",
+    "Nonconnecting CW-M5-019 preflight must pass against the supplied manifest.",
+    "Live V1/V2 schema, category, recovery, crash, concurrency, and cleanup certification remain unexecuted."
+  ]
+}

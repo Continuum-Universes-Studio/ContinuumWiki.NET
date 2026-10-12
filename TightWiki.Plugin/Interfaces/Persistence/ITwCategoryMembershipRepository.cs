@@ -17,6 +17,14 @@ public interface ITwCategoryMembershipRepository
         int pageId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Reads category-wide index readiness without returning membership rows.
+    /// Implementations must not use this as a visibility or count shortcut.
+    /// </summary>
+    Task<TwCategoryIndexConsistencyResult> GetCategoryIndexConsistencyAsync(
+        TwCategoryIdentity category,
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<TwCategoryMembershipRecord>> GetMembershipsByPageIdAsync(
         int pageId,
         CancellationToken cancellationToken = default);

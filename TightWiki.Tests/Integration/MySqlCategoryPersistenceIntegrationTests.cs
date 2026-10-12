@@ -5,6 +5,7 @@ using TightWiki.Repository.Helpers;
 
 namespace TightWiki.Tests.Integration;
 
+[Collection("CW-M5-019 serial")]
 public sealed class MySqlCategoryPersistenceIntegrationTests
 {
     [CategoryPersistenceAuthorizationFact]
@@ -17,7 +18,7 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         {
             var request = Request(page.Id, 1, []);
             var applied = await repository.ReplaceMembershipsAsync(request);
-            Assert.Equal(TwCategoryMembershipReplacementDisposition.Applied, applied.Disposition);
+            Assert.True(applied.Disposition == TwCategoryMembershipReplacementDisposition.Applied, applied.DiagnosticCode);
 
             var state = await repository.GetIndexConsistencyAsync(page.Id);
             Assert.Equal(TwCategoryIndexConsistencyState.Current, state.State);
@@ -30,7 +31,8 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         }
         finally
         {
-            await pageRepository.DeletePageAsync(page.Id, 1, Guid.NewGuid());
+            if (!M5_019AuthorizationGate.IsConfigured || M5_019AuthorizationGate.DatabaseCleanupAuthorized)
+                await pageRepository.DeletePageAsync(page.Id, 1, Guid.NewGuid());
         }
     }
 
@@ -43,8 +45,8 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         try
         {
             var first = Request(page.Id, 1, [Membership(page.Id, 1, "A")]);
-            Assert.Equal(TwCategoryMembershipReplacementDisposition.Applied,
-                (await repository.ReplaceMembershipsAsync(first)).Disposition);
+            var firstApplied = await repository.ReplaceMembershipsAsync(first);
+            Assert.True(firstApplied.Disposition == TwCategoryMembershipReplacementDisposition.Applied, firstApplied.DiagnosticCode);
 
             page.Body = "new revision";
             await pageRepository.UpdatePageAsync(page, 1);
@@ -56,7 +58,8 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         }
         finally
         {
-            await pageRepository.DeletePageAsync(page.Id, 2, Guid.NewGuid());
+            if (!M5_019AuthorizationGate.IsConfigured || M5_019AuthorizationGate.DatabaseCleanupAuthorized)
+                await pageRepository.DeletePageAsync(page.Id, 2, Guid.NewGuid());
         }
     }
 
@@ -69,8 +72,8 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         try
         {
             var initial = Request(page.Id, 1, [Membership(page.Id, 1, "A")]);
-            Assert.Equal(TwCategoryMembershipReplacementDisposition.Applied,
-                (await repository.ReplaceMembershipsAsync(initial)).Disposition);
+            var initialApplied = await repository.ReplaceMembershipsAsync(initial);
+            Assert.True(initialApplied.Disposition == TwCategoryMembershipReplacementDisposition.Applied, initialApplied.DiagnosticCode);
 
             var duplicateCategory = Request(page.Id, 1,
             [
@@ -79,14 +82,15 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
             ]) with { IndexGeneration = Guid.NewGuid(), IndexedAtUtc = DateTime.UtcNow };
             var failed = await repository.ReplaceMembershipsAsync(duplicateCategory);
 
-            Assert.Equal(TwCategoryMembershipReplacementDisposition.PersistenceFailure, failed.Disposition);
+            Assert.Equal(TwCategoryMembershipReplacementDisposition.InvalidRequest, failed.Disposition);
             var remaining = Assert.Single(await repository.GetMembershipsByPageIdAsync(page.Id));
             Assert.Equal("A", remaining.SortKey);
             Assert.Equal(TwCategoryIndexConsistencyState.Current, (await repository.GetIndexConsistencyAsync(page.Id)).State);
         }
         finally
         {
-            await pageRepository.DeletePageAsync(page.Id, 1, Guid.NewGuid());
+            if (!M5_019AuthorizationGate.IsConfigured || M5_019AuthorizationGate.DatabaseCleanupAuthorized)
+                await pageRepository.DeletePageAsync(page.Id, 1, Guid.NewGuid());
         }
     }
 
@@ -103,12 +107,13 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         var deniedPageId = 0;
         try
         {
+            var categoryTitle = $"Certification-{Guid.NewGuid():N}";
             foreach (var page in pages)
             {
                 await pageRepository.CreatePageAsync(page);
-                var request = Request(page.Id, 1, [Membership(page.Id, 1, page.Name)]);
-                Assert.Equal(TwCategoryMembershipReplacementDisposition.Applied,
-                    (await repository.ReplaceMembershipsAsync(request)).Disposition);
+                var request = Request(page.Id, 1, [Membership(page.Id, 1, page.Name, categoryTitle)]);
+                var pageApplied = await repository.ReplaceMembershipsAsync(request);
+                Assert.True(pageApplied.Disposition == TwCategoryMembershipReplacementDisposition.Applied, pageApplied.DiagnosticCode);
             }
 
             deniedPageId = pages[1].Id;
@@ -116,14 +121,20 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
             {
                 var roleId = await session.Connection.ExecuteScalarAsync<int>("SELECT Id FROM Role WHERE Name = 'Anonymous';");
                 var permissionId = await session.Connection.ExecuteScalarAsync<int>("SELECT Id FROM Permission WHERE Name = 'Read';");
+                var allowId = await session.Connection.ExecuteScalarAsync<int>("SELECT Id FROM PermissionDisposition WHERE Name = 'Allow';");
                 var denyId = await session.Connection.ExecuteScalarAsync<int>("SELECT Id FROM PermissionDisposition WHERE Name = 'Deny';");
+                await session.Connection.ExecuteAsync("""
+                    INSERT INTO RolePermission (RoleId, PermissionId, Namespace, PageId, PermissionDispositionId)
+                    VALUES (@RoleId, @PermissionId, '*', NULL, @AllowId)
+                    ON DUPLICATE KEY UPDATE PermissionDispositionId = VALUES(PermissionDispositionId);
+                    """, new { RoleId = roleId, PermissionId = permissionId, AllowId = allowId });
                 await session.Connection.ExecuteAsync("""
                     INSERT INTO RolePermission (RoleId, PermissionId, Namespace, PageId, PermissionDispositionId)
                     VALUES (@RoleId, @PermissionId, NULL, @PageId, @DenyId);
                     """, new { RoleId = roleId, PermissionId = permissionId, PageId = deniedPageId.ToString(), DenyId = denyId });
             }
 
-            var category = AssertCategory("Divines");
+            var category = AssertCategory(categoryTitle);
             var result = await repository.GetMembersAsync(new TwCategoryMemberQuery(category, null, 1, 2));
             Assert.Equal(2, result.Members.Count);
             Assert.False(result.HasMore);
@@ -132,12 +143,15 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         }
         finally
         {
-            await using var cleanup = await factory.OpenSessionAsync();
-            if (deniedPageId > 0)
-                await cleanup.Connection.ExecuteAsync("DELETE FROM RolePermission WHERE PageId = @PageId;", new { PageId = deniedPageId.ToString() });
-            foreach (var page in pages)
-                if (page.Id > 0)
-                    await pageRepository.DeletePageAsync(page.Id, 1, Guid.NewGuid());
+            if (!M5_019AuthorizationGate.IsConfigured || M5_019AuthorizationGate.DatabaseCleanupAuthorized)
+            {
+                await using var cleanup = await factory.OpenSessionAsync();
+                if (deniedPageId > 0)
+                    await cleanup.Connection.ExecuteAsync("DELETE FROM RolePermission WHERE PageId = @PageId;", new { PageId = deniedPageId.ToString() });
+                foreach (var page in pages)
+                    if (page.Id > 0)
+                        await pageRepository.DeletePageAsync(page.Id, 1, Guid.NewGuid());
+            }
         }
     }
 
@@ -162,9 +176,9 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
         return new(pageId, revision, normalized, true, generation, indexedAt, "source-page", "source-revision", "test-wiki");
     }
 
-    private static TwCategoryMembershipRecord Membership(int pageId, int revision, string sortKey)
+    private static TwCategoryMembershipRecord Membership(int pageId, int revision, string sortKey, string categoryTitle = "Divines")
     {
-        Assert.True(TwCategoryIdentity.TryCreate("Divines", out var category));
+        Assert.True(TwCategoryIdentity.TryCreate(categoryTitle, out var category));
         return new(pageId, category, sortKey, revision, "source-page", "source-revision", "test-wiki", Guid.NewGuid(), DateTime.UtcNow);
     }
 
@@ -186,6 +200,9 @@ public sealed class MySqlCategoryPersistenceIntegrationTests
 
     private static string RequireApprovedConnectionString()
     {
+        if (M5_019AuthorizationGate.IsConfigured)
+            return M5_019AuthorizationGate.RequireApprovedConnectionString();
+
         var value = Environment.GetEnvironmentVariable("CONTINUUMWIKI_MYSQL_TEST_CONNECTION");
         var target = Environment.GetEnvironmentVariable("CONTINUUMWIKI_CATEGORY_PERSISTENCE_TARGET_DATABASE");
         var approvalPath = Environment.GetEnvironmentVariable("CONTINUUMWIKI_CATEGORY_PERSISTENCE_APPROVAL_PATH");

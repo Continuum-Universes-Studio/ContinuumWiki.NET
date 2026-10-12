@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://continuumwiki.invalid/schemas/cw-m5-019-authorization-manifest-v2.json",
+  "title": "ContinuumWiki CW-M5-019 disposable MariaDB certification authorization v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ManifestVersion",
+    "ApprovalId",
+    "ApprovedAtUtc",
+    "ExpiresAtUtc",
+    "Approver",
+    "Operator",
+    "TargetOwner",
+    "Target",
+    "PermittedOperations",
+    "Isolation",
+    "Provisioning",
+    "TestScope"
+  ],
+  "properties": {
+    "ManifestVersion": { "const": "cw-m5-019-authorization-v2" },
+    "ApprovalId": { "type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$" },
+    "ApprovedAtUtc": { "type": "string", "format": "date-time" },
+    "ExpiresAtUtc": { "type": "string", "format": "date-time" },
+    "Approver": { "$ref": "#/$defs/person" },
+    "Operator": { "$ref": "#/$defs/person" },
+    "TargetOwner": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Disposable", "ContainerName", "VolumeName", "DatabaseName", "Endpoint", "InstanceIdentity", "EngineVersion", "DedicatedApplicationIdentity"],
+      "properties": {
+        "Disposable": { "const": true },
+        "ContainerName": { "type": "string", "pattern": "^continuumwiki-m5-019-[a-z0-9-]{1,48}$" },
+        "VolumeName": { "type": "string", "pattern": "^continuumwiki-m5-019-[a-z0-9-]{1,48}-data$" },
+        "DatabaseName": { "type": "string", "pattern": "^cw_m5_019_[a-z0-9_]{1,48}$" },
+        "Endpoint": { "type": "string", "pattern": "^(127\\.0\\.0\\.1|localhost|\\[::1\\]):[1-9][0-9]{2,4}$" },
+        "InstanceIdentity": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "EngineVersion": { "const": "MariaDB 11.8.x" },
+        "DedicatedApplicationIdentity": { "const": "continuumwiki_m5_019_app" }
+      }
+    },
+    "PermittedOperations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Connect", "CreateDisposableSchema", "ApplyV1Migration", "ApplyV2Migration", "CategoryMutations", "ConcurrencyAndCrashTests", "RetainSanitizedEvidence", "DeleteDisposableSchema", "DatabaseCleanup", "ContainerVolumeDeletion"],
+      "properties": {
+        "Connect": { "type": "boolean" },
+        "CreateDisposableSchema": { "type": "boolean" },
+        "ApplyV1Migration": { "type": "boolean" },
+        "ApplyV2Migration": { "type": "boolean" },
+        "CategoryMutations": { "type": "boolean" },
+        "ConcurrencyAndCrashTests": { "type": "boolean" },
+        "RetainSanitizedEvidence": { "type": "boolean" },
+        "DeleteDisposableSchema": { "type": "boolean", "description": "Permission to remove the disposable category/recovery schema objects." },
+        "DatabaseCleanup": { "type": "boolean", "description": "Permission to delete or scrub certification rows inside the disposable database." },
+        "ContainerVolumeDeletion": { "type": "boolean", "description": "Permission to remove the exact Podman container and volume." }
+      }
+    },
+    "Isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Production", "SharedWithProduction", "DedicatedCredentials", "Proof"],
+      "properties": {
+        "Production": { "const": false },
+        "SharedWithProduction": { "const": false },
+        "DedicatedCredentials": { "const": true },
+        "Proof": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      }
+    },
+    "Provisioning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Procedure", "CleanupProcedure", "CleanupOwner", "CleanupAttestationPath"],
+      "properties": {
+        "Procedure": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "CleanupProcedure": { "type": "string", "minLength": 1, "maxLength": 2048 },
+        "CleanupOwner": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "CleanupAttestationPath": { "type": "string", "minLength": 1, "maxLength": 512 }
+      }
+    },
+    "TestScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Suite", "MaxConcurrentWorkers", "MaxPages", "CrashBoundaries"],
+      "properties": {
+        "Suite": { "type": "array", "minItems": 1, "items": { "type": "string", "maxLength": 128 } },
+        "MaxConcurrentWorkers": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "MaxPages": { "const": 100 },
+        "CrashBoundaries": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["before-mutation", "after-mutation-before-audit", "after-audit-before-checkpoint", "during-checkpoint-cas", "after-checkpoint"] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name", "Role"],
+      "properties": {
+        "Name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "Role": { "type": "string", "minLength": 1, "maxLength": 160 }
+      }
+    }
+  }
+}

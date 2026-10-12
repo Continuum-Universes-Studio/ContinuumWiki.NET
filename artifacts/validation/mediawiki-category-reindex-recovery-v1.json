@@ -1,0 +1,91 @@
+{
+  "ReportVersion": "cw-m5-016-category-reindex-recovery-v1",
+  "GeneratedAtUtc": "2026-10-11T23:03:59Z",
+  "Classification": "CATEGORY_REINDEX_RECOVERY_SOURCE_PARTIAL",
+  "RepositoryRevision": "b6db13ba7571205c947bcba41c9dbb94f1943dc6",
+  "DatabaseAuthorization": "DATABASE_AUTHORIZATION_NOT_ESTABLISHED",
+  "ProductionMigration": "NO_GO",
+  "Implementation": {
+    "PlanningService": "ITwCategoryRecoveryService.PlanAsync",
+    "ExecutionService": "ITwCategoryRecoveryService.ExecuteAsync",
+    "MutationPath": "ITwCategoryMembershipApplicationService.ReconcileAsync",
+    "DefaultRepository": "RejectingTwCategoryMembershipRepository",
+    "DefaultRejectingExecutorPreserved": true,
+    "PublicMutationRouteAdded": false,
+    "DurableAuditLedgerAdded": false,
+    "DurableCheckpointStoreAdded": false
+  },
+  "Safety": {
+    "MaxBatchPages": 100,
+    "StableOrdering": "PageId ascending",
+    "ClientRevisionTrusted": false,
+    "AuthoritativeCurrentRevisionReresolved": true,
+    "IncompleteExtractionReplacesMemberships": false,
+    "PerTargetAuthorization": true,
+    "OperationAuthorization": true,
+    "CheckpointIsAuthorization": false,
+    "GlobalAtomicityClaim": false,
+    "PrivatePageIdentityRedactedOnDeniedOrUnavailable": true,
+    "CredentialsPersistedOrLogged": false
+  },
+  "Outcomes": {
+    "Plan": [
+      "Ready",
+      "NoChange",
+      "NeedsReindex",
+      "Unindexed",
+      "Inconsistent",
+      "IncompleteExtraction",
+      "Unauthorized",
+      "RepositoryUnavailable",
+      "PageUnavailable",
+      "RevisionChanged",
+      "InvalidRequest"
+    ],
+    "Execute": [
+      "Reindexed",
+      "NoChange",
+      "IncompleteExtraction",
+      "RevisionConflict",
+      "Unauthorized",
+      "RepositoryUnavailable",
+      "PersistenceFailure",
+      "InvalidRequest",
+      "Cancelled"
+    ]
+  },
+  "FilesChanged": [
+    "TightWiki.Plugin/Models/TwCategoryRecoveryModels.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryRecoveryService.cs",
+    "TightWiki/Program.cs",
+    "TightWiki/MySqlDevelopmentRuntime.cs",
+    "TightWiki.Tests/Unit/MediaWikiCategoryRecoveryServiceTests.cs",
+    "docs/architecture/CW-M5-016-CATEGORY-REINDEX-RECOVERY.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-category-reindex-recovery-v1.json"
+  ],
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiCategoryRecoveryServiceTests'",
+    "FocusedResult": "12 passed, 0 failed, 0 skipped",
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "377 passed, 28 skipped, 0 failed",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "0 warnings, 0 errors",
+    "JsonValidation": "Passed",
+    "DiffCheck": "Passed"
+  },
+  "HostAndDatabase": {
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "MariaDbTestsExecuted": false,
+    "HostWorkerCertification": "NOT_IN_SCOPE_AND_NOT_EXECUTED",
+    "ProductionLuaEnabled": false,
+    "ProductionServicesModified": false
+  },
+  "Blockers": [
+    "No authorized durable category audit/event contract",
+    "No authorized durable checkpoint/resume store",
+    "No disposable MariaDB execution or real CAS/visibility evidence",
+    "Default rejecting category repository prevents accidental provider writes"
+  ]
+}

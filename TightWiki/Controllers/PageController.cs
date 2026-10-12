@@ -1097,6 +1097,7 @@ namespace TightWiki.Controllers
                     {
                         return NotifyOfError(Localize("The page could not be deleted because it has changed or is already deleted."));
                     }
+                    await RecordCategoryInvalidationAfterPageDeletionAsync(categoryMembershipApplicationService, page);
                     MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [page.Navigation]));
                     MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [page.Id]));
                     return NotifyOfSuccess(Localize("The page has been deleted."), $"/Home");
@@ -1403,6 +1404,41 @@ namespace TightWiki.Controllers
             {
                 Logger.LogWarning(
                     "Category indexing was not completed after committed page mutation. PageId={PageId}, Revision={Revision}, Disposition={Disposition}, Consistency={ConsistencyState}, Recovery={RecoveryEligibility}, Diagnostic={DiagnosticCode}.",
+                    result.PageId,
+                    result.PageRevision,
+                    result.Disposition,
+                    result.ConsistencyState,
+                    result.RecoveryEligibility,
+                    result.DiagnosticCode);
+            }
+        }
+
+        private async Task RecordCategoryInvalidationAfterPageDeletionAsync(
+            ITwCategoryMembershipApplicationService? categoryMembershipApplicationService,
+            TwPage page)
+        {
+            if (categoryMembershipApplicationService is null)
+                return;
+
+            // Delete permission was checked before the page mutation. The
+            // post-commit callback therefore carries that authorization across
+            // the exact revision-bound invalidation; it must not re-resolve a
+            // now-deleted page as an implicit permission grant.
+            var result = await categoryMembershipApplicationService.InvalidateAfterCommittedDeletionAsync(
+                new TwCategoryIndexingRequest(
+                    page.Id,
+                    page.Navigation,
+                    page.Revision,
+                    TwCategoryIndexMutationKind.PageMutation,
+                    SessionState.Profile?.UserId),
+                (_, _) => Task.FromResult(true),
+                HttpContext.RequestAborted);
+
+            if (result.Disposition is not TwCategoryIndexingDisposition.Invalidated
+                and not TwCategoryIndexingDisposition.NoChange)
+            {
+                Logger.LogWarning(
+                    "Category invalidation was not completed after committed page deletion. PageId={PageId}, Revision={Revision}, Disposition={Disposition}, Consistency={ConsistencyState}, Recovery={RecoveryEligibility}, Diagnostic={DiagnosticCode}.",
                     result.PageId,
                     result.PageRevision,
                     result.Disposition,

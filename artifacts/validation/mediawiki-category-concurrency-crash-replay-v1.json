@@ -1,0 +1,80 @@
+{
+  "ReportVersion": "cw-m5-020-concurrency-crash-replay-v1",
+  "GeneratedAtUtc": "2026-10-12T02:22:55Z",
+  "Classification": "CATEGORY_CONCURRENCY_CRASH_REPLAY_DATABASE_VERIFIED_BOUNDED",
+  "Authorization": {
+    "ManifestPath": "secure/evidence/cw-m5-019-authorization.json",
+    "ManifestSha256": "f30136a05668fc67c0eee5db34234ba3674db643844d37642506e3a5a6991796",
+    "PreflightPath": "secure/evidence/cw-m5-020-preflight.json",
+    "PreflightSha256": "3f961c9ff456bf831f2de771eca138532f2d1f5479591e94442185e4743abadbe",
+    "PreflightClassification": "CATEGORY_CERTIFICATION_READINESS_SOURCE_VERIFIED",
+    "ExpiresAtUtc": "2026-10-13T01:58:51Z",
+    "DestructivePermissions": {
+      "DeleteDisposableSchema": false,
+      "DatabaseCleanup": false,
+      "ContainerVolumeDeletion": false
+    }
+  },
+  "Target": {
+    "ContainerName": "continuumwiki-m5-019-operator4",
+    "VolumeName": "continuumwiki-m5-019-operator4-data",
+    "DatabaseName": "cw_m5_019_operator4",
+    "Endpoint": "127.0.0.1:13321",
+    "DedicatedApplicationIdentity": "continuumwiki_m5_019_app",
+    "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+    "ContainerStatusObserved": "running",
+    "ImageDigest": "sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"
+  },
+  "RunModes": {
+    "SourceUnitCoverage": "SOURCE_ONLY",
+    "ConcurrencyAndRecoveryIntegration": "LIVE_AUTHORIZED",
+    "UnauthorizedOrDestructiveCases": "BLOCKED_OR_NOT_EXECUTED"
+  },
+  "DatabaseContacts": {
+    "ConnectionsObserved": true,
+    "ConnectionCount": "not instrumented by the existing test runner",
+    "SchemaMutations": "none in CW-M5-020; existing authorized V1/V2 schema retained",
+    "CategoryMutations": "unique retained certification fixtures",
+    "RecoveryDurabilityMutations": "unique retained operations, audit events, and checkpoints",
+    "DatabaseCleanup": "not executed; explicitly unauthorized",
+    "ProductionConnections": 0,
+    "ProductionMutations": 0
+  },
+  "Tests": {
+    "LivePassed": 5,
+    "LiveFailed": 0,
+    "LiveSkipped": 0,
+    "SourceFocusedPassed": 16,
+    "SourceFocusedFailed": 0,
+    "Cases": [
+      {"Id": "M5-020-CATEGORY-CONCURRENT-REPLACEMENT", "Mode": "LIVE_AUTHORIZED", "Result": "PASSED"},
+      {"Id": "M5-020-STALE-REVISION-AFTER-READ", "Mode": "LIVE_AUTHORIZED", "Result": "PASSED"},
+      {"Id": "M5-020-CHECKPOINT-CAS-RACE", "Mode": "LIVE_AUTHORIZED", "Result": "PASSED"},
+      {"Id": "M5-020-AUDIT-IDEMPOTENCE-RACE", "Mode": "LIVE_AUTHORIZED", "Result": "PASSED"},
+      {"Id": "M5-020-APPLICATION-FAULT-AFTER-CHECKPOINT", "Mode": "LIVE_AUTHORIZED", "Result": "PASSED"},
+      {"Id": "M5-020-APPLICATION-FAULT-BEFORE-MUTATION", "Mode": "SOURCE_ONLY", "Result": "PASSED"},
+      {"Id": "M5-020-APPLICATION-FAULT-AFTER-MUTATION-BEFORE-AUDIT", "Mode": "SOURCE_ONLY", "Result": "PASSED"},
+      {"Id": "M5-020-APPLICATION-FAULT-AFTER-AUDIT-BEFORE-CHECKPOINT", "Mode": "SOURCE_ONLY", "Result": "PASSED"},
+      {"Id": "M5-020-OS-CONTAINER-MARIADB-CRASH", "Mode": "BLOCKED", "Result": "NOT_AUTHORIZED_OR_OBSERVED"},
+      {"Id": "M5-020-LEASE-RACE", "Mode": "BLOCKED", "Result": "NOT_MODELED_BY_CONTRACT"},
+      {"Id": "M5-020-LIVE-MID-TRANSACTION-SQL-FAULT", "Mode": "NOT_EXECUTED", "Result": "NO_SAFE_INJECTOR"},
+      {"Id": "M5-020-LIVE-AUDIT-BUDGET-4096", "Mode": "SOURCE_ONLY", "Result": "SOURCE_COVERED"}
+    ]
+  },
+  "FaultBoundaries": {
+    "ApplicationLayerSimulated": [
+      "BeforeCategoryMutation",
+      "AfterCategoryMutationBeforeAudit",
+      "AfterAuditBeforeCheckpoint",
+      "AfterCheckpointCommitBeforeAcknowledgement"
+    ],
+    "OSProcessContainerOrMariaDbCrashObserved": false,
+    "CrossStoreAtomicityClaim": false
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "LuaOrWorkerConfigurationChanged": false,
+    "ContainerOrVolumeDeleted": false
+  }
+}

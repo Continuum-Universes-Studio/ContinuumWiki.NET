@@ -1665,6 +1665,20 @@
             replacement transaction.
             </summary>
         </member>
+        <member name="M:TightWiki.Plugin.Interfaces.Persistence.ITwCategoryMembershipRepository.GetCategoryIndexConsistencyAsync(TightWiki.Plugin.Models.TwCategoryIdentity,System.Threading.CancellationToken)">
+            <summary>
+            Reads category-wide index readiness without returning membership rows.
+            Implementations must not use this as a visibility or count shortcut.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Interfaces.Persistence.ITwCategoryRecoveryDurabilityStore">
+            <summary>
+            Durable-ready category recovery boundary. Implementations must provide
+            immutable operation identity/scope/actor provenance, idempotent event keys, optimistic
+            checkpoint advancement, and a read projection that does not disclose page
+            identities without a separately authorized projection.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Interfaces.Persistence.ITwMediaWikiImportRepository">
             <summary>
             Selects the source format for one target page revision and resolves the
@@ -3368,11 +3382,72 @@
             The page ID this permission is scoped to, or null if it applies across all pages.
             </summary>
         </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryAdministrativeCaller">
+            <summary>
+            Server-derived caller context. Controllers must construct this only from
+            the authenticated application session and never from request JSON.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryAdministrativeCaller.#ctor(System.Boolean,System.Boolean,System.Nullable{System.Guid})">
+            <summary>
+            Server-derived caller context. Controllers must construct this only from
+            the authenticated application session and never from request JSON.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryAdministrativeRecoveryRequest">
+            <summary>
+            The only client-supplied recovery fields. Actor, target database, revision,
+            approval, and authorization verdicts are intentionally absent.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryAdministrativeRecoveryRequest.#ctor(System.Nullable{System.Guid},System.Collections.Generic.IReadOnlyList{TightWiki.Plugin.Models.TwCategoryRecoveryTarget})">
+            <summary>
+            The only client-supplied recovery fields. Actor, target database, revision,
+            approval, and authorization verdicts are intentionally absent.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryAdministrativeGrant">
+            <summary>
+            A server/provider-issued grant. It is never accepted from the HTTP request
+            body. The approval and issuer identifiers are stable evidence references,
+            not claims that an approval exists by themselves.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryAdministrativeGrant.#ctor(System.Guid,System.Guid,System.Guid,System.Guid,TightWiki.Plugin.Models.TwCategoryAdministrativeOperation,TightWiki.Plugin.Models.TwCategoryRecoveryScope,System.DateTime,System.DateTime,System.DateTime,TightWiki.Plugin.Models.TwCategoryAdministrativeGrantRevocationState,TightWiki.Plugin.Models.TwCategoryAdministrativeGrantReplayMode,System.String)">
+            <summary>
+            A server/provider-issued grant. It is never accepted from the HTTP request
+            body. The approval and issuer identifiers are stable evidence references,
+            not claims that an approval exists by themselves.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.ITwCategoryAdministrativeGrantProvider">
+            <summary>
+            Separate operation-level authorization. The default implementation rejects
+            every operation; administrator authentication alone is never sufficient.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.ITwCategoryAdministrativeAuthorization">
+            <summary>
+            Compatibility name retained for the existing M5-022 DI seam.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.ITwCategoryOperationalReadinessEvidenceSource">
+            <summary>
+            Retained readiness evidence is supplied by an explicit adapter. The default
+            source is source-only and never probes a database or provider.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Models.TwCategoryIdentity">
             <summary>Canonical Category namespace identity shared by persistence contracts.</summary>
         </member>
         <member name="M:TightWiki.Plugin.Models.TwCategoryIdentity.#ctor(System.String,System.String)">
             <summary>Canonical Category namespace identity shared by persistence contracts.</summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryIdentity.TryCreateFromNavigation(System.String,TightWiki.Plugin.Models.TwCategoryIdentity@)">
+            <summary>
+            Parses either a category title or an existing Category namespace
+            navigation using the same TwNamespaceNavigation rules.
+            </summary>
         </member>
         <member name="T:TightWiki.Plugin.Models.TwCategoryDurableIndexState">
             <summary>State persisted independently from category membership rows.</summary>
@@ -3401,6 +3476,23 @@
         <member name="M:TightWiki.Plugin.Models.TwCategoryMember.#ctor(System.Int32,System.String,System.String,System.String,System.String)">
             <summary>Only page data already authorized for the requesting viewer.</summary>
         </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryBrowseDisposition">
+            <summary>Read-only category-page states exposed by the browse service.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryBrowseResult">
+            <summary>
+            Visibility-filtered category browse output. The result deliberately has no
+            total count: the repository applies authorization before pagination, and a
+            count could otherwise disclose hidden members.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryBrowseResult.#ctor(TightWiki.Plugin.Models.TwCategoryBrowseDisposition,TightWiki.Plugin.Models.TwCategoryIdentity,System.Collections.Generic.IReadOnlyList{TightWiki.Plugin.Models.TwCategoryMember},System.Boolean,TightWiki.Plugin.Models.TwCategoryIndexConsistencyResult,System.String)">
+            <summary>
+            Visibility-filtered category browse output. The result deliberately has no
+            total count: the repository applies authorization before pagination, and a
+            count could otherwise disclose hidden members.
+            </summary>
+        </member>
         <member name="T:TightWiki.Plugin.Models.TwCategoryIndexProvenance">
             <summary>Authoritative provenance stored with the durable index state.</summary>
         </member>
@@ -3415,6 +3507,68 @@
         </member>
         <member name="T:TightWiki.Plugin.Models.TwCategoryMembershipReplacementPolicy">
             <summary>Pure validation and concurrency policy for source-only tests.</summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryOperationalReadinessInput">
+            <summary>
+            Non-secret evidence supplied to the pure readiness evaluator. It describes
+            retained proofs; constructing it never probes or mutates a provider.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryOperationalReadinessInput.#ctor(TightWiki.Plugin.Models.TwCategoryProviderActivationState,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceStatus,TightWiki.Plugin.Models.TwCategoryOperationalEvidenceOrigin,System.Boolean,System.Boolean)">
+            <summary>
+            Non-secret evidence supplied to the pure readiness evaluator. It describes
+            retained proofs; constructing it never probes or mutates a provider.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryOperationalEvent">
+            <summary>
+            Bounded operational event data. It intentionally has no page, category,
+            revision, scope, credential, or connection-string fields.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryOperationalEvent.#ctor(System.DateTime,TightWiki.Plugin.Models.TwCategoryOperationalEventKind,TightWiki.Plugin.Models.TwCategoryOperationalEventOutcome,TightWiki.Plugin.Models.TwCategoryOperationalReasonCode)">
+            <summary>
+            Bounded operational event data. It intentionally has no page, category,
+            revision, scope, credential, or connection-string fields.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryRecoveryAdministrativeRequest">
+            <summary>
+            Safe administrative contract only. No controller or route consumes this
+            type. Execute requests still require the existing per-operation and
+            per-page authorization callbacks at the recovery service boundary.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryRecoveryAdministrativeRequest.#ctor(System.Guid,System.Collections.Generic.IReadOnlyList{TightWiki.Plugin.Models.TwCategoryRecoveryTarget},System.Nullable{System.Guid},TightWiki.Plugin.Models.TwCategoryRecoveryAdministrationMode)">
+            <summary>
+            Safe administrative contract only. No controller or route consumes this
+            type. Execute requests still require the existing per-operation and
+            per-page authorization callbacks at the recovery service boundary.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryRecoveryDurableProgress">
+            <summary>
+            Progress deliberately contains no page identities or private failure data.
+            A future authorized operator projection may add page details separately.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryRecoveryDurableProgress.#ctor(System.Guid,System.String,TightWiki.Plugin.Models.TwCategoryRecoveryOperationStatus,TightWiki.Plugin.Models.TwCategoryRecoveryDurableCheckpoint,System.Collections.Generic.IReadOnlyList{TightWiki.Plugin.Models.TwCategoryRecoveryOutcomeCount},System.Boolean)">
+            <summary>
+            Progress deliberately contains no page identities or private failure data.
+            A future authorized operator projection may add page details separately.
+            </summary>
+        </member>
+        <member name="T:TightWiki.Plugin.Models.TwCategoryRecoveryTarget">
+            <summary>
+            A bounded operator-supplied target. Revisions are intentionally absent:
+            the recovery service always re-resolves the authoritative current revision.
+            </summary>
+        </member>
+        <member name="M:TightWiki.Plugin.Models.TwCategoryRecoveryTarget.#ctor(System.Int32,System.String)">
+            <summary>
+            A bounded operator-supplied target. Revisions are intentionally absent:
+            the recovery service always re-resolves the authoritative current revision.
+            </summary>
         </member>
         <member name="T:TightWiki.Plugin.Models.TwConfigurationEntries">
             <summary>

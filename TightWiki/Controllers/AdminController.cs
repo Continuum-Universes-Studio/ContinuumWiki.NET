@@ -8,6 +8,7 @@ using System.Reflection;
 using TightWiki.Library;
 using TightWiki.Library.Caching;
 using TightWiki.Library.Security;
+using TightWiki.Engine.MediaWiki;
 using TightWiki.Plugin;
 using TightWiki.Plugin.Interfaces;
 using TightWiki.Plugin.Interfaces.Persistence;
@@ -40,7 +41,8 @@ namespace TightWiki.Controllers
             SignInManager<IdentityUser> signInManager,
             TwConfiguration wikiConfiguration,
             Repository.Helpers.WikiConfigurationManager configurationManager,
-            UserManager<IdentityUser> userManager
+            UserManager<IdentityUser> userManager,
+            ITwCategoryMembershipApplicationService? categoryMembershipApplicationService = null
         )
         : TwController<AdminController>(logger, signInManager, userManager, localizer, wikiConfiguration)
     {
@@ -1254,6 +1256,7 @@ namespace TightWiki.Controllers
                     {
                         return NotifyOfError(Localize("The page could not be deleted because it has changed or is already deleted."), model.NoRedirectURL);
                     }
+                    await RecordCategoryInvalidationAfterPageDeletionAsync(categoryMembershipApplicationService, page);
                     MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [page.Navigation]));
                     MemCache.ClearCategory(MemCacheKey.Build(MemCache.Category.Page, [page.Id]));
                     return NotifyOfSuccess(Localize("The page has been moved to the deletion queue."), model.YesRedirectURL);
@@ -1294,6 +1297,7 @@ namespace TightWiki.Controllers
                     if (page != null)
                     {
                         await metadataRebuilder.RebuildAsync(tightEngine, Localizer, page, SessionState);
+                        await RecordCategoryIndexingAfterPageRestoreAsync(categoryMembershipApplicationService, page);
                     }
                     if (deletedPage != null)
                     {
@@ -1313,6 +1317,66 @@ namespace TightWiki.Controllers
         }
 
         #endregion
+
+        private async Task RecordCategoryInvalidationAfterPageDeletionAsync(
+            ITwCategoryMembershipApplicationService? categoryMembershipApplicationService,
+            TwPage page)
+        {
+            if (categoryMembershipApplicationService is null)
+                return;
+
+            var result = await categoryMembershipApplicationService.InvalidateAfterCommittedDeletionAsync(
+                new TwCategoryIndexingRequest(
+                    page.Id,
+                    page.Navigation,
+                    page.Revision,
+                    TwCategoryIndexMutationKind.AuthorizedMaintenance,
+                    SessionState.Profile?.UserId),
+                (_, _) => Task.FromResult(true),
+                HttpContext.RequestAborted);
+
+            if (result.Disposition is not TwCategoryIndexingDisposition.Invalidated
+                and not TwCategoryIndexingDisposition.NoChange)
+            {
+                Logger.LogWarning(
+                    "Category invalidation was not completed after committed administrator deletion. PageId={PageId}, Revision={Revision}, Disposition={Disposition}, Diagnostic={DiagnosticCode}.",
+                    result.PageId,
+                    result.PageRevision,
+                    result.Disposition,
+                    result.DiagnosticCode);
+            }
+        }
+
+        private async Task RecordCategoryIndexingAfterPageRestoreAsync(
+            ITwCategoryMembershipApplicationService? categoryMembershipApplicationService,
+            TwPage page)
+        {
+            if (categoryMembershipApplicationService is null)
+                return;
+
+            var result = await categoryMembershipApplicationService.IndexAfterCommittedMutationAsync(
+                new TwCategoryIndexingRequest(
+                    page.Id,
+                    page.Navigation,
+                    page.Revision,
+                    TwCategoryIndexMutationKind.AuthorizedMaintenance,
+                    SessionState.Profile?.UserId),
+                (_, _) => Task.FromResult(true),
+                HttpContext.RequestAborted);
+
+            if (result.Disposition is not TwCategoryIndexingDisposition.Applied
+                and not TwCategoryIndexingDisposition.NoChange)
+            {
+                Logger.LogWarning(
+                    "Category indexing was not completed after committed page restore. PageId={PageId}, Revision={Revision}, Disposition={Disposition}, Consistency={ConsistencyState}, Recovery={RecoveryEligibility}, Diagnostic={DiagnosticCode}.",
+                    result.PageId,
+                    result.PageRevision,
+                    result.Disposition,
+                    result.ConsistencyState,
+                    result.RecoveryEligibility,
+                    result.DiagnosticCode);
+            }
+        }
 
         #region Files.
 

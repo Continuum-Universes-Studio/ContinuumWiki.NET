@@ -551,4 +551,255 @@ security change occurred. Evidence is recorded in
 `docs/architecture/CW-M5-014-CATEGORY-PERSISTENCE.md` and
 `artifacts/validation/mediawiki-category-persistence-v1.json`.
 Database certification, concurrent real CAS, production activation, and
-category MVC remain separate gates.
+concurrent real CAS, production activation, and category MVC remain separate gates.
+
+### CW-M5-015 — native category pages and lifecycle integration
+
+CATEGORY_PAGES_LIFECYCLE_SOURCE_VERIFIED. Native read-only category browsing
+is now exposed through `GET /Category/{categoryTitle}` with canonical
+`TwNamespaceNavigation`/`TwCategoryIdentity` handling. The typed browse service
+keeps invalid, unavailable, unindexed, indexed-empty, populated, and
+inconsistent/stale states distinct; it never converts repository failure into
+an empty result and never exposes an unrestricted member count. Category member
+visibility remains a repository responsibility applied before pagination, and
+the rejecting repository remains the default in both startup paths.
+
+Existing create/edit post-commit indexing is joined by exact-revision deletion
+invalidation and committed administrator-restore reindexing. Page mutation
+success and category synchronization failure remain separate outcomes. The
+durable deletion invalidation transaction and live category browse behavior are
+source-prepared but not MariaDB-verified.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-015-CATEGORY-PAGES-LIFECYCLE.md` and
+`artifacts/validation/mediawiki-category-pages-lifecycle-v1.json`. Track B and
+production migration remain `NO_GO`.
+
+### CW-M5-016 — controlled category reindexing and recovery operations
+
+CATEGORY_REINDEX_RECOVERY_SOURCE_PARTIAL. A service-only, typed recovery
+boundary now supports read-only single-page and bounded batch planning plus a
+separate explicitly authorized execution path. Targets are deterministically
+ordered and bounded; client revisions are never trusted; the authoritative
+current page and revision are re-resolved before execution; incomplete
+extraction preserves existing membership; and writes continue through the
+existing revision-aware `ReconcileAsync` pathway. Per-target results,
+checkpoint scope validation, cancellation, redaction, and partial failures are
+represented without claiming global atomicity.
+
+No controller or administrative mutation route was added because the existing
+generic logging repository is not a category-specific audit ledger. Durable
+audit records and checkpoint persistence therefore remain authorization and
+contract blockers. The rejecting category repository remains the default and
+no database, migration, provider activation, or live worker operation was
+performed.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-016-CATEGORY-REINDEX-RECOVERY.md` and
+`artifacts/validation/mediawiki-category-reindex-recovery-v1.json`. This does
+not establish database authorization, provider parity, or production migration
+readiness.
+
+### CW-M5-017 — durable recovery contracts and audit integrity
+
+CATEGORY_RECOVERY_DURABILITY_SOURCE_VERIFIED. Typed immutable recovery
+operation identity, versioned bounded scope fingerprints, operation-state
+transitions, page work/attempt identities, idempotent audit event contracts,
+conditional checkpoint advancement, redacted progress projections, and a
+recoverable at-least-once coordinator are now defined. Durable execution is
+separate from the existing source-only service and cannot silently fall back to
+volatile execution. Every resumed page rechecks authorization and current
+revision before using the existing `ReconcileAsync`/CAS pathway.
+
+The source design intentionally does not claim a shared category/audit
+transaction. The existing category repository owns its transaction and no
+verified category recovery journal exists. The rejecting durability store is
+registered by default, no migration/provider/admin route/hosted service was
+added, and a checkpoint never advances without a recorded outcome. Synthetic
+fault-injection tests cover replay and crash-boundary state invariants; live
+MariaDB durability and concurrency remain separately gated.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-017-CATEGORY-RECOVERY-DURABILITY.md` and
+`artifacts/validation/mediawiki-category-recovery-durability-v1.json`.
+`DATABASE_AUTHORIZATION_NOT_ESTABLISHED` and production `NO_GO` remain in
+force.
+
+### CW-M5-018 — durable MariaDB recovery provider and isolated certification
+
+CATEGORY_RECOVERY_MARIADB_SOURCE_IMPLEMENTED_AUTHORIZATION_BLOCKED. The
+existing recoverable two-phase recovery contract now has a concrete,
+parameterized MariaDB durability store, a definition-only V2 migration, a
+readiness proof, and an explicit activation extension. Operation/checkpoint
+state and append-only audit events are stored separately; event-key
+idempotence, audit sequencing, scope/actor binding, state transitions, and
+checkpoint generation CAS are enforced within each durability-store
+transaction. The provider never mutates category memberships and does not claim
+atomicity with the existing category repository transaction.
+
+The rejecting durability store remains the default and no startup path invokes
+the activation extension. The gated MariaDB 11.8 certification test skips in
+ordinary runs and has not opened a database in this milestone. Lease owner/
+expiry semantics are not present in the current contract and remain an explicit
+open gate rather than an invented feature. Production migration, activation,
+Lua/Cargo enablement, worker changes, and live database verification remain
+`NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-018-CATEGORY-RECOVERY-MARIADB.md` and
+`artifacts/validation/mediawiki-category-recovery-mariadb-v1.json`.
+
+### CW-M5-019 — category persistence certification readiness
+
+CATEGORY_CERTIFICATION_READINESS_SOURCE_VERIFIED. A non-secret authorization
+manifest schema, strict denial validator, and nonconnecting preflight now define
+the exact disposable MariaDB 11.8 target, operator/owner approval, permitted
+V1/V2/category/recovery operations, isolation proof, bounded test scope,
+cleanup ownership, and expiry. The preflight ignores connection environment
+variables, performs zero database connections and mutations, hashes rather than
+reports target identity details, and emits only a proposed live plan.
+
+The source coverage matrix distinguishes category V1, recovery V2, visibility,
+revision/CAS, rollback, replay uncertainty, concurrency, redaction, and cleanup
+behaviors that still require authorized live certification. Existing rejecting
+providers remain defaults; no migration, container, database, Lua/Cargo,
+worker, admin route, or production setting was changed. Production migration
+and category-provider activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-019-CATEGORY-CERTIFICATION-READINESS.md` and
+`artifacts/validation/mediawiki-category-certification-readiness-v1.json`.
+
+### CW-M5-019B — operator authorization manifest and certification gate
+
+CATEGORY_AUTHORIZATION_MANIFEST_CANDIDATE_SOURCE_VERIFIED; AUTHORIZATION NOT
+ESTABLISHED. Existing operator4 provisioning and read-only inspection evidence
+were reconciled without opening a new connection or changing the target. The
+authorization schema cannot represent a pending approval, so a separate
+non-authorizing candidate records only the evidence-backed disposable target
+identity and leaves approval, operation permissions, cleanup, and test-scope
+fields pending. The authoritative secure manifest remains absent and the
+nonconnecting preflight was not run against the candidate. Rejecting category
+and durability providers remain defaults; production migration remains
+`NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-019B-OPERATOR-AUTHORIZATION.md`,
+`artifacts/validation/mediawiki-category-authorization-candidate-operator4-v1.json`,
+and `artifacts/validation/mediawiki-category-authorization-readiness-v1.json`.
+
+### CW-M5-019C — operator authorization and controlled certification
+
+CATEGORY_OPERATOR_AUTHORIZATION_PENDING. The existing operator4 provisioning
+metadata and read-only inspection evidence agree on the exact disposable
+container, volume, database, loopback endpoint, immutable image digest,
+MariaDB version, and dedicated application identity. The operator supplied
+certification scope and explicitly prohibited destructive cleanup. The
+source-only authorization contract is now v2: certification permissions are distinct from
+disposable schema deletion, database cleanup, and Podman container/volume
+deletion, and legacy v1/ambiguous operation keys are rejected. No authoritative
+operator approval manifest was written, no approved preflight was run, and no
+SQL, migration, certification, or cleanup operation occurred. The rejecting
+category and durability defaults remain active; production migration and
+activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-019C-OPERATOR-DECISION.md` and
+`artifacts/validation/mediawiki-category-certification-decision-m5-019c-v1.json`.
+
+### CW-M5-020 — MariaDB concurrency and crash-replay certification
+
+CATEGORY_CONCURRENCY_CRASH_REPLAY_DATABASE_VERIFIED_BOUNDED. Authorized live
+tests against the isolated operator4 MariaDB target used separate unpooled
+connections and bounded overlap to verify category replacement serialization,
+stale-revision rejection, checkpoint generation CAS, idempotent audit replay,
+and durable read-back after an application-layer interruption immediately
+after checkpoint commit. The coordinator also has source-tested interruption
+boundaries before mutation, after mutation before audit, and after audit before
+checkpoint. A fresh coordinator can resume an operation left in `Running`
+without attempting an invalid self-transition.
+
+The fault injector is explicitly application-layer test infrastructure; no
+OS-process, container, or MariaDB-server crash was performed or claimed. Lease
+semantics are not modeled by the current contract, live SQL fault injection
+inside the category transaction was not executed, and no cross-store atomicity
+is claimed. Unique live rows remain because the v2 approval forbids database
+cleanup. Production migration and repository activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-020-MARIADB-CONCURRENCY-CRASH-REPLAY.md` and
+`artifacts/validation/mediawiki-category-concurrency-crash-replay-v1.json`.
+
+### CW-M5-021 — category operational readiness and controlled activation design
+
+CATEGORY_OPERATIONAL_READINESS_SOURCE_VERIFIED. A pure typed readiness
+evaluator now distinguishes disabled-by-default, authorization, schema,
+provider, read-only, mutation-gated, degraded, indeterminate-recovery, and
+operator-review states. It evaluates retained evidence only and reports
+whether the evaluation itself avoided a database connection. Activation and
+rollback are review decisions with `WouldMutate=false`; no registration,
+configuration, schema, data, service, container, or volume is changed.
+
+The existing rejecting category and recovery providers remain registered by
+default in both startup paths. A safe administrative recovery request contract
+distinguishes nonmutating preview from execution and preserves the existing
+fresh operation/page authorization, authoritative revision, CAS, audit, and
+replay boundaries. Bounded operational events contain only time, enum kind,
+enum outcome, and enum reason; no page/category/revision/scope identifiers or
+credentials are emitted. The current single-operator/CAS deployment does not
+justify speculative leases; a future multi-worker deployment would require a
+separate fenced lease milestone.
+
+This milestone is source-only: no MariaDB connection, migration, live test,
+operator4 reuse, cleanup, production activation, worker change, or background
+worker was performed. Production migration and repository activation remain
+`NO_GO`. Evidence is recorded in
+`docs/architecture/CW-M5-021-CATEGORY-OPERATIONAL-READINESS.md` and
+`artifacts/validation/mediawiki-category-operational-readiness-v1.json`.
+
+### CW-M5-022 — administrative category recovery API and authorization integration
+
+CATEGORY_ADMIN_RECOVERY_API_SOURCE_VERIFIED. A disabled-by-default MVC API now
+provides authenticated administrator readiness, anti-forgery-protected preview,
+and a separately gated execution route. It reuses the existing ASP.NET Core
+authorization/session conventions, server-derived actor identity, page
+permission evaluator, category recovery planner, durable recovery coordinator,
+revision resolution, CAS, audit budget, replay, and indeterminate outcomes.
+
+Administrator authentication is deliberately insufficient: the new typed
+operation-authorization adapter rejects every operation by default, and the
+default source-only readiness evidence keeps execution mutation-gated. Client
+requests cannot supply actor identity, revision, database target, or an
+authorization verdict. Disabled or unauthorized responses do not expose page
+names, counts, revisions, or readiness details. No direct SQL, migration,
+background worker, retry, lease, production activation, or live test was
+performed. Production migration and repository activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-022-CATEGORY-ADMIN-RECOVERY-API.md` and
+`artifacts/validation/mediawiki-category-admin-recovery-api-v1.json`.
+
+### CW-M5-023 — administrative recovery authorization provider and activation evidence
+
+CATEGORY_ADMIN_AUTHORIZATION_SOURCE_VERIFIED. Administrative recovery now uses
+a typed grant provider rather than a boolean authorization seam. Grants bind a
+stable grant/approval identity, issuer evidence, server-derived actor, action,
+exact bounded scope, UTC validity window, revocation state, and explicit replay
+mode. The verifier rejects malformed, expired, not-yet-valid, revoked,
+replayed, mismatched, and ambiguous grants. Preview authorization cannot be
+used for execution, and execution rechecks operation and page authorization at
+the existing durable recovery boundary.
+
+The default evidence source supplies no grant, so administrator authentication
+alone remains insufficient. Single-use grants are denied unless a future
+provider supplies durable atomic replay protection; no single-use or revocation
+durability is claimed here. Readiness evidence is provenance-aware and requires
+independent, target-bound, fresh `ProductionDeployment` evidence for
+administrative execution. Source-only and disposable operator4 certification
+cannot authorize production activation. No live database, migration, route
+activation, worker, scheduler, infrastructure change, or production operation
+was performed. Production migration and repository activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-023-CATEGORY-ADMIN-AUTHORIZATION.md` and
+`artifacts/validation/mediawiki-category-admin-authorization-v1.json`.

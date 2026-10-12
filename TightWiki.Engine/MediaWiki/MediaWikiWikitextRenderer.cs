@@ -794,7 +794,24 @@ public sealed class MediaWikiWikitextRenderer(
     }
 
     private string BuildPageHref(string navigation, string? fragment = null)
-        => JoinBasePath("/" + Uri.EscapeDataString(navigation) + (fragment is null ? string.Empty : "#" + Uri.EscapeDataString(fragment)));
+    {
+        // Category links use the native read-only category route. Other page
+        // links retain the established namespace-navigation route.
+        var path = navigation;
+        try
+        {
+            var parsed = new TwNamespaceNavigation(navigation);
+            path = string.Equals(parsed.Namespace, TwCategoryIdentity.NamespaceName, StringComparison.OrdinalIgnoreCase)
+                ? "Category/" + Uri.EscapeDataString(parsed.Page)
+                : Uri.EscapeDataString(navigation);
+        }
+        catch
+        {
+            path = Uri.EscapeDataString(navigation);
+        }
+
+        return JoinBasePath("/" + path + (fragment is null ? string.Empty : "#" + Uri.EscapeDataString(fragment)));
+    }
 
     private static string BuildFragmentHref(string fragment) => "#" + Uri.EscapeDataString(fragment);
 

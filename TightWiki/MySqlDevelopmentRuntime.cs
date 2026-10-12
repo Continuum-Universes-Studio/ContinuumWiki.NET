@@ -58,9 +58,19 @@ internal static class MySqlDevelopmentRuntime
         builder.Services.AddMySqlApplicationPersistence(configuration);
         builder.Services.AddSingleton<ITwMediaWikiImportRepository, MySqlMediaWikiImportRepository>();
         builder.Services.AddSingleton<ITwCategoryIndexPageSource, ApplicationTwCategoryIndexPageSource>();
+        builder.Services.AddSingleton<ITwCategoryRecoveryPageSource, ApplicationTwCategoryRecoveryPageSource>();
         builder.Services.AddSingleton<ITwCategoryIndexExtractor, MediaWikiCategoryIndexExtractor>();
         builder.Services.AddSingleton<ITwCategoryMembershipRepository, RejectingTwCategoryMembershipRepository>();
         builder.Services.AddSingleton<ITwCategoryMembershipApplicationService, TwCategoryMembershipApplicationService>();
+        builder.Services.AddSingleton<ITwCategoryBrowseService, TwCategoryBrowseService>();
+        builder.Services.AddSingleton<ITwCategoryOperationalReadinessService, TwCategoryOperationalReadinessService>();
+        builder.Services.AddSingleton<ITwCategoryOperationalReadinessEvidenceSource, RejectingTwCategoryOperationalReadinessEvidenceSource>();
+        builder.Services.AddSingleton<ITwCategoryAdministrativeGrantEvidenceSource, RejectingTwCategoryAdministrativeGrantEvidenceSource>();
+        builder.Services.AddSingleton<ITwCategoryAdministrativeGrantProvider, TwCategoryAdministrativeGrantProvider>();
+        builder.Services.AddSingleton<ITwCategoryAdministrativeRecoveryApi, TwCategoryAdministrativeRecoveryApi>();
+        builder.Services.AddSingleton<ITwCategoryRecoveryService, TwCategoryRecoveryService>();
+        builder.Services.AddSingleton<ITwCategoryRecoveryDurabilityStore, RejectingTwCategoryRecoveryDurabilityStore>();
+        builder.Services.AddSingleton<ITwCategoryDurableRecoveryService, TwCategoryDurableRecoveryService>();
         // The rejecting executor remains the default. Enabling the socket path
         // requires both operator configuration and independent local evidence.
         var luaConfiguration = MediaWikiScribuntoExperimentalConfiguration.From(configuration);

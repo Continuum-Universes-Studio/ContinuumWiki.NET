@@ -1,0 +1,30 @@
+{
+  "ReportVersion": "cw-m5-019a-disposable-mariadb-inspection-v1",
+  "GeneratedAtUtc": "2026-10-12T00:59:07.868197Z",
+  "Classification": "PROVISIONED_TARGET_READY_NOT_AUTHORIZED",
+  "ReadOnly": true,
+  "Target": {
+    "ContainerName": "continuumwiki-m5-019-operator4",
+    "VolumeName": "continuumwiki-m5-019-operator4-data",
+    "DatabaseName": "cw_m5_019_operator4",
+    "Endpoint": "127.0.0.1:13321",
+    "ImageResolvedDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "InstanceIdentity": "container=continuumwiki-m5-019-operator4;database=cw_m5_019_operator4;endpoint=127.0.0.1:13321;volume=continuumwiki-m5-019-operator4-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"
+  },
+  "ValidationErrors": [],
+  "DatabaseContacts": {
+    "ReadOnlyInspectionConnections": 1,
+    "DatabaseMutations": 0
+  },
+  "Production": {
+    "Connections": 0,
+    "Mutations": 0,
+    "Migration": "NO_GO",
+    "CategoryProviderActivation": "NO_GO"
+  },
+  "Authorization": {
+    "CertificationExecuted": false,
+    "AuthorizationManifestValidated": false
+  },
+  "MetadataPath": "/home/cdjensen94/Projects/ContinuumWiki.NET/secure/evidence/cw-m5-019a-provisioning-operator4.json"
+}

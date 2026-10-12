@@ -1,0 +1,99 @@
+{
+  "ReportVersion": "cw-m5-015-category-pages-lifecycle-v1",
+  "GeneratedAtUtc": "2026-10-11T22:19:35Z",
+  "Classification": "CATEGORY_PAGES_LIFECYCLE_SOURCE_VERIFIED",
+  "RepositoryRevision": "e0e260cee9404ff20c86c50b3a7346ff9b522f61",
+  "Scope": {
+    "Framework": ".NET 10",
+    "DefaultProvider": "SQLite",
+    "CategoryNamespaceAuthority": "TwNamespaceNavigation",
+    "CategoryStorage": "PageCategoryIndexState and PageCategoryMembership; PageTag is not used",
+    "NativeRoute": "GET /Category/{categoryTitle}",
+    "ReadOnlyBrowse": true,
+    "HistoricalReadsMutateCategoryIndex": false
+  },
+  "Browse": {
+    "Service": "TwCategoryBrowseService",
+    "DispositionStates": [
+      "InvalidCategory",
+      "InvalidRequest",
+      "RepositoryUnavailable",
+      "Unindexed",
+      "IndexedEmpty",
+      "Populated",
+      "Inconsistent"
+    ],
+    "StaleAndIncompleteAreInconsistent": true,
+    "CategoryNamespaceAuthorizedBeforeRepositoryBrowse": true,
+    "MemberVisibilityAppliedBeforePagination": true,
+    "UnrestrictedCountExposed": false,
+    "DefaultRazorEncoding": true,
+    "BoundedPageSize": 100,
+    "DeterministicRepositorySort": "SortKey with stable PageId tie-breaker"
+  },
+  "Lifecycle": {
+    "CreatePostCommitIndexing": true,
+    "EditPostCommitIndexing": true,
+    "PageControllerDeleteInvalidation": true,
+    "AdministratorDeleteInvalidation": true,
+    "AdministratorRestoreReindex": true,
+    "DeletedRevisionArchiveRestoreHook": "Not an active-page publication event; intentionally not indexed",
+    "ImportLifecycleCaller": "No web application import entry point found; existing AuthorizedImport service contract retained",
+    "MutationAndIndexOutcomeSeparate": true,
+    "DeletionRequiresExactRevision": true,
+    "DeletedPageVisibilityExcludedByRepository": true,
+    "DefaultRejectingRepository": "RejectingTwCategoryMembershipRepository"
+  },
+  "FilesChanged": [
+    "TightWiki.Plugin/Models/TwCategoryMembershipModels.cs",
+    "TightWiki.Plugin/Interfaces/Persistence/ITwCategoryMembershipRepository.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiCategoryMembershipApplicationService.cs",
+    "TightWiki.Engine/MediaWiki/MediaWikiWikitextRenderer.cs",
+    "TightWiki.Repository/Helpers/MySqlCategoryMembershipRepository.cs",
+    "TightWiki/Controllers/CategoryController.cs",
+    "TightWiki/Controllers/PageController.cs",
+    "TightWiki/Controllers/AdminController.cs",
+    "TightWiki/ViewModels/Category/CategoryBrowseViewModel.cs",
+    "TightWiki/Views/Category/Browse.cshtml",
+    "TightWiki/Program.cs",
+    "TightWiki/MySqlDevelopmentRuntime.cs",
+    "TightWiki.Tests/Unit/MediaWikiCategoryBrowseServiceTests.cs",
+    "TightWiki.Tests/Unit/MediaWikiCategoryApplicationServiceTests.cs",
+    "TightWiki.Tests/Unit/MediaWikiWikitextRendererTests.cs",
+    "docs/architecture/CW-M5-015-CATEGORY-PAGES-LIFECYCLE.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md",
+    "artifacts/validation/mediawiki-category-pages-lifecycle-v1.json"
+  ],
+  "Tests": {
+    "FocusedCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MediaWikiCategoryBrowseServiceTests|FullyQualifiedName~MediaWikiCategoryApplicationServiceTests|FullyQualifiedName~MediaWikiWikitextRendererTests'",
+    "FocusedResult": "99 passed, 0 failed, 0 skipped",
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "365 passed, 28 skipped, 0 failed",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "0 warnings, 0 errors",
+    "JsonValidation": "Passed",
+    "DiffCheck": "Passed"
+  },
+  "Database": {
+    "Connections": 0,
+    "Mutations": 0,
+    "TrackB": "DATABASE_AUTHORIZATION_NOT_ESTABLISHED",
+    "ProductionMigration": "NO_GO",
+    "AutomaticProviderActivation": false,
+    "StartupSchemaInitialization": false,
+    "DatabaseTestsExecuted": false
+  },
+  "OutstandingBlockers": [
+    "No authorized disposable MariaDB execution of category-wide readiness or deletion invalidation",
+    "No live MVC route verification against an authorized application host",
+    "No real transaction/CAS/visibility SQL evidence for the new category-wide read contract",
+    "Production category persistence activation and migration remain unauthorized"
+  ],
+  "SecurityFindings": [
+    "Category GET does not write, reconcile, enqueue, or index",
+    "Repository failures and unindexed/stale states are not rendered as empty categories",
+    "Hidden members are filtered before repository pagination and no unrestricted total is exposed",
+    "Original Wikitext and historical revision provenance paths are unchanged",
+    "No Lua worker, sandbox, production service, or PageTag behavior was changed"
+  ]
+}

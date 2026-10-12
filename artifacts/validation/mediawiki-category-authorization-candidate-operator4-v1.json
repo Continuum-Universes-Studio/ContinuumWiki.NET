@@ -1,0 +1,68 @@
+{
+  "ReportVersion": "cw-m5-019b-authorization-candidate-v1",
+  "Milestone": "CW-M5-019B",
+  "Classification": "CATEGORY_AUTHORIZATION_MANIFEST_CANDIDATE_SOURCE_VERIFIED",
+  "AuthorizationStatus": "AUTHORIZATION_NOT_ESTABLISHED",
+  "AuthoritativeManifestWritten": false,
+  "DoNotPassToPreflight": true,
+  "TargetEvidence": {
+    "ProvisioningMetadata": "secure/evidence/cw-m5-019a-provisioning-operator4.json",
+    "InspectionReport": "secure/evidence/cw-m5-019a-inspection-operator4.json",
+    "ProvisioningClassification": "DISPOSABLE_TARGET_PROVISIONED_NOT_AUTHORIZED",
+    "InspectionClassification": "PROVISIONED_TARGET_READY_NOT_AUTHORIZED",
+    "Target": {
+      "ContainerName": "continuumwiki-m5-019-operator4",
+      "VolumeName": "continuumwiki-m5-019-operator4-data",
+      "DatabaseName": "cw_m5_019_operator4",
+      "Port": 13321,
+      "Endpoint": "127.0.0.1:13321",
+      "ImageResolvedDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+      "DedicatedApplicationIdentity": "continuumwiki_m5_019_app",
+      "InstanceIdentity": "container=continuumwiki-m5-019-operator4;database=cw_m5_019_operator4;endpoint=127.0.0.1:13321;volume=continuumwiki-m5-019-operator4-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "LoopbackBinding": true,
+      "EmptyBeforeCertification": true,
+      "DatabaseMutations": 0,
+      "ProductionConnections": 0,
+      "ProductionMutations": 0
+    }
+  },
+  "SchemaMapping": {
+    "ManifestVersion": "cw-m5-019-authorization-v2",
+    "TargetEngineVersionValue": "MariaDB 11.8.x",
+    "TargetDedicatedApplicationIdentity": "continuumwiki_m5_019_app"
+  },
+  "PendingOperatorApproval": {
+    "ApprovalId": null,
+    "ApprovedAtUtc": null,
+    "ExpiresAtUtc": null,
+    "Approver": null,
+    "Operator": null,
+    "TargetOwner": null,
+    "IsolationProofConfirmation": null,
+    "PermittedOperations": {
+      "Connect": null,
+      "CreateDisposableSchema": null,
+      "ApplyV1Migration": null,
+      "ApplyV2Migration": null,
+      "CategoryMutations": null,
+      "ConcurrencyAndCrashTests": null,
+      "RetainSanitizedEvidence": null,
+      "DeleteDisposableSchema": null,
+      "DatabaseCleanup": null,
+      "ContainerVolumeDeletion": null
+    },
+    "TestScope": null
+  },
+  "CredentialsIncluded": false,
+  "DatabaseContactsForThisMilestone": {
+    "Connections": 0,
+    "Mutations": 0
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "CategoryProviderActivation": "NO_GO",
+    "LuaChanged": false,
+    "WorkerIsolationChanged": false
+  }
+}

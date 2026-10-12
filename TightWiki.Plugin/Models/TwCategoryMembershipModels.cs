@@ -37,6 +37,34 @@ public sealed record TwCategoryIdentity(string CanonicalNavigation, string Norma
         identity = new(navigation.Canonical, navigation.Page);
         return true;
     }
+
+    /// <summary>
+    /// Parses either a category title or an existing Category namespace
+    /// navigation using the same TwNamespaceNavigation rules.
+    /// </summary>
+    public static bool TryCreateFromNavigation(string? source, out TwCategoryIdentity identity)
+    {
+        identity = null!;
+        if (string.IsNullOrWhiteSpace(source)) return false;
+
+        var value = source.Trim();
+        try
+        {
+            if (value.Contains("::", StringComparison.Ordinal))
+            {
+                var navigation = new TwNamespaceNavigation(value);
+                if (!string.Equals(navigation.Namespace, NamespaceName, StringComparison.OrdinalIgnoreCase))
+                    return false;
+                value = navigation.Page;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+
+        return TryCreate(value, out identity);
+    }
 }
 
 public enum TwCategoryMembershipIndexState
@@ -116,6 +144,34 @@ public sealed record TwCategoryMemberPage(
     IReadOnlyList<TwCategoryMember> Members,
     bool HasMore);
 
+/// <summary>Read-only category-page states exposed by the browse service.</summary>
+public enum TwCategoryBrowseDisposition
+{
+    InvalidCategory,
+    InvalidRequest,
+    RepositoryUnavailable,
+    Unindexed,
+    IndexedEmpty,
+    Populated,
+    Inconsistent
+}
+
+/// <summary>
+/// Visibility-filtered category browse output. The result deliberately has no
+/// total count: the repository applies authorization before pagination, and a
+/// count could otherwise disclose hidden members.
+/// </summary>
+public sealed record TwCategoryBrowseResult(
+    TwCategoryBrowseDisposition Disposition,
+    TwCategoryIdentity? Category = null,
+    IReadOnlyList<TwCategoryMember>? Members = null,
+    bool HasMore = false,
+    TwCategoryIndexConsistencyResult? Consistency = null,
+    string? DiagnosticCode = null)
+{
+    public IReadOnlyList<TwCategoryMember> VisibleMembers => Members ?? [];
+}
+
 public enum TwCategoryIndexMutationKind
 {
     PageMutation,
@@ -187,6 +243,7 @@ public enum TwCategoryIndexingDisposition
 {
     Applied,
     NoChange,
+    Invalidated,
     IncompleteExtraction,
     RevisionConflict,
     UnauthorizedMutation,

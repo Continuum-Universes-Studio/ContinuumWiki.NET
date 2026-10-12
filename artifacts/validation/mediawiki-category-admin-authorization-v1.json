@@ -1,0 +1,96 @@
+{
+  "ReportVersion": "cw-m5-023-category-admin-authorization-v1",
+  "GeneratedAtUtc": "2026-10-12T03:35:10Z",
+  "Classification": "CATEGORY_ADMIN_AUTHORIZATION_SOURCE_VERIFIED",
+  "RunMode": "SOURCE_ONLY",
+  "DatabaseContacts": {
+    "Connections": 0,
+    "Mutations": 0,
+    "LiveTestsRun": false,
+    "Operator4AuthorizationReused": false,
+    "CleanupPerformed": false
+  },
+  "Defaults": {
+    "AdministrativeApiEnabled": false,
+    "GrantProvider": "TwCategoryAdministrativeGrantProvider",
+    "GrantEvidenceSource": "RejectingTwCategoryAdministrativeGrantEvidenceSource",
+    "DefaultGrantDecision": "MissingGrant",
+    "ReadinessEvidenceSource": "RejectingTwCategoryOperationalReadinessEvidenceSource",
+    "CategoryMembershipRepository": "RejectingTwCategoryMembershipRepository",
+    "CategoryRecoveryDurabilityStore": "RejectingTwCategoryRecoveryDurabilityStore",
+    "ProductionMigration": "NO_GO",
+    "RepositoryActivation": "NO_GO"
+  },
+  "GrantPolicy": {
+    "BindsActor": true,
+    "BindsAction": true,
+    "BindsExactScope": true,
+    "RequiresUtcValidityWindow": true,
+    "ChecksRevocation": true,
+    "ChecksReplay": true,
+    "SingleUseRequiresDurableAtomicProtection": true,
+    "DurableSingleUseStoreImplemented": false,
+    "UnsignedClientGrantAccepted": false,
+    "PreviewAuthorizesExecute": false
+  },
+  "ReadinessEvidencePolicy": {
+    "SourceOnlyAcceptedForExecution": false,
+    "DisposableCertificationAcceptedForProduction": false,
+    "RequiresProductionDeploymentProvenance": true,
+    "RequiresIndependentSource": true,
+    "RequiresTargetBinding": true,
+    "RequiresFreshUtcWindow": true,
+    "Operator4EvidenceTransferrable": false
+  },
+  "Routes": {
+    "Readiness": "GET /Admin/CategoryRecovery/readiness",
+    "Preview": "POST /Admin/CategoryRecovery/preview",
+    "Execute": "POST /Admin/CategoryRecovery/execute",
+    "PreviewAntiForgery": true,
+    "ExecuteAntiForgery": true,
+    "MutationRouteActivated": false,
+    "MutationRouteInvoked": false
+  },
+  "RecoveryInvariants": {
+    "BatchLimit": 100,
+    "AuditBudget": 4096,
+    "FreshExecuteAuthorization": true,
+    "FreshPageAuthorization": true,
+    "RevisionReResolution": true,
+    "CasAndReplayPreserved": true,
+    "IndeterminateOutcomePreserved": true,
+    "DirectSqlFromEndpoint": false
+  },
+  "Tests": {
+    "FocusedPassed": 23,
+    "FocusedFailed": 0,
+    "FocusedSkipped": 0,
+    "FullDebug": {
+      "Passed": 430,
+      "Failed": 0,
+      "Skipped": 34,
+      "Total": 464
+    },
+    "ReleaseBuild": {
+      "Succeeded": true,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    "JsonValidation": true,
+    "DiffCheck": true
+  },
+  "IndependentBlockers": [
+    "separately authorized durable grant/evidence provider",
+    "atomic single-use consume and revocation certification",
+    "production-bound readiness evidence",
+    "production deployment and activation authorization",
+    "live MariaDB/provider certification"
+  ],
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "ServicesChanged": false,
+    "WorkersChanged": false,
+    "ContainersChanged": false
+  }
+}

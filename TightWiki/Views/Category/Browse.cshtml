@@ -1,0 +1,91 @@
+@using TightWiki
+@using TightWiki.Plugin
+@using TightWiki.Plugin.Interfaces
+@using TightWiki.Plugin.Models
+@using TightWiki.ViewModels.Category
+@inject ITwSharedLocalizationText Localizer
+@inject TwConfiguration WikiConfiguration
+
+@model CategoryBrowseViewModel
+@{
+    Layout = "_Layout";
+    var sessionState = ViewData["SessionState"] as TightWiki.TwSessionState ?? throw new Exception("Wiki State Context cannot be null.");
+    string? categoryUrl(int page) => Model.CategoryTitle is null
+        ? null
+        : Url.Action("Browse", "Category", new { categoryTitle = Model.CategoryTitle, page, pageSize = Model.PageSize });
+    string? pageUrl(string navigation) => Url.Action("Display", "Page", new { givenCanonical = navigation });
+}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">
+            @if (Model.CategoryTitle is not null)
+            {
+                @Localizer.Format("Category: {0}", Model.CategoryTitle)
+            }
+            else
+            {
+                @Localizer["Category"]
+            }
+        </h1>
+        @if (Model.CategoryNavigation is not null)
+        {
+            <div class="text-muted small">@Model.CategoryNavigation</div>
+        }
+    </div>
+</div>
+
+@switch (Model.Disposition)
+{
+    case TwCategoryBrowseDisposition.InvalidCategory:
+    case TwCategoryBrowseDisposition.InvalidRequest:
+        <div class="alert alert-warning" role="alert">@Localizer["The requested category or page parameters are invalid."]</div>
+        break;
+    case TwCategoryBrowseDisposition.RepositoryUnavailable:
+        <div class="alert alert-warning" role="alert">@Localizer["Category membership is currently unavailable."]</div>
+        break;
+    case TwCategoryBrowseDisposition.Unindexed:
+        <div class="alert alert-info" role="status">@Localizer["This category has not been indexed yet."]</div>
+        break;
+    case TwCategoryBrowseDisposition.Inconsistent:
+        <div class="alert alert-warning" role="status">@Localizer["Category membership is temporarily inconsistent and cannot be displayed."]</div>
+        break;
+    case TwCategoryBrowseDisposition.IndexedEmpty:
+        <div class="alert alert-secondary" role="status">@Localizer["No accessible pages are currently listed in this category."]</div>
+        break;
+    case TwCategoryBrowseDisposition.Populated:
+        <div class="list-group mb-3">
+            @foreach (var member in Model.Members)
+            {
+                var href = pageUrl(member.PageNavigation);
+                if (href is null)
+                {
+                    continue;
+                }
+                <a class="list-group-item list-group-item-action" href="@href">
+                    <div class="fw-semibold">@member.PageName</div>
+                    @if (!string.IsNullOrWhiteSpace(member.Description))
+                    {
+                        <div class="small text-muted">@member.Description</div>
+                    }
+                </a>
+            }
+        </div>
+        break;
+}
+
+@if (Model.CategoryTitle is not null && (Model.PageNumber > 1 || Model.HasMore))
+{
+    <nav aria-label="@Localizer["Category pages"]">
+        <ul class="pagination">
+            @if (Model.PageNumber > 1 && categoryUrl(Model.PageNumber - 1) is string previous)
+            {
+                <li class="page-item"><a class="page-link" href="@previous">@Localizer["Previous"]</a></li>
+            }
+            @if (Model.HasMore && categoryUrl(Model.PageNumber + 1) is string next)
+            {
+                <li class="page-item"><a class="page-link" href="@next">@Localizer["Next"]</a></li>
+            }
+        </ul>
+    </nav>
+}

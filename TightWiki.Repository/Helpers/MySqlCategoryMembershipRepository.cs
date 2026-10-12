@@ -41,7 +41,7 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
             WHERE PageId = @PageId;
             """, new { PageId = pageId }, cancellationToken: cancellationToken));
         if (state is null)
-            return new(TwCategoryIndexConsistencyState.Unindexed, pageId, page.Revision, DiagnosticCode: "IndexStateMissing");
+        return new(TwCategoryIndexConsistencyState.Unindexed, pageId, checked((int)page.Revision), DiagnosticCode: "IndexStateMissing");
 
         var provenance = new TwCategoryIndexProvenance(
             state.SourcePageId,
@@ -70,7 +70,71 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
             TwCategoryIndexConsistencyState.Unknown when state.IndexedPageRevision > page.Revision => "IndexedRevisionAheadOfCurrentPage",
             _ => "StoredIndexStateUnknown"
         };
-        return new(consistency, pageId, page.Revision, state.IndexedPageRevision, provenance, diagnostic);
+        return new(consistency, pageId, checked((int)page.Revision), checked((int)state.IndexedPageRevision), provenance, diagnostic);
+    }
+
+    public async Task<TwCategoryIndexConsistencyResult> GetCategoryIndexConsistencyAsync(
+        TwCategoryIdentity category,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(category);
+        if (!TwCategoryIdentity.TryCreate(category.NormalizedTitle, out var canonical)
+            || canonical != category)
+            throw new ArgumentException("Category navigation must be canonical.", nameof(category));
+
+        await using var session = await _connectionFactory.OpenSessionAsync(cancellationToken);
+        var state = await session.Connection.QuerySingleAsync<string>(new CommandDefinition("""
+            SELECT CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM Page P
+                    INNER JOIN PageCategoryIndexState S ON S.PageId = P.Id
+                    WHERE P.IsDeleted = FALSE AND S.IndexState = 'Failed'
+                ) THEN 'Failed'
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM Page P
+                    INNER JOIN PageCategoryIndexState S ON S.PageId = P.Id
+                    WHERE P.IsDeleted = FALSE AND S.IndexState = 'Incomplete'
+                ) THEN 'Incomplete'
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM Page P
+                    INNER JOIN PageCategoryIndexState S ON S.PageId = P.Id
+                    WHERE P.IsDeleted = FALSE AND S.IndexState = 'Unknown'
+                ) THEN 'Unknown'
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM Page P
+                    INNER JOIN PageCategoryIndexState S ON S.PageId = P.Id
+                    WHERE P.IsDeleted = FALSE
+                      AND S.IndexState = 'Verified'
+                      AND S.IndexedPageRevision > P.Revision
+                ) THEN 'Unknown'
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM Page P
+                    INNER JOIN PageCategoryIndexState S ON S.PageId = P.Id
+                    WHERE P.IsDeleted = FALSE
+                      AND S.IndexState = 'Verified'
+                      AND S.IndexedPageRevision < P.Revision
+                ) THEN 'Stale'
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM Page P
+                    LEFT JOIN PageCategoryIndexState S ON S.PageId = P.Id
+                    WHERE P.IsDeleted = FALSE
+                      AND (S.PageId IS NULL
+                           OR S.IndexState <> 'Verified'
+                           OR S.IndexedPageRevision <> P.Revision)
+                ) THEN 'Unindexed'
+                ELSE 'Current'
+            END;
+            """, cancellationToken: cancellationToken));
+
+        if (!Enum.TryParse<TwCategoryIndexConsistencyState>(state, ignoreCase: false, out var consistency))
+            consistency = TwCategoryIndexConsistencyState.Unknown;
+        return new(consistency, 0, DiagnosticCode: $"CategoryIndexState:{state}");
     }
 
     public async Task<IReadOnlyList<TwCategoryMembershipRecord>> GetMembershipsByPageIdAsync(
@@ -120,8 +184,8 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
                 """, new { request.PageId }, transaction: transaction.Transaction, cancellationToken: cancellationToken));
             if (page is null || page.IsDeleted)
                 return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, request.PageId, DiagnosticCode: "PageUnavailable");
-            if (page.Revision != request.ExpectedPageRevision)
-                return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, request.PageId, page.Revision, "CurrentPageRevisionMismatch");
+            if (page.Revision != (uint)request.ExpectedPageRevision)
+                return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, request.PageId, checked((int)page.Revision), "CurrentPageRevisionMismatch");
 
             var existingState = await session.Connection.QuerySingleOrDefaultAsync<IndexStateRow>(new CommandDefinition("""
                 SELECT IndexedPageRevision, IndexState, IndexGeneration,
@@ -130,8 +194,8 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
                 WHERE PageId = @PageId
                 FOR UPDATE;
                 """, new { request.PageId }, transaction: transaction.Transaction, cancellationToken: cancellationToken));
-            if (existingState is not null && existingState.IndexedPageRevision > request.ExpectedPageRevision)
-                return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, request.PageId, existingState.IndexedPageRevision, "NewerIndexRevisionExists");
+            if (existingState is not null && existingState.IndexedPageRevision > (uint)request.ExpectedPageRevision)
+                return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, request.PageId, checked((int)existingState.IndexedPageRevision), "NewerIndexRevisionExists");
 
             var existing = await session.Connection.QueryAsync<MembershipRow>(new CommandDefinition("""
                 SELECT PageId, CategoryNavigation, SortKey, SourcePageRevision,
@@ -142,7 +206,7 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
                 """, new { request.PageId }, transaction: transaction.Transaction, cancellationToken: cancellationToken));
             if (existingState is not null
                 && string.Equals(existingState.IndexState, nameof(TwCategoryDurableIndexState.Verified), StringComparison.Ordinal)
-                && existingState.IndexedPageRevision == request.ExpectedPageRevision
+                && existingState.IndexedPageRevision == (uint)request.ExpectedPageRevision
                 && Equivalent(request.DesiredMemberships, existing.Select(MapMembership).ToList()))
             {
                 await transaction.CommitAsync(cancellationToken);
@@ -239,16 +303,17 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
             Offset = checked((query.PageNumber - 1) * pageSize)
         };
         await using var session = await _connectionFactory.OpenSessionAsync(cancellationToken);
-        var rows = await session.Connection.QueryAsync<TwCategoryMember>(new CommandDefinition("""
+        var rows = await session.Connection.QueryAsync<CategoryMemberRow>(new CommandDefinition("""
             WITH EffectiveReadRules AS (
                 SELECT RP.Namespace, RP.PageId, PD.Name AS PermissionDisposition
                 FROM RolePermission RP
                 INNER JOIN Role R ON R.Id = RP.RoleId
                 INNER JOIN Permission P ON P.Id = RP.PermissionId AND P.Name = 'Read'
                 INNER JOIN PermissionDisposition PD ON PD.Id = RP.PermissionDispositionId
-                INNER JOIN AccountRole AR ON AR.RoleId = RP.RoleId
-                WHERE (@ViewerUserId IS NOT NULL AND AR.UserId = @ViewerUserId)
-                   OR (@ViewerUserId IS NULL AND R.Name = 'Anonymous')
+                WHERE (@ViewerUserId IS NULL AND R.Name = 'Anonymous')
+                   OR (@ViewerUserId IS NOT NULL AND EXISTS (
+                       SELECT 1 FROM AccountRole AR
+                       WHERE AR.RoleId = RP.RoleId AND AR.UserId = @ViewerUserId))
                 UNION ALL
                 SELECT AP.Namespace, AP.PageId, PD.Name AS PermissionDisposition
                 FROM AccountPermission AP
@@ -310,7 +375,8 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
             LIMIT @LimitPlusOne OFFSET @Offset;
             """, parameters, cancellationToken: cancellationToken));
 
-        var members = rows.AsList();
+        var members = rows.Select(row => new TwCategoryMember(
+            checked((int)row.PageId), row.PageNavigation, row.PageName, row.Description, row.SortKey)).ToList();
         var hasMore = members.Count > pageSize;
         if (hasMore) members.RemoveAt(members.Count - 1);
         return new(members, hasMore);
@@ -331,8 +397,11 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
             var page = await session.Connection.QuerySingleOrDefaultAsync<PageRevisionRow>(new CommandDefinition("""
                 SELECT Revision, IsDeleted FROM Page WHERE Id = @PageId FOR UPDATE;
                 """, new { PageId = pageId }, transaction: transaction.Transaction, cancellationToken: cancellationToken));
-            if (page is null || page.IsDeleted || page.Revision != expectedPageRevision)
-                return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, pageId, page?.Revision, "CurrentPageRevisionMismatch");
+            // A committed deletion is the only safe caller for this boundary:
+            // require the row to be deleted and the exact authoritative
+            // revision before removing its visible membership rows.
+            if (page is null || !page.IsDeleted || page.Revision != (uint)expectedPageRevision)
+                return new(TwCategoryMembershipReplacementDisposition.RevisionConflict, pageId, page is null ? null : checked((int)page.Revision), "CurrentPageRevisionMismatch");
 
             await session.Connection.ExecuteAsync(new CommandDefinition(
                 "DELETE FROM PageCategoryMembership WHERE PageId = @PageId;",
@@ -351,7 +420,7 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
                     IndexedAtUtc = VALUES(IndexedAtUtc);
                 """, new { PageId = pageId, Revision = expectedPageRevision, IndexGeneration = Guid.NewGuid(), IndexedAtUtc = DateTime.UtcNow }, transaction: transaction.Transaction, cancellationToken: cancellationToken));
             await transaction.CommitAsync(cancellationToken);
-            return new(TwCategoryMembershipReplacementDisposition.Applied, pageId, expectedPageRevision, "MembershipsInvalidated");
+            return new(TwCategoryMembershipReplacementDisposition.Applied, pageId, expectedPageRevision, "MembershipsInvalidatedAfterDeletion");
         }
         catch (OperationCanceledException)
         {
@@ -367,14 +436,14 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
 
     private static TwCategoryMembershipRecord MapMembership(MembershipRow row)
     {
-        if (!TwCategoryIdentity.TryCreate(row.CategoryNavigation, out var category))
+        if (!TwCategoryIdentity.TryCreateFromNavigation(row.CategoryNavigation, out var category))
             throw new InvalidDataException("The category membership table contains a non-canonical category navigation.");
 
         return new(
-            row.PageId,
+            checked((int)row.PageId),
             category,
             row.SortKey,
-            row.SourcePageRevision,
+            checked((int)row.SourcePageRevision),
             row.SourcePageId,
             row.SourceRevisionId,
             row.SourceWikiIdentity,
@@ -407,6 +476,9 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
     private static TwCategoryMembershipReplacementResult Invalid(int pageId, string diagnosticCode)
         => new(TwCategoryMembershipReplacementDisposition.InvalidRequest, pageId, DiagnosticCode: diagnosticCode);
 
+    private static string SanitizeDiagnosticMessage(string message)
+        => new string(message.Take(160).Select(character => char.IsAsciiLetterOrDigit(character) || character is ' ' or ':' or '.' or '-' or '_' or '(' or ')' ? character : '_').ToArray());
+
     private static DateTime EnsureUtc(DateTime value)
         => value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
 
@@ -416,10 +488,10 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
         catch { /* Preserve the original persistence or cancellation result. */ }
     }
 
-    private sealed record PageRevisionRow(int Revision, bool IsDeleted);
+    private sealed record PageRevisionRow(uint Revision, bool IsDeleted);
 
     private sealed record IndexStateRow(
-        int IndexedPageRevision,
+        uint IndexedPageRevision,
         string IndexState,
         Guid IndexGeneration,
         string? SourcePageId,
@@ -428,14 +500,21 @@ public sealed class MySqlCategoryMembershipRepository : ITwCategoryMembershipRep
         DateTime IndexedAtUtc);
 
     private sealed record MembershipRow(
-        int PageId,
+        uint PageId,
         string CategoryNavigation,
         string? SortKey,
-        int SourcePageRevision,
+        uint SourcePageRevision,
         string? SourcePageId,
         string? SourceRevisionId,
         string? SourceWikiIdentity,
         Guid IndexGeneration,
         DateTime IndexedAtUtc,
         string IndexState);
+
+    private sealed record CategoryMemberRow(
+        uint PageId,
+        string PageNavigation,
+        string PageName,
+        string Description,
+        string? SortKey);
 }

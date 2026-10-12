@@ -199,6 +199,25 @@ public sealed class MediaWikiCategoryApplicationServiceTests
     }
 
     [Fact]
+    public async Task CommittedDeletionUsesExplicitRevisionBoundInvalidation()
+    {
+        var events = new List<string>();
+        var repository = new FakeMembershipRepository(events);
+        var service = new TwCategoryMembershipApplicationService(
+            new FakeSource(events, ResolvedPage()),
+            new FakeExtractor(events, CompletePlan()),
+            repository);
+
+        var result = await service.InvalidateAfterCommittedDeletionAsync(
+            Request(),
+            (_, _) => Task.FromResult(true));
+
+        Assert.Equal(TwCategoryIndexingDisposition.Invalidated, result.Disposition);
+        Assert.Equal(1, repository.InvalidationCalls);
+        Assert.Contains("invalidated", events);
+    }
+
+    [Fact]
     public async Task RepositoryFailureIsTypedAndCannotBecomeSuccess()
     {
         var repository = new FakeMembershipRepository([], throwPersistenceFailure: true);
@@ -440,6 +459,7 @@ public sealed class MediaWikiCategoryApplicationServiceTests
         private readonly TwCategoryIndexConsistencyResult? _consistencyResult = consistencyResult;
         public int ReadCalls { get; private set; }
         public TwCategoryMembershipReplacementRequest? LastReplacement { get; private set; }
+        public int InvalidationCalls { get; private set; }
 
         public Task<IReadOnlyList<TwCategoryMembershipRecord>> GetMembershipsByPageIdAsync(int pageId, CancellationToken cancellationToken = default)
         {
@@ -452,6 +472,11 @@ public sealed class MediaWikiCategoryApplicationServiceTests
         }
 
         public Task<TwCategoryIndexConsistencyResult> GetIndexConsistencyAsync(int pageId, CancellationToken cancellationToken = default)
+            => _consistencyResult is null
+                ? Task.FromException<TwCategoryIndexConsistencyResult>(new NotSupportedException())
+                : Task.FromResult(_consistencyResult);
+
+        public Task<TwCategoryIndexConsistencyResult> GetCategoryIndexConsistencyAsync(TwCategoryIdentity category, CancellationToken cancellationToken = default)
             => _consistencyResult is null
                 ? Task.FromException<TwCategoryIndexConsistencyResult>(new NotSupportedException())
                 : Task.FromResult(_consistencyResult);
@@ -470,6 +495,12 @@ public sealed class MediaWikiCategoryApplicationServiceTests
             => Task.FromException<TwCategoryMemberPage>(new NotSupportedException());
 
         public Task<TwCategoryMembershipReplacementResult> InvalidateMembershipsAsync(int pageId, int expectedPageRevision, CancellationToken cancellationToken = default)
-            => Task.FromException<TwCategoryMembershipReplacementResult>(new NotSupportedException());
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (throwNotSupported) return Task.FromException<TwCategoryMembershipReplacementResult>(new NotSupportedException());
+            InvalidationCalls++;
+            events.Add("invalidated");
+            return Task.FromResult(new TwCategoryMembershipReplacementResult(TwCategoryMembershipReplacementDisposition.Applied, pageId, expectedPageRevision, "MembershipsInvalidatedAfterDeletion"));
+        }
     }
 }

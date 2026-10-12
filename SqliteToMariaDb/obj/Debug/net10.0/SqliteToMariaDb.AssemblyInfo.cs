@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ContinuumWiki.SqliteToMariaDb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e0e260cee9404ff20c86c50b3a7346ff9b522f61")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b6db13ba7571205c947bcba41c9dbb94f1943dc6")]
 [assembly: System.Reflection.AssemblyProductAttribute("ContinuumWiki.SqliteToMariaDb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ContinuumWiki.SqliteToMariaDb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

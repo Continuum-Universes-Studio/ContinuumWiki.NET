@@ -1,0 +1,34 @@
+{
+  "ReportVersion": "cw-m5-019-certification-preflight-v1",
+  "GeneratedAtUtc": "2026-10-12T02:17:40.040234Z",
+  "Classification": "CATEGORY_CERTIFICATION_READINESS_SOURCE_VERIFIED",
+  "Manifest": {
+    "Path": "cw-m5-019-authorization.json",
+    "AuthorizationManifestVersion": "cw-m5-019-authorization-v2",
+    "PermissionModel": "separate-certification-and-destructive-scopes-v2",
+    "Validated": true,
+    "ApprovalIdSha256": "48b40d6f9347173b844b57093c2035018f284c8d4ae669e10c380aa5526ea2d8",
+    "TargetIdentitySha256": "5d0b15e3a4a824f541001b8dcdfa0c0fd141c690321ea70eb5c3b9c169ae35d5",
+    "ContainsCredentials": false
+  },
+  "Preflight": {
+    "Mode": "NON_CONNECTING",
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "LiveCertification": "NOT_EXECUTED",
+    "ConnectionEnvironmentVariablesRead": false,
+    "ProposedSteps": [
+      "verify-authorized-target-identity-and-MariaDB-11.8",
+      "apply-V1-category-schema-then-V2-recovery-schema",
+      "run-authorized-category-and-recovery-certification",
+      "capture-sanitized-evidence-and-cleanup-attestation"
+    ]
+  },
+  "ValidationErrors": [],
+  "Production": {
+    "Migration": "NO_GO",
+    "CategoryProviderActivation": "NO_GO",
+    "LuaChanged": false,
+    "WorkerIsolationChanged": false
+  }
+}

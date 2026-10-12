@@ -72,7 +72,7 @@ public sealed class MediaWikiWikitextRendererTests
         Assert.Single(result.Categories);
         Assert.Equal("Divines", result.Categories[0].SourceTitle);
         Assert.Equal("Jovan", result.Categories[0].SortKey);
-        Assert.Contains("href=\"/wiki/Category%3A%3ADivines\">Browse</a>", result.HtmlResult, StringComparison.Ordinal);
+        Assert.Contains("href=\"/wiki/Category/divines\">Browse</a>", result.HtmlResult, StringComparison.Ordinal);
         Assert.Contains("<div class=\"cw-mediawiki-categories\">", result.HtmlResult, StringComparison.Ordinal);
     }
 

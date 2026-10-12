@@ -1,0 +1,99 @@
+{
+  "ReportVersion": "cw-m5-018-category-recovery-mariadb-v1",
+  "GeneratedAtUtc": "2026-10-11T23:56:08Z",
+  "Classification": "CATEGORY_RECOVERY_MARIADB_SOURCE_IMPLEMENTED_AUTHORIZATION_BLOCKED",
+  "Milestone": "CW-M5-018",
+  "RepositoryRevision": "b6db13ba7571205c947bcba41c9dbb94f1943dc6",
+  "DatabaseAuthorization": "DATABASE_AUTHORIZATION_NOT_ESTABLISHED",
+  "ProductionMigrationActivation": "NO_GO",
+  "ProviderActivation": {
+    "DefaultStore": "RejectingTwCategoryRecoveryDurabilityStore",
+    "ExplicitActivationExtension": "AddAuthorizedMySqlCategoryRecoveryDurability",
+    "StartupActivation": false,
+    "RequiredProvider": "mysql",
+    "RequiredSchemaVersion": 2,
+    "ReadinessProofRequired": true,
+    "LeaseOwnerAndExpiryModeled": false,
+    "MaxAuditEventsPerOperation": 4096
+  },
+  "SourceImplementation": {
+    "ConcreteStore": "MySqlCategoryRecoveryDurabilityStore",
+    "SchemaMigration": "TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql",
+    "SchemaInitializer": "MySqlCategoryRecoveryDurabilitySchemaInitializer",
+    "ReadinessProof": "MySqlCategoryRecoveryDurabilityReadinessProof",
+    "OperationIdentity": true,
+    "ScopeJsonAndFingerprint": true,
+    "ActorBinding": true,
+    "SeparateCheckpointAndAuditState": true,
+    "MonotonicAuditSequence": true,
+    "IdempotentEventKeys": true,
+    "CheckpointGenerationCas": true,
+    "CheckpointRequiresTerminalRecordedOutcome": true,
+    "CheckpointRejectsBackwardsMovement": true,
+    "StateTransitionCas": true,
+    "RedactedProgressProjection": true,
+    "ParameterizedQueries": true,
+    "CancellationPropagation": true,
+    "SafeDiagnosticTokensOnly": true,
+    "CategoryMembershipMutationInDurabilityStore": false,
+    "CrossResourceAtomicityClaimed": false
+  },
+  "CrashReplayCoverage": {
+    "BeforeMutation": "SOURCE_PROTOCOL_REQUIRES_NO_ADVANCE",
+    "AfterMutationBeforeAudit": "REQUIRES_AUTHORITATIVE_RECONCILIATION",
+    "AfterAuditBeforeCheckpoint": "IDEMPOTENT_EVENT_AND_CHECKPOINT_RETRY",
+    "DuringCheckpointCas": "AFFECTED_ROW_GENERATION_CONFLICT",
+    "AfterCheckpointBeforeAcknowledgement": "RELOAD_COMMITTED_CURSOR",
+    "RepeatedOperationOrEvent": "REPLAY_OR_EXPLICIT_CONFLICT",
+    "LiveCrashInjection": "NOT_EXECUTED",
+    "LiveConcurrentCas": "NOT_EXECUTED",
+    "LiveLeaseRace": "NOT_APPLICABLE_CONTRACT_HAS_NO_LEASE"
+  },
+  "Verification": {
+    "FocusedSourceCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1 --filter 'FullyQualifiedName~MySqlCategoryRecoveryDurabilityContractTests|FullyQualifiedName~MediaWikiCategoryRecoveryDurabilityAuthorizationTests|FullyQualifiedName~MediaWikiTemplateStylesHostAuthorizationTests'",
+    "FocusedSourceResult": "7 passed, 0 failed, 1 skipped",
+    "RepositoryBuildCommand": "dotnet build TightWiki.Repository/TightWiki.Repository.csproj -c Debug --no-restore -m:1",
+    "RepositoryBuildResult": "passed, 0 warnings, 0 errors",
+    "LiveAuthorizationTest": "SKIPPED before connection because M5-018 authorization was absent",
+    "FullDebugCommand": "dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1",
+    "FullDebugResult": "394 passed, 29 skipped, 0 failed, total 423",
+    "ReleaseCommand": "dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1",
+    "ReleaseResult": "passed, 0 warnings, 0 errors",
+    "JsonValidation": "Passed with python3 -m json.tool",
+    "DiffCheck": "Passed with git diff --check"
+  },
+  "DatabaseAndProduction": {
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "MariaDbTestsExecuted": false,
+    "MariaDbEngineVersion": null,
+    "ProductionSchemaChanged": false,
+    "ProductionServicesModified": false,
+    "ProductionLuaEnabled": false,
+    "WorkerIsolationChanged": false,
+    "CredentialsPersistedOrLogged": false
+  },
+  "CreatedFiles": [
+    "TightWiki.Repository/Helpers/MySqlCategoryRecoveryDurabilityStore.cs",
+    "TightWiki.Repository/Helpers/MySqlCategoryRecoveryDurabilitySchemaInitializer.cs",
+    "TightWiki.Repository/Helpers/MySqlCategoryRecoveryDurabilityReadiness.cs",
+    "TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql",
+    "TightWiki.Tests/Unit/MySqlCategoryRecoveryDurabilityContractTests.cs",
+    "TightWiki.Tests/Integration/MediaWikiCategoryRecoveryDurabilityAuthorizationTests.cs",
+    "docs/architecture/CW-M5-018-CATEGORY-RECOVERY-MARIADB.md",
+    "artifacts/validation/mediawiki-category-recovery-mariadb-v1.json"
+  ],
+  "ModifiedFiles": [
+    "TightWiki.Repository/Helpers/ProviderNeutralPersistenceServiceCollectionExtensions.cs",
+    "TightWiki.Tests/Integration/MediaWikiTemplateStylesHostAuthorizationTests.cs",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "OpenGates": [
+    "Approved disposable MariaDB 11.8 target and exact cleanup scope",
+    "Live schema, CAS, rollback, cancellation, and crash-replay certification",
+    "Real category reconciliation and revision-conflict certification",
+    "Page visibility and authorized redaction certification",
+    "Concurrent-writer certification",
+    "Lease semantics, if added to the contract in a future milestone"
+  ]
+}
