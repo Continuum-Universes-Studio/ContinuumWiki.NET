@@ -66,6 +66,7 @@ internal static class MySqlDevelopmentRuntime
         builder.Services.AddSingleton<ITwCategoryOperationalReadinessService, TwCategoryOperationalReadinessService>();
         builder.Services.AddSingleton<ITwCategoryOperationalReadinessEvidenceSource, RejectingTwCategoryOperationalReadinessEvidenceSource>();
         builder.Services.AddSingleton<ITwCategoryAdministrativeGrantEvidenceSource, RejectingTwCategoryAdministrativeGrantEvidenceSource>();
+        builder.Services.AddSingleton<ITwCategoryAdministrativeGrantStore, RejectingTwCategoryAdministrativeGrantStore>();
         builder.Services.AddSingleton<ITwCategoryAdministrativeGrantProvider, TwCategoryAdministrativeGrantProvider>();
         builder.Services.AddSingleton<ITwCategoryAdministrativeRecoveryApi, TwCategoryAdministrativeRecoveryApi>();
         builder.Services.AddSingleton<ITwCategoryRecoveryService, TwCategoryRecoveryService>();

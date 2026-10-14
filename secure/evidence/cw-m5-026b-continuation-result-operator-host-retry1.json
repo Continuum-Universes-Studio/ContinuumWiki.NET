@@ -1,0 +1,12 @@
+{
+  "ReportVersion": "cw-m5-026b-continuation-result-v1",
+  "GeneratedAtUtc": "2026-10-12T12:06:00.070864Z",
+  "Classification": "CONTINUATION_FAILED_RESOURCES_RETAINED",
+  "Phase": "SOURCE_CONTAINER_AND_CREDENTIALS_VERIFIED",
+  "Error": "authorized source identity query did not verify",
+  "DestinationMayBePartiallyCreated": false,
+  "DoNotRetryWithoutInspection": false,
+  "AutomaticCleanup": false,
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO"
+}

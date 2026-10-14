@@ -1,0 +1,148 @@
+{
+  "ReportVersion": "cw-m5-026b-provisioning-authorization-handoff-v1",
+  "Milestone": "CW-M5-026B-PROVISION",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "CATEGORY_BACKUP_RESTORE_PREPARATION_SOURCE_VERIFIED",
+  "AuthorizationStatus": "PROVISIONING_ATTEMPTED_FAILED_RESOURCES_RETAINED",
+  "LiveProvisioningPerformed": true,
+  "AuthoritativeManifestCreated": true,
+  "PreviousApprovalReused": false,
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "SourcePreparation": {
+    "Status": "SOURCE_VERIFIED",
+    "Evidence": [
+      "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+      "docs/operations/CW-M5-026B-LIVE-PROVISIONING-AUTHORIZATION-WORKSHEET.md",
+      "scripts/preflight-m5-026b-provisioning.py",
+      "scripts/cw-m5-026b/provision_targets.py",
+      "artifacts/validation/mediawiki-category-backup-restore-rehearsal-v1.json",
+      "artifacts/validation/mediawiki-category-backup-restore-live-v1.json"
+    ]
+  },
+  "RecordedApprovalDecision": {
+    "Status": "RECORDED_IN_CONVERSATION",
+    "Scope": "TWO_NEW_DISTINCT_DISPOSABLE_ROOTLESS_PODMAN_MARIADB_11_8_TARGETS",
+    "ProvisioningOnly": true,
+    "RehearsalRightsGranted": false,
+    "BackupRestoreMigrationCertificationAllowed": false,
+    "CleanupSchemaDeletionContainerVolumeDeletionAllowed": false,
+    "ApprovalMetadataEstablished": true,
+    "ApprovalTimestampRecorded": true,
+    "ApprovalId": "CW-M5-026B-PROVISION-20261012-001",
+    "ApprovedAtUtc": "2026-10-12T09:33:51Z",
+    "ExpiresAtUtc": "2026-10-13T09:33:51Z"
+  },
+  "ProvisioningApproval": {
+    "Status": "VALID_NONCONNECTING_PREFLIGHT",
+    "ManifestVersion": "cw-m5-026b-provisioning-authorization-v1",
+    "Schema": "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+    "AuthoritativeManifestPath": "secure/evidence/cw-m5-026b-provisioning-authorization.json",
+    "PreflightReportPath": "secure/evidence/cw-m5-026b-provisioning-preflight.json",
+    "RequiredFields": [
+      "Approver.Name and Approver.Role",
+      "Operator.Name and Operator.Role",
+      "TargetOwner",
+      "ApprovalId",
+      "actual finite ApprovedAtUtc and ExpiresAtUtc",
+      "Host.HostName and independently verified rootless-Podman evidence",
+      "Host.PortRange",
+      "immutable Image.Reference for MariaDB 11.8.x",
+      "distinct TargetPlan.Source and TargetPlan.Destination container, volume, database, endpoint, identity, credential directory, and identity prefix",
+      "ExcludedResources prefixes and exact names",
+      "PermittedOperations with provisioning/isolation/evidence true and every cleanup/deletion permission false"
+    ],
+    "RequiredScope": {
+      "FreshTargetsRequired": true,
+      "ReuseExistingResources": false,
+      "Production": false,
+      "SharedWithProduction": false,
+      "DedicatedCredentials": true,
+      "RehearsalRightsGranted": false,
+      "BackupAllowed": false,
+      "RestoreAllowed": false,
+      "SchemaMigrationAllowed": false,
+      "CertificationAllowed": false,
+      "CleanupAllowed": false
+    }
+  },
+  "ProvisioningPreflight": {
+    "Status": "PASSED",
+    "Connections": 0,
+    "Mutations": 0,
+    "PodmanCommands": 0,
+    "CredentialsRead": false,
+    "EvidencePath": null
+  },
+  "ProvisioningExecution": {
+    "Status": "FAILED_RESOURCES_RETAINED",
+    "Failure": "continuumwiki-m5-026b-source-ro1 runtime identity/version mismatch",
+    "SourceTarget": "RETAINED_PARTIAL_SOURCE_ONLY",
+    "DestinationTarget": "NOT_CREATED",
+    "DatabaseConnections": "not instrumented",
+    "DatabaseMutations": "not instrumented",
+    "CleanupPerformed": false
+  },
+  "RehearsalApproval": {
+    "Status": "NOT_APPLICABLE_UNTIL_ACTUAL_TARGETS_EXIST",
+    "Schema": "docs/operations/cw-m5-026b-authorization-manifest.schema.json",
+    "ManifestPath": null,
+    "SeparateFromProvisioningRequired": true
+  },
+  "RehearsalExecution": {
+    "Status": "NOT_RUN",
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "BackupCreated": false,
+    "Restored": false,
+    "Verified": false
+  },
+  "ContractTrace": {
+    "RootlessPodmanRequired": true,
+    "AllowedEndpointHost": "127.0.0.1",
+    "MariaDbEngineVersion": "MariaDB 11.8.x",
+    "ImmutableImageDigestRequired": true,
+    "FreshTargetsRequired": true,
+    "DedicatedCredentialsRequired": true,
+    "CleanupAndDeletionPermissionsMustBeFalse": true,
+    "ProvisioningDoesNotAuthorizeRehearsal": true
+  },
+  "SafeValidation": {
+    "FocusedSourceTests": "PASSED: 19 passed, 0 failed",
+    "FullDebugTests": "PASSED: 435 passed, 44 skipped, 0 failed, 479 total",
+    "ReleaseBuild": "PASSED: 0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "PythonAndShellSyntax": "PASSED",
+    "DiffCheck": "PASSED",
+    "PodmanOperations": "NOT_RUN_BY_CONSTRAINT",
+    "DatabaseOperations": "NOT_RUN_BY_CONSTRAINT"
+  },
+  "Blockers": [
+    "approval decision is recorded but schema-required approver/operator/owner, approval ID, and actual UTC validity fields are absent",
+    "exact authorized host, rootless-Podman evidence, and immutable MariaDB image digest are absent",
+    "exact distinct source and destination planned targets, ports, credential directories, identity prefixes, exclusions, and complete permission object are absent",
+    "authoritative provisioning manifest has not been created",
+    "exact source and destination targets do not yet exist or have verified evidence",
+    "separate exact-target rehearsal authorization cannot exist before provisioning",
+    "live backup/restore evidence is unavailable"
+  ],
+  "ProhibitedOrUnperformed": [
+    "production-or-shared-database-contact",
+    "prior-target-or-prior-approval-reuse",
+    "application-schema-migrations",
+    "database connections",
+    "schema migrations",
+    "backup",
+    "restore",
+    "certification",
+    "cleanup",
+    "repository activation",
+    "Lua-Cargo-worker-systemd-changes"
+  ],
+  "DecisionPacket": "docs/operations/CW-M5-026B-PROVISIONING-OPERATOR-DECISION-PACKET.md",
+  "ReadonlyInspectionReport": "artifacts/validation/mediawiki-category-backup-restore-readonly-host-inspection-v1.json",
+  "ReadonlyInspectionStatus": "READONLY_INSPECTION_COMPLETED_WITH_PARTIAL_INVENTORY",
+  "ProposedAuthorizationDraft": "artifacts/validation/cw-m5-026b-provisioning-authorization-draft-unapproved-v1.json",
+  "ProvisioningMetadata": "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+  "NextOperatorAction": "Do not retry or clean up. Diagnose the source runtime identity/version mismatch and obtain separate direction before any further operation; source container/volume remain retained and destination was not created."
+}

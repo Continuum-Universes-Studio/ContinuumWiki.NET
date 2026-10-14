@@ -1,0 +1,55 @@
+{
+  "ReportVersion": "cw-m5-025b-authorization-handoff-v1",
+  "Classification": "CATEGORY_ADMIN_GRANT_AUTHORIZATION_HANDOFF_SOURCE_VERIFIED",
+  "Authorization": {
+    "ManifestVersionRequired": "cw-m5-025-authorization-v1",
+    "AuthoritativeManifestPresent": false,
+    "DraftCandidate": "artifacts/validation/cw-m5-025b-authorization-draft-unapproved-v1.json",
+    "OperatorWorksheet": "docs/operations/CW-M5-025B-OPERATOR-AUTHORIZATION-WORKSHEET.md",
+    "ProvisionedTargetMetadata": "secure/evidence/cw-m5-025c-provisioning.json",
+    "LegacyM5_019ApprovalReusable": false,
+    "PreflightRequiredBeforeConnection": true
+  },
+  "SourceChecks": {
+    "SchemaInspected": true,
+    "PreflightInspected": true,
+    "V3DdlInspected": true,
+    "LiveGateInspected": true,
+    "Operator4FactsInspectedWithoutNewConnection": true,
+    "Operator4FactsM5_025Compatible": false,
+    "ProvisionedM5_025TargetFactsAvailable": true,
+    "ProvisionedM5_025TargetFactsSchemaCompatible": true,
+    "NoCredentialMaterialRecorded": true
+  },
+  "DatabaseContacts": {
+    "Connections": 0,
+    "Mutations": 0,
+    "CleanupOperations": 0
+  },
+  "SourceOnlyTests": {
+    "AuthorizationPreflightTestsPassed": 9,
+    "AuthorizationPreflightTestsFailed": 0,
+    "Coverage": [
+      "missing manifest",
+      "schema/version mismatch",
+      "expired authorization",
+      "future authorization",
+      "changed target",
+      "missing or unauthorized operation",
+      "destructive permissions",
+      "legacy approval reuse",
+      "secret-bearing manifest rejection"
+    ]
+  },
+  "LiveCertification": {
+    "Status": "BLOCKED_AUTHORIZATION_REQUIRED",
+    "V3MigrationApplied": false,
+    "TestsExecuted": false,
+    "MariaDbVersionObservedForM5_025": false
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "Cleanup": "NO_GO"
+  }
+}

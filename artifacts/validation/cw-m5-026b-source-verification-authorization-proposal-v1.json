@@ -1,0 +1,62 @@
+{
+  "ProposalStatus": "REVIEW_ONLY_NOT_AUTHORIZING",
+  "LiveContractSchema": "docs/operations/cw-m5-026b-continuation-authorization.schema.json",
+  "LiveContractVersion": "cw-m5-026b-continuation-authorization-v1",
+  "ProposedManifest": {
+    "ManifestVersion": "cw-m5-026b-continuation-authorization-v1",
+    "Operation": "VerifyRetainedSourceIdentity",
+    "ApprovalId": null,
+    "ApprovedAtUtc": null,
+    "ExpiresAtUtc": null,
+    "Approver": {
+      "Name": "Christian Daniel Jensen",
+      "Role": "Project Owner"
+    },
+    "Operator": {
+      "Name": "Christian Daniel Jensen",
+      "Role": "System Administrator"
+    },
+    "TargetOwner": "Christian Daniel Jensen",
+    "Host": {
+      "HostName": "christian-laptop",
+      "UnixUser": "cdjensen94",
+      "Uid": 1000,
+      "RootlessPodmanRequired": true
+    },
+    "Target": {
+      "ContainerName": "continuumwiki-m5-026b-source-ro1",
+      "ContainerId": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914",
+      "VolumeName": "continuumwiki-m5-026b-source-ro1-data",
+      "DatabaseName": "cw_m5_026b_source_ro1",
+      "Endpoint": "127.0.0.1:13326",
+      "DatabaseIdentity": "continuumwiki_m5_026b_source_app",
+      "ImageReference": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1",
+      "IdentityPrefix": "milestone=CW-M5-026B;role=source;container=continuumwiki-m5-026b-source-ro1;volume=continuumwiki-m5-026b-source-ro1-data;database=cw_m5_026b_source_ro1;endpoint=127.0.0.1:13326;",
+      "Sql": "SELECT DATABASE(), VERSION(), @@version_comment;"
+    },
+    "Permissions": {
+      "VerifyRetainedSourceIdentity": true,
+      "ProvisionDestinationTarget": false,
+      "RetainSanitizedEvidence": true
+    },
+    "Scope": {
+      "Production": false,
+      "SharedWithProduction": false,
+      "RehearsalRightsGranted": false,
+      "BackupAllowed": false,
+      "RestoreAllowed": false,
+      "SchemaMigrationAllowed": false,
+      "CertificationAllowed": false,
+      "CleanupAllowed": false,
+      "SchemaDeletionAllowed": false,
+      "ContainerVolumeDeletionAllowed": false
+    }
+  },
+  "EvidenceBasis": {
+    "ProvisioningReport": "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+    "HostEvidence": "artifacts/validation/mediawiki-category-backup-restore-readonly-host-inspection-v1.json",
+    "ContinuationWorksheet": "docs/operations/CW-M5-026B-CONTINUATION-AUTHORIZATION-WORKSHEET.md",
+    "Note": "Actor and host values are copied from prior records as proposal context only; they do not constitute fresh approval or current host verification."
+  }
+}

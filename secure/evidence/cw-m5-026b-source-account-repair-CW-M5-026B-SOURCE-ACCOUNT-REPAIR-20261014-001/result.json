@@ -1,0 +1,32 @@
+{
+  "ReportVersion": "cw-m5-026b-source-account-repair-result-v1",
+  "GeneratedAtUtc": "2026-10-14T21:45:36.366057Z",
+  "ApprovalId": "CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001",
+  "ManifestSha256": "e48eff550b34ff5c501fdf95368e4231fe1ed191ec56bb7ead4da85dcc65259e",
+  "AuthorizationConsumed": true,
+  "Prechecks": {
+    "ExactContainerIdentity": "UNKNOWN",
+    "Running": "UNKNOWN",
+    "DatabaseExists": "UNKNOWN",
+    "AccountAbsentAllHosts": "UNKNOWN",
+    "CredentialMetadata": "PASS"
+  },
+  "Repair": {
+    "Attempted": false,
+    "AccountCreated": "NOT_ATTEMPTED",
+    "GrantApplied": "NOT_ATTEMPTED",
+    "GrantVerification": "UNKNOWN",
+    "AuthenticatedTcpIdentity": "UNKNOWN"
+  },
+  "OperationCounts": {
+    "PodmanReadOnlyCommands": 1,
+    "ReadOnlyAdminQueries": 0,
+    "MutationStatements": 0,
+    "AuthenticatedTcpQueries": 0
+  },
+  "FailureClassification": "ROOTLESS_PODMAN_UNAVAILABLE",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "BackupRestore": "NOT_AUTHORIZED_AND_NOT_CERTIFIED",
+  "Classification": "SOURCE_ACCOUNT_REPAIR_STOPPED"
+}

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using TightWiki.Plugin.Interfaces.Persistence;
 using TightWiki.Plugin.Models;
 
 namespace TightWiki.Engine.MediaWiki;
@@ -84,7 +85,7 @@ public sealed class TwCategoryAdministrativeRecoveryApi(
                 TwCategoryRecoveryOperationAuthorizationContext _,
                 CancellationToken token)
             {
-                authorizationDecision = await AuthorizeOperationAsync(TwCategoryAdministrativeOperation.Preview, caller, scope, token);
+                authorizationDecision = await AuthorizeOperationAsync(TwCategoryAdministrativeOperation.Preview, caller, scope, request.RequestId, token);
                 return authorizationDecision.Allowed;
             }
 
@@ -157,7 +158,7 @@ public sealed class TwCategoryAdministrativeRecoveryApi(
                 TwCategoryRecoveryOperationAuthorizationContext _,
                 CancellationToken token)
             {
-                authorizationDecision = await AuthorizeOperationAsync(TwCategoryAdministrativeOperation.Execute, caller, scope, token);
+                authorizationDecision = await AuthorizeOperationAsync(TwCategoryAdministrativeOperation.Execute, caller, scope, request.RequestId, token);
                 return authorizationDecision.Allowed;
             }
 
@@ -166,6 +167,9 @@ public sealed class TwCategoryAdministrativeRecoveryApi(
                 AuthorizeOperation,
                 authorizePage,
                 cancellationToken);
+            if (authorizationDecision is { Allowed: true, GrantId: Guid grantId }
+                && !await RecordExecutionOutcomeAsync(grantId, caller.ActorUserId!.Value, scope, request.RequestId.Value, execution.Disposition.ToString(), cancellationToken))
+                return new(TwCategoryAdministrativeApiDisposition.RecoveryIndeterminate, execution, "GrantOutcomeAuditUnavailable");
             return new(Map(execution, authorizationDecision), execution, execution.DiagnosticCode ?? AuthorizationDiagnostic(authorizationDecision));
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -182,13 +186,47 @@ public sealed class TwCategoryAdministrativeRecoveryApi(
         TwCategoryAdministrativeOperation operation,
         TwCategoryAdministrativeCaller caller,
         TwCategoryRecoveryScope scope,
+        Guid? correlationId,
         CancellationToken cancellationToken)
     {
         if (!caller.IsTrustedAdministrator || caller.ActorUserId is null)
             return new(false, TwCategoryAdministrativeAuthorizationReason.ActorMismatch);
         return await operationAuthorization.EvaluateAsync(
-            new(operation, caller.ActorUserId.Value, scope),
+            new(operation, caller.ActorUserId.Value, scope, correlationId),
             cancellationToken);
+    }
+
+    private async Task<bool> RecordExecutionOutcomeAsync(
+        Guid grantId,
+        Guid actorUserId,
+        TwCategoryRecoveryScope scope,
+        Guid correlationId,
+        string outcome,
+        CancellationToken cancellationToken)
+    {
+        if (operationAuthorization is not ITwCategoryAdministrativeGrantOutcomeRecorder recorder)
+            return true;
+        try
+        {
+            var result = await recorder.RecordExecutionOutcomeAsync(new(
+                grantId,
+                actorUserId,
+                TwCategoryAdministrativeOperation.Execute,
+                scope,
+                correlationId,
+                outcome,
+                DateTime.UtcNow), cancellationToken);
+            return result.Disposition is TwCategoryAdministrativeGrantDurabilityDisposition.OutcomeRecorded
+                or TwCategoryAdministrativeGrantDurabilityDisposition.DuplicateSame;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private TwCategoryAdministrativeApiDisposition? CheckAccess(

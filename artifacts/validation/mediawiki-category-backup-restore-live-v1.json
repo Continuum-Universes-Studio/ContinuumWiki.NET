@@ -1,0 +1,82 @@
+{
+  "ReportVersion": "cw-m5-026b-category-backup-restore-live-v1",
+  "Milestone": "CW-M5-026B-LIVE",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "CATEGORY_BACKUP_RESTORE_PREPARATION_SOURCE_VERIFIED",
+  "Status": "PROVISIONING_FAILED_RESOURCES_RETAINED",
+  "AuthorizationHandoff": {
+    "Status": "PROVISIONING_ATTEMPTED_AFTER_VALID_PREFLIGHT",
+    "RecordedApprovalDecision": "Timestamped provisioning-only approval recorded and validated",
+    "DecisionPacket": "docs/operations/CW-M5-026B-PROVISIONING-OPERATOR-DECISION-PACKET.md",
+    "HandoffReport": "artifacts/validation/mediawiki-category-backup-restore-provisioning-authorization-handoff-v1.json",
+    "ReadonlyInspectionReport": "artifacts/validation/mediawiki-category-backup-restore-readonly-host-inspection-v1.json",
+    "ProposedAuthorizationDraft": "artifacts/validation/cw-m5-026b-provisioning-authorization-draft-unapproved-v1.json",
+    "ProvisioningSchema": "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+    "AuthoritativeManifestPath": "secure/evidence/cw-m5-026b-provisioning-authorization.json",
+    "PreflightReportPath": "secure/evidence/cw-m5-026b-provisioning-preflight.json",
+    "PreviousApprovalsTransferable": false
+  },
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "Provisioning": {
+    "ProvisioningManifestCreated": true,
+    "ProvisioningManifestValidated": true,
+    "Executed": true,
+    "Outcome": "PROVISIONING_FAILED_RESOURCES_RETAINED",
+    "Failure": "continuumwiki-m5-026b-source-ro1 runtime identity/version mismatch",
+    "SourceTarget": "RETAINED_PARTIAL_SOURCE_ONLY",
+    "DestinationTarget": "NOT_CREATED",
+    "RootlessPodmanVerified": true,
+    "ImageDigestVerified": true,
+    "LoopbackBindingsVerified": "SOURCE_ONLY",
+    "CredentialDirectoriesCreated": "SOURCE_ONLY",
+    "FreshEmptyTargetsVerified": false
+  },
+  "Rehearsal": {
+    "AuthorizationManifestCreated": false,
+    "PreflightPassed": false,
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "BackupCreated": false,
+    "BackupSha256": null,
+    "Restored": false,
+    "Verified": false,
+    "CleanupPerformed": false
+  },
+  "ProhibitedOrUnperformed": [
+    "production-or-shared-database-contact",
+    "prior-target-or-prior-approval-reuse",
+    "application-schema-migrations",
+    "backup",
+    "restore",
+    "certification",
+    "cleanup",
+    "repository-activation",
+    "Lua-Cargo-worker-systemd-changes"
+  ],
+  "SourceArtifacts": [
+    "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+    "scripts/preflight-m5-026b-provisioning.py",
+    "scripts/cw-m5-026b/provision_targets.py",
+    "docs/operations/CW-M5-026B-LIVE-PROVISIONING-AUTHORIZATION-WORKSHEET.md"
+  ],
+  "Validation": {
+    "FocusedSourceTests": "PASSED: 19 passed, 0 failed",
+    "FullDebugTests": "PASSED: 435 passed, 44 skipped, 0 failed, 479 total",
+    "ReleaseBuild": "PASSED: 0 warnings, 0 errors",
+    "JsonValidation": "PASSED",
+    "DiffCheck": "PASSED",
+    "LiveDatabaseTests": "NOT_RUN_BY_CONSTRAINT",
+    "PodmanOperations": "PROVISIONING_ATTEMPTED; source retained after verification failure",
+    "ProvisioningDatabaseVerification": "SOURCE RUNTIME IDENTITY READ ATTEMPTED; no application migration/grant provisioning completed"
+  },
+  "Blockers": [
+    "source runtime identity/version verification failed",
+    "source container and volume remain retained after partial provisioning",
+    "destination target was not created",
+    "separate exact-target rehearsal authorization absent",
+    "live backup/restore evidence unavailable"
+  ],
+  "ProvisioningMetadata": "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+  "RuntimeIdentityDiagnostic": "artifacts/validation/mediawiki-category-backup-restore-provisioning-runtime-identity-diagnostic-v1.json"
+}

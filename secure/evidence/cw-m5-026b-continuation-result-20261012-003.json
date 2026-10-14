@@ -1,0 +1,71 @@
+{
+  "ReportVersion": "cw-m5-026b-continuation-result-v1",
+  "GeneratedAtUtc": "2026-10-12T12:34:46.231876Z",
+  "Classification": "SOURCE_VERIFIED_DESTINATION_PROVISIONED",
+  "SourceVerification": {
+    "ContainerIdVerified": true,
+    "ImageDigestVerified": true,
+    "VolumeVerified": true,
+    "LoopbackVerified": true,
+    "CredentialOwnershipAndModesVerified": true
+  },
+  "SourceRuntimeIdentity": {
+    "Accepted": true,
+    "Codes": [],
+    "Checks": {
+      "DatabaseName": "MATCH",
+      "VersionFamily": "MATCH",
+      "VersionComment": "MATCH"
+    },
+    "FieldShape": {
+      "Database": {
+        "Present": true,
+        "Length": 21,
+        "IsNullLiteral": false,
+        "HasLeadingOrTrailingWhitespace": false
+      },
+      "Version": {
+        "Present": true,
+        "Length": 22,
+        "IsNullLiteral": false,
+        "HasLeadingOrTrailingWhitespace": false,
+        "Family": "11.8"
+      },
+      "VersionComment": {
+        "Present": true,
+        "Length": 31,
+        "IsNullLiteral": false,
+        "HasLeadingOrTrailingWhitespace": false,
+        "ContainsCaseSensitiveMariaDB": false,
+        "ContainsCaseInsensitiveMariaDB": true
+      }
+    }
+  },
+  "Destination": {
+    "ContainerName": "continuumwiki-m5-026b-destination-ro1",
+    "ContainerId": "1c58a2f370d36af443e53283d4212604e997188e9fbf81175655446b7c3ea1f5",
+    "VolumeName": "continuumwiki-m5-026b-destination-ro1-data",
+    "DatabaseName": "cw_m5_026b_destination_ro1",
+    "Endpoint": "127.0.0.1:13327",
+    "InstanceIdentity": "milestone=CW-M5-026B;role=destination;container=continuumwiki-m5-026b-destination-ro1;volume=continuumwiki-m5-026b-destination-ro1-data;database=cw_m5_026b_destination_ro1;endpoint=127.0.0.1:13327;",
+    "ImageDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+    "VersionComment": "mariadb.org binary distribution",
+    "DatabaseIdentity": "continuumwiki_m5_026b_destination_app",
+    "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1",
+    "ApplicationIdentitySchemaScoped": true
+  },
+  "Authorization": {
+    "SourceApprovalId": "CW-M5-026B-SOURCE-20261012-002",
+    "DestinationApprovalId": "CW-M5-026B-DESTINATION-20261012-002",
+    "SourceManifestSha256": "994b5adb6c89e5b5910cd52e617dbcd23fa020019f549494f6d3679e0ebb860a",
+    "DestinationManifestSha256": "7ca783d223828bd66f552ec3b0b460cbbc3289a1712f45fdf0cd1106a899c694"
+  },
+  "SourceContainerId": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914",
+  "PinnedImageReference": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+  "SourceVolumeName": "continuumwiki-m5-026b-source-ro1-data",
+  "DestinationContainerName": "continuumwiki-m5-026b-destination-ro1",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "CleanupPerformed": false
+}

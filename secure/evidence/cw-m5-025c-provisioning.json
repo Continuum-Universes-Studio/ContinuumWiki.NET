@@ -1,0 +1,65 @@
+{
+  "ReportVersion": "cw-m5-025c-disposable-mariadb-provisioning-v1",
+  "GeneratedAtUtc": "2026-10-12T05:05:21.763962Z",
+  "Milestone": "CW-M5-025C",
+  "Classification": "DISPOSABLE_TARGET_PROVISIONED_NOT_AUTHORIZED",
+  "Provisioning": {
+    "Executed": true,
+    "Outcome": "DISPOSABLE_TARGET_PROVISIONED_NOT_AUTHORIZED",
+    "RunId": "20261012T050510Z-1462953",
+    "RootlessPodman": true,
+    "AutomaticCleanup": false,
+    "MigrationsExecuted": false,
+    "CertificationExecuted": false,
+    "AuthorizationCreated": false
+  },
+  "Target": {
+    "Disposable": true,
+    "ContainerName": "continuumwiki-m5-025-20261012050509-c4a0edf8",
+    "VolumeName": "continuumwiki-m5-025-20261012050509-c4a0edf8-data",
+    "DatabaseName": "cw_m5_025_20261012050509_c4a0edf8",
+    "Endpoint": "127.0.0.1:13325",
+    "ImageRequested": "docker.io/library/mariadb:11.8",
+    "ImageResolvedDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersion": "MariaDB 11.8.x",
+    "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+    "VersionComment": "mariadb.org binary distribution",
+    "DatabaseIdentity": "continuumwiki_m5_025_app",
+    "InstanceIdentity": "container=continuumwiki-m5-025-20261012050509-c4a0edf8;database=cw_m5_025_20261012050509_c4a0edf8;endpoint=127.0.0.1:13325;volume=continuumwiki-m5-025-20261012050509-c4a0edf8-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "LoopbackBinding": true,
+    "EmptyBeforeCertification": true
+  },
+  "Credentials": {
+    "EnvironmentFile": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-025/20261012050509-c4a0edf8/environment.env",
+    "ApplicationEnvironmentFile": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-025/20261012050509-c4a0edf8/application.env",
+    "DirectoryPermissions": "0700",
+    "FilePermissions": "0600",
+    "ValuesIncluded": false
+  },
+  "IsolationEvidence": {
+    "RootlessPodman": true,
+    "LoopbackOnlyPublishedBinding": true,
+    "ApplicationIdentitySchemaScoped": true,
+    "ProductionContacted": false,
+    "SharedTargetReused": false
+  },
+  "Authorization": {
+    "Authorized": false,
+    "ManifestGenerated": false,
+    "CertificationAllowed": false
+  },
+  "DatabaseContacts": {
+    "Purpose": "Provisioning-only health, identity, grant, and empty-schema validation",
+    "ProvisioningHealthChecksPerformed": true,
+    "MigrationConnections": 0,
+    "CertificationConnections": 0,
+    "ProductionConnections": 0,
+    "ProductionMutations": 0
+  },
+  "Cleanup": {
+    "Required": true,
+    "Performed": false,
+    "AutomaticCleanup": false,
+    "SeparateAuthorizationRequired": true
+  }
+}

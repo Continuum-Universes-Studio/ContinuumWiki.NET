@@ -1,0 +1,89 @@
+{
+  "ReportVersion": "cw-m5-025c-disposable-mariadb-provisioning-readiness-v1",
+  "Milestone": "CW-M5-025C",
+  "Classification": "CATEGORY_ADMIN_GRANT_TARGET_PROVISIONED_AUTHORIZATION_REQUIRED",
+  "Provisioning": {
+    "WorkflowImplemented": true,
+    "LiveProvisioningExecuted": true,
+    "RootlessPodmanRequired": true,
+    "PlanOnlyDefault": true,
+    "ExplicitConfirmationRequired": true,
+    "MigrationsExecuted": false,
+    "CertificationExecuted": false,
+    "AuthorizationManifestCreated": false,
+    "CleanupExecuted": false
+  },
+  "Workflow": {
+    "Script": "scripts/cw-m5-025/provision-mariadb-m5-025.sh",
+    "Helpers": "scripts/cw-m5-025/common.sh",
+    "M5_019WorkflowReusedFor": [
+      "fail-closed plan/provision separation",
+      "owner-only credential directory and files",
+      "immutable image digest verification",
+      "fresh-volume and fresh-container refusal"
+    ],
+    "M5_019TargetOrAuthorizationReused": false,
+    "RejectedSuffixes": ["operator4"],
+    "NameScopes": {
+      "Container": "continuumwiki-m5-025-*",
+      "Volume": "continuumwiki-m5-025-*-data",
+      "Database": "cw_m5_025_*",
+      "ApplicationIdentity": "continuumwiki_m5_025_app"
+    },
+    "PortPolicy": "127.0.0.1 only; explicit port checked or free port selected from 13325-13424"
+  },
+  "ProvisionedTargetFields": {
+    "Disposable": true,
+    "ContainerName": "continuumwiki-m5-025-20261012050509-c4a0edf8",
+    "VolumeName": "continuumwiki-m5-025-20261012050509-c4a0edf8-data",
+    "DatabaseName": "cw_m5_025_20261012050509_c4a0edf8",
+    "Endpoint": "127.0.0.1:13325",
+    "InstanceIdentity": "container=continuumwiki-m5-025-20261012050509-c4a0edf8;database=cw_m5_025_20261012050509_c4a0edf8;endpoint=127.0.0.1:13325;volume=continuumwiki-m5-025-20261012050509-c4a0edf8-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersion": "MariaDB 11.8.x",
+    "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+    "ImageResolvedDigest": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "DatabaseIdentity": "continuumwiki_m5_025_app"
+  },
+  "LiveProvisioningEvidence": {
+    "MetadataPath": "secure/evidence/cw-m5-025c-provisioning.json",
+    "RunId": "20261012T050510Z-1462953",
+    "RootlessPodman": true,
+    "LoopbackOnlyPublishedBinding": true,
+    "ApplicationIdentitySchemaScoped": true,
+    "FreshTargetEmptyBeforeCertification": true,
+    "ProductionContacted": false,
+    "SharedTargetReused": false,
+    "CredentialValuesRecorded": false,
+    "CredentialDirectoryPermissions": "0700",
+    "CredentialFilePermissions": "0600"
+  },
+  "SourceTests": {
+    "ProvisioningTestsPassed": 4,
+    "ProvisioningTestsFailed": 0,
+    "PodmanInvoked": false,
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0
+  },
+  "ProvisioningDatabaseActivity": {
+    "ProvisioningHealthChecksPerformed": true,
+    "MigrationConnections": 0,
+    "CertificationConnections": 0,
+    "ProductionConnections": 0,
+    "ProductionMutations": 0
+  },
+  "Authorization": {
+    "ProvisioningOperatorConfirmationExecuted": true,
+    "ProvisioningAuthorizationManifestSupplied": false,
+    "M5_025CertificationManifestSupplied": false,
+    "Remaining": [
+      "distinct cw-m5-025-authorization-v1 manifest",
+      "successful nonconnecting M5-025 preflight before certification"
+    ]
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "WorkerOrSystemdChanged": false,
+    "ProductionOrSharedResourcesTouched": false
+  }
+}

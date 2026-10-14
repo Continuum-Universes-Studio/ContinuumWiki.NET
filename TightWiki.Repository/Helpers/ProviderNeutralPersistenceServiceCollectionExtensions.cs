@@ -92,4 +92,34 @@ public static class ProviderNeutralPersistenceServiceCollectionExtensions
             new MySqlCategoryRecoveryDurabilityStore(provider.GetRequiredService<IDatabaseConnectionFactory>()));
         return services;
     }
+
+    /// <summary>
+    /// Explicitly opts a previously proved MariaDB target into durable
+    /// administrative grants. This does not run the schema initializer and is
+    /// never called by application startup.
+    /// </summary>
+    public static IServiceCollection AddAuthorizedMySqlCategoryAdministrativeGrants(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        MySqlCategoryAdministrativeGrantReadinessProof readiness)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(readiness);
+
+        if (DatabaseProviderConfiguration.GetProvider(configuration) != DatabaseProviderConfiguration.MySQL)
+            throw new InvalidOperationException("Administrative grants require Database:Provider=mysql.");
+        if (!configuration.GetValue<bool>("Database:CategoryAdministrativeGrants:Enabled"))
+            throw new InvalidOperationException("Administrative grants require explicit Database:CategoryAdministrativeGrants:Enabled=true.");
+        if (!string.Equals(configuration["Database:CategoryAdministrativeGrants:SchemaVersion"], "3", StringComparison.Ordinal)
+            || readiness.SchemaVersion != MySqlCategoryAdministrativeGrantSchemaInitializer.CurrentSchemaVersion
+            || string.IsNullOrWhiteSpace(readiness.DatabaseName))
+            throw new InvalidOperationException("Administrative grants require an explicitly approved schema version of 3.");
+        if (!services.Any(descriptor => descriptor.ServiceType == typeof(IDatabaseConnectionFactory)))
+            throw new InvalidOperationException("Administrative grants require an existing provider connection factory registration.");
+
+        services.AddSingleton<ITwCategoryAdministrativeGrantStore>(provider =>
+            new MySqlCategoryAdministrativeGrantStore(provider.GetRequiredService<IDatabaseConnectionFactory>()));
+        return services;
+    }
 }

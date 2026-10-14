@@ -1,0 +1,14 @@
+{
+  "ReportVersion": "cw-m5-026b-source-account-repair-preflight-v1",
+  "GeneratedAtUtc": "2026-10-14T21:45:32.653615Z",
+  "Classification": "SOURCE_ACCOUNT_REPAIR_PREFLIGHT_VALID_NONCONNECTING",
+  "ApprovalId": "CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001",
+  "ManifestSha256": "e48eff550b34ff5c501fdf95368e4231fe1ed191ec56bb7ead4da85dcc65259e",
+  "DatabaseConnections": 0,
+  "DatabaseQueries": 0,
+  "DatabaseMutations": 0,
+  "PodmanCommands": 0,
+  "CredentialContentsRead": false,
+  "CredentialMetadataVerified": true,
+  "DestinationAccess": 0
+}

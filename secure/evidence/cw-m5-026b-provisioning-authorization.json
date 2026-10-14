@@ -1,0 +1,96 @@
+{
+  "ManifestVersion": "cw-m5-026b-provisioning-authorization-v1",
+  "ApprovalId": "CW-M5-026B-PROVISION-20261012-001",
+  "ApprovedAtUtc": "2026-10-12T09:33:51Z",
+  "ExpiresAtUtc": "2026-10-13T09:33:51Z",
+  "Approver": {
+    "Name": "Christian Daniel Jensen",
+    "Role": "Project Owner"
+  },
+  "Operator": {
+    "Name": "Christian Daniel Jensen",
+    "Role": "System Administrator"
+  },
+  "TargetOwner": "Christian Daniel Jensen",
+  "Host": {
+    "HostName": "christian-laptop",
+    "AllowedEndpointHost": "127.0.0.1",
+    "RootlessPodmanRequired": true,
+    "PortRange": {
+      "Minimum": 13326,
+      "Maximum": 13327
+    }
+  },
+  "Image": {
+    "Reference": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersion": "MariaDB 11.8.x",
+    "DigestRequired": true
+  },
+  "TargetPlan": {
+    "Source": {
+      "ContainerName": "continuumwiki-m5-026b-source-ro1",
+      "VolumeName": "continuumwiki-m5-026b-source-ro1-data",
+      "DatabaseName": "cw_m5_026b_source_ro1",
+      "Endpoint": "127.0.0.1:13326",
+      "DatabaseIdentity": "continuumwiki_m5_026b_source_app",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1",
+      "IdentityPrefix": "milestone=CW-M5-026B;role=source;container=continuumwiki-m5-026b-source-ro1;volume=continuumwiki-m5-026b-source-ro1-data;database=cw_m5_026b_source_ro1;endpoint=127.0.0.1:13326;"
+    },
+    "Destination": {
+      "ContainerName": "continuumwiki-m5-026b-destination-ro1",
+      "VolumeName": "continuumwiki-m5-026b-destination-ro1-data",
+      "DatabaseName": "cw_m5_026b_destination_ro1",
+      "Endpoint": "127.0.0.1:13327",
+      "DatabaseIdentity": "continuumwiki_m5_026b_destination_app",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1",
+      "IdentityPrefix": "milestone=CW-M5-026B;role=destination;container=continuumwiki-m5-026b-destination-ro1;volume=continuumwiki-m5-026b-destination-ro1-data;database=cw_m5_026b_destination_ro1;endpoint=127.0.0.1:13327;"
+    }
+  },
+  "ExcludedResources": {
+    "ContainerPrefixes": [
+      "continuumwiki-m5-019-",
+      "continuumwiki-m5-025-"
+    ],
+    "VolumePrefixes": [
+      "continuumwiki-m5-019-",
+      "continuumwiki-m5-025-"
+    ],
+    "DatabasePrefixes": [
+      "cw_m5_019_",
+      "cw_m5_025_"
+    ],
+    "ExactNames": [
+      "continuumwiki-m5-019-operator4",
+      "continuumwiki-m5-025-20261012050509-c4a0edf8",
+      "continuumwiki-m5-019-operator4-data",
+      "continuumwiki-m5-025-20261012050509-c4a0edf8-data",
+      "cw_m5_019_operator4",
+      "cw_m5_025_20261012050509_c4a0edf8"
+    ]
+  },
+  "PermittedOperations": {
+    "ProvisionSourceTarget": true,
+    "ProvisionDestinationTarget": true,
+    "VerifyTargetIsolation": true,
+    "RetainSanitizedEvidence": true,
+    "CleanupSource": false,
+    "CleanupDestination": false,
+    "SchemaDeletionSource": false,
+    "SchemaDeletionDestination": false,
+    "ContainerVolumeDeletionSource": false,
+    "ContainerVolumeDeletionDestination": false
+  },
+  "Scope": {
+    "FreshTargetsRequired": true,
+    "ReuseExistingResources": false,
+    "Production": false,
+    "SharedWithProduction": false,
+    "DedicatedCredentials": true,
+    "RehearsalRightsGranted": false,
+    "BackupAllowed": false,
+    "RestoreAllowed": false,
+    "SchemaMigrationAllowed": false,
+    "CertificationAllowed": false,
+    "CleanupAllowed": false
+  }
+}

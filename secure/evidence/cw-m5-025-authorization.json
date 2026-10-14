@@ -1,0 +1,60 @@
+{
+  "ManifestVersion": "cw-m5-025-authorization-v1",
+  "ApprovalId": "CW-M5-025-20261011-001",
+  "ApprovedAtUtc": "2026-10-12T05:08:14Z",
+  "ExpiresAtUtc": "2026-10-13T05:08:14Z",
+  "Approver": {
+    "Name": "Christian Daniel Jensen",
+    "Role": "Project Owner"
+  },
+  "Operator": {
+    "Name": "Christian Daniel Jensen",
+    "Role": "System Administrator"
+  },
+  "TargetOwner": "Christian Daniel Jensen",
+  "Target": {
+    "Disposable": true,
+    "ContainerName": "continuumwiki-m5-025-20261012050509-c4a0edf8",
+    "VolumeName": "continuumwiki-m5-025-20261012050509-c4a0edf8-data",
+    "DatabaseName": "cw_m5_025_20261012050509_c4a0edf8",
+    "Endpoint": "127.0.0.1:13325",
+    "InstanceIdentity": "container=continuumwiki-m5-025-20261012050509-c4a0edf8;database=cw_m5_025_20261012050509_c4a0edf8;endpoint=127.0.0.1:13325;volume=continuumwiki-m5-025-20261012050509-c4a0edf8-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "EngineVersion": "MariaDB 11.8.x",
+    "DatabaseIdentity": "continuumwiki_m5_025_app"
+  },
+  "PermittedOperations": {
+    "Connect": true,
+    "VerifyTargetIsolation": true,
+    "ApplyV1Prerequisites": true,
+    "ApplyV2Prerequisites": true,
+    "ApplyV3Migration": true,
+    "GrantIssueMutations": true,
+    "GrantConsumeMutations": true,
+    "GrantRevocationMutations": true,
+    "GrantAuditMutations": true,
+    "ConcurrentConnectionTests": true,
+    "RestartRecoveryTests": true,
+    "AcknowledgmentLossTests": true,
+    "RetainSanitizedEvidence": true,
+    "DatabaseCleanup": false,
+    "SchemaDeletion": false,
+    "ContainerVolumeDeletion": false
+  },
+  "Isolation": {
+    "Production": false,
+    "SharedWithProduction": false,
+    "DedicatedCredentials": true,
+    "Proof": "Provisioning evidence secure/evidence/cw-m5-025c-provisioning.json records rootless Podman, a loopback-only published binding, a schema-scoped continuumwiki_m5_025_app identity, no production contact, no shared-target reuse, and an empty target before certification."
+  },
+  "TestScope": {
+    "Suite": [
+      "MediaWikiCategoryAdministrativeGrantMariaDbCertificationTests"
+    ],
+    "MaxConcurrentWorkers": 1,
+    "CrashBoundaries": [
+      "after-grant-commit-before-response",
+      "forced-failure-before-grant-audit-commit",
+      "recreated-service-instance"
+    ]
+  }
+}

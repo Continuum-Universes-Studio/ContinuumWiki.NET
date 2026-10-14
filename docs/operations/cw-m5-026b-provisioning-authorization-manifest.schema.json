@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-provisioning-authorization-v1",
+  "title": "CW-M5-026B disposable source and destination provisioning authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc",
+    "Approver", "Operator", "TargetOwner", "Host", "Image", "TargetPlan",
+    "ExcludedResources", "PermittedOperations", "Scope"
+  ],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-provisioning-authorization-v1"},
+    "ApprovalId": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time"},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "TargetOwner": {"type": "string", "minLength": 1, "maxLength": 160},
+    "Host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["HostName", "AllowedEndpointHost", "RootlessPodmanRequired", "PortRange"],
+      "properties": {
+        "HostName": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+        "AllowedEndpointHost": {"const": "127.0.0.1"},
+        "RootlessPodmanRequired": {"const": true},
+        "PortRange": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["Minimum", "Maximum"],
+          "properties": {
+            "Minimum": {"type": "integer", "minimum": 1025, "maximum": 65535},
+            "Maximum": {"type": "integer", "minimum": 1025, "maximum": 65535}
+          }
+        }
+      }
+    },
+    "Image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Reference", "EngineVersion", "DigestRequired"],
+      "properties": {
+        "Reference": {"type": "string", "pattern": "^docker\\.io/library/mariadb@sha256:[a-f0-9]{64}$"},
+        "EngineVersion": {"const": "MariaDB 11.8.x"},
+        "DigestRequired": {"const": true}
+      }
+    },
+    "TargetPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Source", "Destination"],
+      "properties": {
+        "Source": {"$ref": "#/$defs/plannedTarget"},
+        "Destination": {"$ref": "#/$defs/plannedTarget"}
+      }
+    },
+    "ExcludedResources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ContainerPrefixes", "VolumePrefixes", "DatabasePrefixes", "ExactNames"],
+      "properties": {
+        "ContainerPrefixes": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 128}},
+        "VolumePrefixes": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 128}},
+        "DatabasePrefixes": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 128}},
+        "ExactNames": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 256}}
+      }
+    },
+    "PermittedOperations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ProvisionSourceTarget", "ProvisionDestinationTarget", "VerifyTargetIsolation",
+        "RetainSanitizedEvidence", "CleanupSource", "CleanupDestination",
+        "SchemaDeletionSource", "SchemaDeletionDestination",
+        "ContainerVolumeDeletionSource", "ContainerVolumeDeletionDestination"
+      ],
+      "properties": {
+        "ProvisionSourceTarget": {"const": true},
+        "ProvisionDestinationTarget": {"const": true},
+        "VerifyTargetIsolation": {"const": true},
+        "RetainSanitizedEvidence": {"const": true},
+        "CleanupSource": {"const": false},
+        "CleanupDestination": {"const": false},
+        "SchemaDeletionSource": {"const": false},
+        "SchemaDeletionDestination": {"const": false},
+        "ContainerVolumeDeletionSource": {"const": false},
+        "ContainerVolumeDeletionDestination": {"const": false}
+      }
+    },
+    "Scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "FreshTargetsRequired", "ReuseExistingResources", "Production", "SharedWithProduction",
+        "DedicatedCredentials", "RehearsalRightsGranted", "BackupAllowed", "RestoreAllowed",
+        "SchemaMigrationAllowed", "CertificationAllowed", "CleanupAllowed"
+      ],
+      "properties": {
+        "FreshTargetsRequired": {"const": true},
+        "ReuseExistingResources": {"const": false},
+        "Production": {"const": false},
+        "SharedWithProduction": {"const": false},
+        "DedicatedCredentials": {"const": true},
+        "RehearsalRightsGranted": {"const": false},
+        "BackupAllowed": {"const": false},
+        "RestoreAllowed": {"const": false},
+        "SchemaMigrationAllowed": {"const": false},
+        "CertificationAllowed": {"const": false},
+        "CleanupAllowed": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name", "Role"],
+      "properties": {
+        "Name": {"type": "string", "minLength": 1, "maxLength": 160},
+        "Role": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "plannedTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ContainerName", "VolumeName", "DatabaseName", "Endpoint",
+        "DatabaseIdentity", "CredentialDirectory", "IdentityPrefix"
+      ],
+      "properties": {
+        "ContainerName": {"type": "string", "pattern": "^continuumwiki-m5-026b-(source|destination)-[a-z0-9-]{1,40}$"},
+        "VolumeName": {"type": "string", "pattern": "^continuumwiki-m5-026b-(source|destination)-[a-z0-9-]{1,40}-data$"},
+        "DatabaseName": {"type": "string", "pattern": "^cw_m5_026b_(source|destination)_[a-z0-9_]{1,40}$"},
+        "Endpoint": {"type": "string", "pattern": "^127\\.0\\.0\\.1:[1-9][0-9]{2,4}$"},
+        "DatabaseIdentity": {"type": "string", "pattern": "^continuumwiki_m5_026b_(source|destination)_app$"},
+        "CredentialDirectory": {"type": "string", "pattern": "^/(?!.*(?:password|secret|token|credentialmaterial))[^\\n]{1,512}$"},
+        "IdentityPrefix": {"type": "string", "pattern": "^milestone=CW-M5-026B;role=(source|destination);container=[^;]+;volume=[^;]+;database=[^;]+;endpoint=127\\.0\\.0\\.1:[0-9]+;$"}
+      }
+    }
+  }
+}

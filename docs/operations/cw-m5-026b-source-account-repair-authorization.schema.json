@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-source-account-repair-authorization-v1",
+  "title": "CW-M5-026B exact-source application account repair authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc", "Operator", "Host", "Target", "Operations", "Evidence"],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-source-account-repair-authorization-v1"},
+    "ApprovalId": {"const": "CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "Operator": {"type": "object", "additionalProperties": false, "required": ["User", "Uid"], "properties": {"User": {"const": "cdjensen94"}, "Uid": {"const": 1000}}},
+    "Host": {"type": "object", "additionalProperties": false, "required": ["HostName", "Runtime", "Rootless"], "properties": {"HostName": {"const": "christian-laptop"}, "Runtime": {"const": "Podman"}, "Rootless": {"const": true}}},
+    "Target": {"type": "object", "additionalProperties": false, "required": ["ContainerName", "ContainerId", "ImageReference", "ProvisioningRunId", "VolumeName", "DatabaseName", "DatabaseIdentity", "AccountHost", "Endpoint", "CredentialDirectory", "ApplicationCredentialFile", "ClientOptionFile"], "properties": {
+      "ContainerName": {"const": "continuumwiki-m5-026b-source-ro1"},
+      "ContainerId": {"const": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914"},
+      "ImageReference": {"const": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"},
+      "ProvisioningRunId": {"const": "20261012T093746Z-86380"},
+      "VolumeName": {"const": "continuumwiki-m5-026b-source-ro1-data"},
+      "DatabaseName": {"const": "cw_m5_026b_source_ro1"},
+      "DatabaseIdentity": {"const": "continuumwiki_m5_026b_source_app"},
+      "AccountHost": {"const": "%"},
+      "Endpoint": {"const": "127.0.0.1:13326"},
+      "CredentialDirectory": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1"},
+      "ApplicationCredentialFile": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1/application.env"},
+      "ClientOptionFile": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1/inspection-client.cnf"}
+    }},
+    "Operations": {"type": "object", "additionalProperties": false, "required": ["InspectExactSource", "ReadOnlyAccountPrechecks", "CreateExactAccountIfAbsent", "GrantExactSchemaPrivileges", "VerifyExactGrantSet", "VerifyAuthenticatedTcpIdentity", "DestinationAccess", "ContainerLifecycle", "CredentialModification", "DataOrSchemaChanges", "Migrations", "Backup", "Restore", "ProductionAccess"], "properties": {
+      "InspectExactSource": {"const": true}, "ReadOnlyAccountPrechecks": {"const": true},
+      "CreateExactAccountIfAbsent": {"const": true}, "GrantExactSchemaPrivileges": {"const": true},
+      "VerifyExactGrantSet": {"const": true}, "VerifyAuthenticatedTcpIdentity": {"const": true},
+      "DestinationAccess": {"const": false}, "ContainerLifecycle": {"const": false},
+      "CredentialModification": {"const": false}, "DataOrSchemaChanges": {"const": false},
+      "Migrations": {"const": false}, "Backup": {"const": false}, "Restore": {"const": false}, "ProductionAccess": {"const": false}
+    }},
+    "Evidence": {"type": "object", "additionalProperties": false, "required": ["Directory", "ManifestPath", "PreflightPath", "ResultPath", "ConsumedPath"], "properties": {
+      "Directory": {"type": "string", "pattern": "^/home/cdjensen94/Projects/ContinuumWiki\\.NET/secure/evidence/cw-m5-026b-source-account-repair-CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001$"},
+      "ManifestPath": {"type": "string", "pattern": "^/home/cdjensen94/Projects/ContinuumWiki\\.NET/secure/evidence/cw-m5-026b-source-account-repair-CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001/authorization\\.json$"},
+      "PreflightPath": {"type": "string", "pattern": "^/home/cdjensen94/Projects/ContinuumWiki\\.NET/secure/evidence/cw-m5-026b-source-account-repair-CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001/preflight\\.json$"},
+      "ResultPath": {"type": "string", "pattern": "^/home/cdjensen94/Projects/ContinuumWiki\\.NET/secure/evidence/cw-m5-026b-source-account-repair-CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001/result\\.json$"},
+      "ConsumedPath": {"type": "string", "pattern": "^/home/cdjensen94/Projects/ContinuumWiki\\.NET/secure/evidence/cw-m5-026b-source-account-repair-CW-M5-026B-SOURCE-ACCOUNT-REPAIR-20261014-001/consumed\\.json$"}
+    }}
+  }
+}

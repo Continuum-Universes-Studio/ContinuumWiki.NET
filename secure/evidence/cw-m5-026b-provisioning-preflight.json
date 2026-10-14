@@ -1,0 +1,55 @@
+{
+  "ReportVersion": "cw-m5-026b-provisioning-preflight-v1",
+  "GeneratedAtUtc": "2026-10-12T09:37:45.666110Z",
+  "Classification": "CATEGORY_BACKUP_RESTORE_PROVISIONING_AUTHORIZATION_VALID_NONCONNECTING",
+  "Manifest": {
+    "Path": "cw-m5-026b-provisioning-authorization.json",
+    "AuthorizationManifestVersion": "cw-m5-026b-provisioning-authorization-v1",
+    "Validated": true,
+    "ApprovalIdSha256": "3aab5ca88801d8290a5523c4f16fd40a06fc58dcd60efc341b64cc19c868ff70",
+    "ContainsCredentials": false
+  },
+  "Targets": {
+    "Source": {
+      "ContainerName": "continuumwiki-m5-026b-source-ro1",
+      "VolumeName": "continuumwiki-m5-026b-source-ro1-data",
+      "DatabaseName": "cw_m5_026b_source_ro1",
+      "Endpoint": "127.0.0.1:13326",
+      "DatabaseIdentity": "continuumwiki_m5_026b_source_app",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1",
+      "IdentityPrefixSha256": "ce4a4b839845f8e09cac2b0d2cd44899751c840874c9d22f8570a3161c8f9644"
+    },
+    "Destination": {
+      "ContainerName": "continuumwiki-m5-026b-destination-ro1",
+      "VolumeName": "continuumwiki-m5-026b-destination-ro1-data",
+      "DatabaseName": "cw_m5_026b_destination_ro1",
+      "Endpoint": "127.0.0.1:13327",
+      "DatabaseIdentity": "continuumwiki_m5_026b_destination_app",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1",
+      "IdentityPrefixSha256": "1d4808b9ba5a48d1aeb28d12bb1acb5aa63d87e48630befedcccf6f14e2dd859"
+    }
+  },
+  "Provisioning": {
+    "Executed": false,
+    "RootlessPodmanRequired": true,
+    "LoopbackOnlyRequired": true,
+    "FreshTargetsRequired": true,
+    "RehearsalRightsGranted": false,
+    "BackupRestoreAllowed": false,
+    "CleanupAuthorized": false
+  },
+  "Preflight": {
+    "Mode": "NON_CONNECTING",
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "PodmanCommands": 0,
+    "CredentialsRead": false,
+    "DatabaseContacted": false,
+    "InfrastructureModified": false
+  },
+  "ValidationErrors": [],
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "ReportVersion": "cw-m5-025-authorization-preflight-v1",
+  "GeneratedAtUtc": "2026-10-12T05:08:23.196507Z",
+  "Classification": "CATEGORY_ADMIN_GRANT_MARIADB_AUTHORIZATION_MANIFEST_VALID_NONCONNECTING",
+  "Manifest": {
+    "PathRecorded": "secure/evidence/cw-m5-025-authorization.json",
+    "Validated": true,
+    "Errors": []
+  },
+  "Target": {
+    "NonSecretFingerprint": "72bc3fd547005f370edd6f434da53c2d03d7236df945d4772414f1b0a2a9cba4",
+    "DatabaseNameRecorded": "cw_m5_025_20261012050509_c4a0edf8",
+    "EndpointRecorded": "127.0.0.1:13325"
+  },
+  "Preflight": {
+    "DatabaseConnections": 0,
+    "DatabaseMutations": 0,
+    "ConnectionEnvironmentVariablesRead": false,
+    "DatabaseContacted": false,
+    "AuthorizationOnly": true
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "Cleanup": "NO_GO"
+  }
+}

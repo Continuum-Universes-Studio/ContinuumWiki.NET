@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://continuumwiki.invalid/schemas/cw-m5-026b-restricted-query-diagnostic-v1.json",
+  "title": "CW-M5-026B Restricted Query Diagnostic Authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc", "Approver", "Operator", "ExecutionHost", "Targets", "AuthorizedQueries", "Limits", "Evidence"],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-restricted-query-diagnostic-v1"},
+    "ApprovalId": {"type": "string", "pattern": "^CW-M5-026B-RESTRICTED-QUERY-[A-Za-z0-9._:-]{1,96}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "ExecutionHost": {"type": "object", "additionalProperties": false, "required": ["HostName", "UnixUser", "Uid", "RootlessPodman"], "properties": {"HostName": {"const": "christian-laptop"}, "UnixUser": {"const": "cdjensen94"}, "Uid": {"const": 1000}, "RootlessPodman": {"const": true}}},
+    "Targets": {"type": "object", "additionalProperties": false, "required": ["Source", "Destination"], "properties": {"Source": {"$ref": "#/$defs/target"}, "Destination": {"$ref": "#/$defs/target"}}},
+    "AuthorizedQueries": {"const": [{"QueryId": "SOURCE_DATABASE_IDENTITY", "TargetRole": "Source"}, {"QueryId": "DESTINATION_MIGRATION_LEDGER", "TargetRole": "Destination"}]},
+    "Limits": {"type": "object", "additionalProperties": false, "required": ["PerQueryTimeoutSeconds", "OverallTimeoutSeconds"], "properties": {"PerQueryTimeoutSeconds": {"const": 60}, "OverallTimeoutSeconds": {"const": 600}}},
+    "Evidence": {"type": "object", "additionalProperties": false, "required": ["ManifestPath", "PreflightReportPath", "ResultReportPath"], "properties": {"ManifestPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/cw-m5-026b-query-diagnostic-[A-Za-z0-9._:-]+/authorization\\.json$"}, "PreflightReportPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/cw-m5-026b-query-diagnostic-[A-Za-z0-9._:-]+/preflight\\.json$"}, "ResultReportPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/cw-m5-026b-query-diagnostic-[A-Za-z0-9._:-]+/result\\.json$"}}}
+  },
+  "$defs": {
+    "person": {"type": "object", "additionalProperties": false, "required": ["Name", "Role"], "properties": {"Name": {"type": "string", "minLength": 1}, "Role": {"type": "string", "minLength": 1}}},
+    "target": {"type": "object", "additionalProperties": false, "required": ["ContainerName", "ContainerId", "VolumeName", "DatabaseName", "Endpoint", "ImageReference", "ProvisioningRunId", "DatabaseIdentity", "CredentialOptionFile"], "properties": {"ContainerName": {"type": "string", "minLength": 1}, "ContainerId": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "VolumeName": {"type": "string", "minLength": 1}, "DatabaseName": {"type": "string", "minLength": 1}, "Endpoint": {"type": "string", "pattern": "^127\\.0\\.0\\.1:[0-9]{1,5}$"}, "ImageReference": {"type": "string", "pattern": "^docker\\.io/library/mariadb@sha256:[0-9a-f]{64}$"}, "ProvisioningRunId": {"type": "string", "pattern": "^[0-9]{8}T[0-9]{6}Z-[A-Za-z0-9._-]+$"}, "DatabaseIdentity": {"type": "string", "minLength": 1}, "CredentialOptionFile": {"type": "string", "pattern": "^/home/cdjensen94/\\.local/state/continuumwiki/cw-m5-026b/(source|destination)-ro1/inspection-client\\.cnf$"}}}
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-025-authorization-v1",
+  "title": "CW-M5-025 disposable MariaDB certification authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc", "Approver", "Operator", "TargetOwner", "Target", "PermittedOperations", "Isolation", "TestScope"],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-025-authorization-v1"},
+    "ApprovalId": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time"},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "TargetOwner": {"type": "string", "minLength": 1, "maxLength": 160},
+    "Target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Disposable", "ContainerName", "VolumeName", "DatabaseName", "Endpoint", "InstanceIdentity", "EngineVersion", "DatabaseIdentity"],
+      "properties": {
+        "Disposable": {"const": true},
+        "ContainerName": {"type": "string", "pattern": "^continuumwiki-m5-025-[a-z0-9-]{1,48}$"},
+        "VolumeName": {"type": "string", "pattern": "^continuumwiki-m5-025-[a-z0-9-]{1,48}-data$"},
+        "DatabaseName": {"type": "string", "pattern": "^cw_m5_025_[a-z0-9_]{1,48}$"},
+        "Endpoint": {"type": "string", "pattern": "^(127\\.0\\.0\\.1|localhost|\\[::1\\]):[1-9][0-9]{2,4}$"},
+        "InstanceIdentity": {"type": "string", "minLength": 1, "maxLength": 512},
+        "EngineVersion": {"const": "MariaDB 11.8.x"},
+        "DatabaseIdentity": {"type": "string", "pattern": "^continuumwiki_m5_025_app$"}
+      }
+    },
+    "PermittedOperations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Connect", "VerifyTargetIsolation", "ApplyV1Prerequisites", "ApplyV2Prerequisites", "ApplyV3Migration", "GrantIssueMutations", "GrantConsumeMutations", "GrantRevocationMutations", "GrantAuditMutations", "ConcurrentConnectionTests", "RestartRecoveryTests", "AcknowledgmentLossTests", "RetainSanitizedEvidence", "DatabaseCleanup", "SchemaDeletion", "ContainerVolumeDeletion"],
+      "properties": {
+        "Connect": {"const": true},
+        "VerifyTargetIsolation": {"const": true},
+        "ApplyV1Prerequisites": {"const": true},
+        "ApplyV2Prerequisites": {"const": true},
+        "ApplyV3Migration": {"const": true},
+        "GrantIssueMutations": {"const": true},
+        "GrantConsumeMutations": {"const": true},
+        "GrantRevocationMutations": {"const": true},
+        "GrantAuditMutations": {"const": true},
+        "ConcurrentConnectionTests": {"const": true},
+        "RestartRecoveryTests": {"const": true},
+        "AcknowledgmentLossTests": {"const": true},
+        "RetainSanitizedEvidence": {"const": true},
+        "DatabaseCleanup": {"const": false},
+        "SchemaDeletion": {"const": false},
+        "ContainerVolumeDeletion": {"const": false}
+      }
+    },
+    "Isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Production", "SharedWithProduction", "DedicatedCredentials", "Proof"],
+      "properties": {
+        "Production": {"const": false},
+        "SharedWithProduction": {"const": false},
+        "DedicatedCredentials": {"const": true},
+        "Proof": {"type": "string", "minLength": 1, "maxLength": 2048}
+      }
+    },
+    "TestScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Suite", "MaxConcurrentWorkers", "CrashBoundaries"],
+      "properties": {
+        "Suite": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 128}},
+        "MaxConcurrentWorkers": {"type": "integer", "minimum": 1, "maximum": 4},
+        "CrashBoundaries": {"type": "array", "minItems": 1, "items": {"type": "string", "maxLength": 128}}
+      }
+    }
+  },
+  "$defs": {
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name", "Role"],
+      "properties": {
+        "Name": {"type": "string", "minLength": 1, "maxLength": 160},
+        "Role": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-stopped-destination-diagnostic-report-v1",
+  "title": "Sanitized CW-M5-026B stopped destination container diagnostic report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ReportVersion", "Classification", "TargetRole", "ExpectedContainerId", "ObservedContainerIdSha256", "ObservedState", "ObservedExitCode", "PinnedImageIdentityMatched", "ContainerIdMatched", "RunIdLabelMatched", "DatabaseLabelMatched", "VolumeMountMatched", "EndpointMatched", "VolumeIdentityMatched", "Findings", "RawPodmanOutputPersisted", "StderrPersisted", "DatabaseConnections", "DatabaseMutations", "CredentialsRead", "PodmanCommandsAreReadOnly", "PodmanReadOnlyCommands", "AuthorizationApprovalId", "ManifestSha256", "PreflightReportSha256", "GeneratedAtUtc"],
+  "properties": {
+    "ReportVersion": {"const": "cw-m5-026b-stopped-destination-diagnostic-v1"},
+    "Classification": {"enum": ["DESTINATION_CONTAINER_MISSING", "DESTINATION_CONTAINER_STORAGE_INACCESSIBLE", "DESTINATION_CONTAINER_RECREATED", "DESTINATION_CONTAINER_IDENTITY_MISMATCH", "DESTINATION_CONTAINER_STOPPED_IDENTITY_MATCH", "DESTINATION_CONTAINER_RUNNING_IDENTITY_MATCH", "DESTINATION_CONTAINER_STATE_UNEXPECTED", "DIAGNOSTIC_INCOMPLETE"]},
+    "TargetRole": {"const": "Destination"},
+    "ContainerRunIdLabelPresent": {"type": ["boolean", "null"]},
+    "ContainerRunIdLabelSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "VolumeRunIdLabelPresent": {"type": ["boolean", "null"]},
+    "VolumeRunIdLabelSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "ContainerAndVolumeRunIdLabelsMatch": {"type": ["boolean", "null"]},
+    "ExpectedContainerId": {"const": "1c58a2f370d36af443e53283d4212604e997188e9fbf81175655446b7c3ea1f5"},
+    "ObservedContainerIdSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "ObservedState": {"enum": ["running", "exited", "stopped", "created", "configured", "paused", "dead", "removing", "unknown"]},
+    "ObservedExitCode": {"type": ["integer", "null"], "minimum": 0, "maximum": 255},
+    "PinnedImageIdentityMatched": {"type": ["boolean", "null"]}, "ContainerIdMatched": {"type": ["boolean", "null"]}, "RunIdLabelMatched": {"type": ["boolean", "null"]}, "DatabaseLabelMatched": {"type": ["boolean", "null"]}, "VolumeMountMatched": {"type": ["boolean", "null"]}, "EndpointMatched": {"type": ["boolean", "null"]}, "ConfiguredEndpointMatched": {"type": ["boolean", "null"]}, "PodmanPortMappingReported": {"type": ["boolean", "null"]}, "ActiveEndpointObservation": {"type": ["string", "null"], "enum": ["CONTAINER_STOPPED_ENDPOINT_INACTIVE", "PORT_OBSERVATION_UNAVAILABLE_WHILE_STOPPED", "RUNTIME_MAPPING_REPORTED", "RUNTIME_MAPPING_NOT_REPORTED", null]}, "VolumeIdentityMatched": {"type": ["boolean", "null"]},
+    "Findings": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Z0-9_]{1,80}$"}}, "RawPodmanOutputPersisted": {"const": false}, "StderrPersisted": {"const": false}, "DatabaseConnections": {"const": 0}, "DatabaseMutations": {"const": 0}, "CredentialsRead": {"const": 0}, "PodmanCommandsAreReadOnly": {"const": true}, "PodmanReadOnlyCommands": {"type": "integer", "minimum": 1, "maximum": 6}, "AuthorizationApprovalId": {"type": "string", "pattern": "^CW-M5-026B-DIAGNOSTIC-[A-Za-z0-9._:-]{1,80}$"}, "ManifestSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "PreflightReportSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "GeneratedAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"}
+  }
+}

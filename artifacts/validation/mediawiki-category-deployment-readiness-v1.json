@@ -1,0 +1,259 @@
+{
+  "ReportVersion": "cw-m5-026-category-deployment-readiness-v1",
+  "Milestone": "CW-M5-026",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "CATEGORY_DEPLOYMENT_READINESS_ASSESSED",
+  "OverallDecision": "NO_GO",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "RunMode": "NONCONNECTING_SOURCE_AND_EVIDENCE_ASSESSMENT",
+  "Connections": 0,
+  "Mutations": 0,
+  "InfrastructureModified": false,
+  "AuthorizationChanged": false,
+  "VerificationTierSummary": {
+    "SOURCE_VERIFIED": [
+      "V1 persistence contracts",
+      "Category lifecycle and recovery planning",
+      "V2 recoverable durability model",
+      "Administrative API and grant contracts",
+      "Rejecting defaults and explicit activation methods"
+    ],
+    "DATABASE_VERIFIED_BOUNDED": [
+      "CW-M5-019 disposable V1/V2 category and recovery certification",
+      "CW-M5-020 disposable concurrency and application replay cases",
+      "CW-M5-025 disposable V1/V2/V3 administrative-grant certification"
+    ],
+    "AUTHORIZATION_BLOCKED": [
+      "Earlier production/certification decisions that require target-specific approval",
+      "Any production migration, provider activation, cleanup, or target mutation"
+    ],
+    "EVIDENCE_MISSING": [
+      "Production target-bound authorization",
+      "Category-specific production backup/restore rehearsal",
+      "Production-like backfill/reconciliation evidence",
+      "Production monitoring and alert evidence"
+    ],
+    "NOT_CERTIFIED": [
+      "OS/container/MariaDB-server crash behavior",
+      "Live mid-transaction SQL fault campaign",
+      "Broader historical MediaWiki/Cargo/Scribunto/extension parity",
+      "Production schema compatibility and provider activation"
+    ],
+    "OPERATIONALLY_INCOMPLETE": [
+      "Rollback and abort procedure for category migration/backfill",
+      "Production identity and grant issuance/revocation operations",
+      "Multi-worker lease decision if recovery is deployed concurrently"
+    ]
+  },
+  "Evidence": [
+    {
+      "Path": "artifacts/validation/mediawiki-category-persistence-v1.json",
+      "Milestone": "CW-M5-014",
+      "Claim": "V1 category schema, revision CAS, empty-index semantics, and visibility-safe persistence contracts are source-tested.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "source and gated-test report",
+      "Limitations": "The report's original live gate was authorization-blocked."
+    },
+    {
+      "Path": "artifacts/validation/mediawiki-category-pages-lifecycle-v1.json",
+      "Milestone": "CW-M5-015",
+      "Claim": "Category page route and edit/delete/restore lifecycle behavior passed focused source tests.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "SQLite/default source tests",
+      "Limitations": "No production or live MariaDB lifecycle evidence."
+    },
+    {
+      "Path": "artifacts/validation/mediawiki-category-reindex-recovery-v1.json",
+      "Milestone": "CW-M5-016",
+      "Claim": "Reindex planning, stale revision, cancellation, and partial-result contracts are source-tested.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "source-only",
+      "Limitations": "The report explicitly lacked durable category audit/checkpoint and real CAS/visibility evidence at that stage."
+    },
+    {
+      "Path": "artifacts/validation/mediawiki-category-recovery-durability-v1.json",
+      "Milestone": "CW-M5-017",
+      "Claim": "Recoverable two-phase recovery operation, audit, checkpoint, and fail-closed transition contracts exist.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "source-only",
+      "Limitations": "Cross-store atomicity and exactly-once execution are not claimed."
+    },
+    {
+      "Path": "secure/evidence/cw-m5-019-certification-v1.json",
+      "Milestone": "CW-M5-019",
+      "Claim": "Authorized disposable MariaDB target passed bounded V1/V2 category and recovery tests.",
+      "VerificationTier": "DATABASE_VERIFIED_BOUNDED",
+      "Scope": "continuumwiki-m5-019-operator4 only",
+      "Limitations": "No production transfer; connection count not instrumented; server/container crash not tested."
+    },
+    {
+      "Path": "artifacts/validation/mediawiki-category-concurrency-crash-replay-v1.json",
+      "Milestone": "CW-M5-020",
+      "Claim": "Five live disposable concurrency/replay cases and sixteen source cases passed.",
+      "VerificationTier": "DATABASE_VERIFIED_BOUNDED",
+      "Scope": "operator4 disposable target",
+      "Limitations": "OS/container/MariaDB crash, lease race, and live mid-transaction SQL fault were not certified."
+    },
+    {
+      "Path": "artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json",
+      "Milestone": "CW-M5-025",
+      "Claim": "Base Page→V1→V2→V3 sequence and eight live administrative-grant certification tests passed on a dedicated disposable MariaDB 11.8.9 target.",
+      "VerificationTier": "DATABASE_VERIFIED_BOUNDED",
+      "Scope": "exact target recorded in the report",
+      "Limitations": "28 grants and 47 audit rows remain; exact connection/mutation counts were not separately instrumented; no OS/container/server crash claim."
+    },
+    {
+      "Path": "TightWiki/Program.cs",
+      "Milestone": "current source",
+      "Claim": "Default SQLite registrations use rejecting category membership and recovery durability implementations.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "default startup path",
+      "Limitations": "Source inspection is not deployed-runtime evidence."
+    },
+    {
+      "Path": "TightWiki/MySqlDevelopmentRuntime.cs",
+      "Milestone": "current source",
+      "Claim": "MySQL development runtime also registers rejecting category/recovery/grant implementations and keeps provider activation explicit.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "MySQL runtime registrations",
+      "Limitations": "No production startup or activation was attempted."
+    },
+    {
+      "Path": "TightWiki.Repository/Helpers/ProviderNeutralPersistenceServiceCollectionExtensions.cs",
+      "Milestone": "current source",
+      "Claim": "Category V1, V2, and V3 activation methods require MySQL, explicit feature flags, exact schema versions, readiness proofs, and an existing connection factory.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "DI activation contract",
+      "Limitations": "No production target-bound readiness proof exists."
+    },
+    {
+      "Path": "docs/operations/MYSQL-BACKUP-RECOVERY.md",
+      "Milestone": "prior operations evidence",
+      "Claim": "Generic logical backup, checksum, distinct-target restore, and rollback limitations are documented and historically rehearsed.",
+      "VerificationTier": "SOURCE_VERIFIED",
+      "Scope": "generic MariaDB operations",
+      "Limitations": "No category-specific production backup/restore rehearsal."
+    },
+    {
+      "Path": "artifacts/validation/mediawiki-category-certification-decision-m5-019c-v1.json",
+      "Milestone": "CW-M5-019C",
+      "Claim": "Earlier operator authorization decision remained pending and did not transfer to production.",
+      "VerificationTier": "AUTHORIZATION_BLOCKED",
+      "Scope": "historical operator decision",
+      "Limitations": "This is not a production approval and is not reused by CW-M5-026."
+    },
+    {
+      "Path": "UNAVAILABLE: production target-bound authorization manifest",
+      "Milestone": "CW-M5-026",
+      "Claim": "No production-specific authorization artifact exists in the assessed evidence set.",
+      "VerificationTier": "EVIDENCE_MISSING",
+      "Scope": "production gate",
+      "Limitations": "No request or creation was made under the source-only constraints."
+    },
+    {
+      "Path": "docs/architecture/CW-M5-021-CATEGORY-OPERATIONAL-READINESS.md",
+      "Milestone": "CW-M5-021",
+      "Claim": "Operational readiness is a source-level decision contract with explicit missing production gates.",
+      "VerificationTier": "OPERATIONALLY_INCOMPLETE",
+      "Scope": "production operations",
+      "Limitations": "No production monitoring, backfill, rollback, lease, or activation drill was run."
+    }
+  ],
+  "Dependencies": [
+    {
+      "Id": "DEP-001",
+      "Name": "BasePageToCategoryV1",
+      "Order": ["base Page schema", "category V1"],
+      "Status": "BOUNDED_VERIFIED",
+      "Evidence": ["TightWiki.Repository/Scripts/MySql/Pages/V1__PageSchema.sql", "TightWiki.Repository/Scripts/MySql/Category/V1__CategorySchema.sql", "artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json"],
+      "ProductionStatus": "UNVERIFIED"
+    },
+    {
+      "Id": "DEP-002",
+      "Name": "CategoryV1ToRecoveryV2",
+      "Order": ["category V1", "recovery V2"],
+      "Status": "BOUNDED_VERIFIED",
+      "Evidence": ["TightWiki.Repository/Scripts/MySql/Category/V1__CategorySchema.sql", "TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql", "artifacts/validation/mediawiki-category-concurrency-crash-replay-v1.json"],
+      "ProductionStatus": "UNVERIFIED"
+    },
+    {
+      "Id": "DEP-003",
+      "Name": "RecoveryV2ToAdministrativeGrantV3",
+      "Order": ["recovery V2", "administrative-grant V3"],
+      "Status": "BOUNDED_VERIFIED",
+      "Evidence": ["TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql", "TightWiki.Repository/Scripts/MySql/Category/V3__CategoryAdministrativeGrants.sql", "artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json"],
+      "ProductionStatus": "UNVERIFIED"
+    },
+    {
+      "Id": "DEP-004",
+      "Name": "ReadinessToProviderActivation",
+      "Order": ["exact target readiness proof", "explicit feature flag", "authorized provider registration"],
+      "Status": "SOURCE_ONLY",
+      "Evidence": ["TightWiki.Repository/Helpers/ProviderNeutralPersistenceServiceCollectionExtensions.cs", "TightWiki/MySqlCategoryAdministrativeGrantActivation.cs"],
+      "ProductionStatus": "BLOCKED"
+    },
+    {
+      "Id": "DEP-005",
+      "Name": "IndexBackfillToOperationalMonitoring",
+      "Order": ["production-like dry run", "revision/generation reconciliation", "monitoring and abort thresholds"],
+      "Status": "MISSING_OPERATIONAL_EVIDENCE",
+      "Evidence": ["docs/architecture/CW-M5-016-CATEGORY-REINDEX-RECOVERY.md", "docs/architecture/CW-M5-021-CATEGORY-OPERATIONAL-READINESS.md"],
+      "ProductionStatus": "BLOCKED"
+    }
+  ],
+  "Gates": [
+    {"Id": "GATE-001", "Name": "Nonproduction source assessment", "Outcome": "PASSED_SOURCE_ASSESSMENT", "Blockers": []},
+    {"Id": "GATE-002", "Name": "Bounded database compatibility", "Outcome": "PASSED_BOUNDED_ONLY", "Blockers": ["Target-specific evidence does not authorize production."]},
+    {"Id": "GATE-003", "Name": "Production-specific authorization", "Outcome": "BLOCKED", "Blockers": ["No production target-bound approval or manifest."]},
+    {"Id": "GATE-004", "Name": "Backup and restore", "Outcome": "PARTIAL", "Blockers": ["No category-specific production snapshot/restore reconciliation."]},
+    {"Id": "GATE-005", "Name": "Authentication and administrative grants", "Outcome": "PARTIAL", "Blockers": ["Production identity, issuer, revocation ownership, and audit retention are unverified."]},
+    {"Id": "GATE-006", "Name": "Monitoring and failure detection", "Outcome": "NOT_CERTIFIED", "Blockers": ["No production alert/metric evidence."]},
+    {"Id": "GATE-007", "Name": "Category index/backfill integrity", "Outcome": "NOT_CERTIFIED", "Blockers": ["No production-like backfill/reconciliation execution."]},
+    {"Id": "GATE-008", "Name": "Broader historical compatibility", "Outcome": "NOT_CERTIFIED", "Blockers": ["Category certification does not establish MediaWiki/Cargo/Scribunto/extension parity."]},
+    {"Id": "GATE-009", "Name": "Final activation and rollback decision", "Outcome": "NO_GO", "Blockers": ["Independent production gates remain open."]}
+  ],
+  "Blockers": [
+    {"Id": "BLK-001", "Severity": "CRITICAL", "Name": "Production authorization absent", "Evidence": ["artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json"], "ClosureCriterion": "Separate production target-bound authorization with explicit migration and activation scope.", "Owner": "Project Owner/System Administrator and operations approver"},
+    {"Id": "BLK-002", "Severity": "CRITICAL", "Name": "Production schema compatibility and rollback unverified", "Evidence": ["TightWiki.Repository/Scripts/MySql/Category/V1__CategorySchema.sql", "TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql", "TightWiki.Repository/Scripts/MySql/Category/V3__CategoryAdministrativeGrants.sql"], "ClosureCriterion": "Production-like rehearsal, schema readback, lock/latency review, abort conditions, and rollback plan.", "Owner": "Database operator"},
+    {"Id": "BLK-003", "Severity": "HIGH", "Name": "Provider activation not production-proven", "Evidence": ["TightWiki.Repository/Helpers/ProviderNeutralPersistenceServiceCollectionExtensions.cs", "TightWiki/Program.cs", "TightWiki/MySqlDevelopmentRuntime.cs"], "ClosureCriterion": "Exact production readiness proofs and separately approved feature activation.", "Owner": "Application owner and operations approver"},
+    {"Id": "BLK-004", "Severity": "HIGH", "Name": "Backfill and reconciliation not operationally certified", "Evidence": ["artifacts/validation/mediawiki-category-reindex-recovery-v1.json", "docs/architecture/CW-M5-021-CATEGORY-OPERATIONAL-READINESS.md"], "ClosureCriterion": "Production-like dry run with counts, revision/generation reconciliation, monitoring, and abort thresholds.", "Owner": "Category data owner"},
+    {"Id": "BLK-005", "Severity": "HIGH", "Name": "Category-specific backup/restore evidence missing", "Evidence": ["docs/operations/MYSQL-BACKUP-RECOVERY.md"], "ClosureCriterion": "Category-inclusive backup, checksum, distinct restore, reconciliation, and recovery smoke test.", "Owner": "Database operator/backup owner"},
+    {"Id": "BLK-006", "Severity": "HIGH", "Name": "Crash and mid-transaction fault coverage incomplete", "Evidence": ["artifacts/validation/mediawiki-category-concurrency-crash-replay-v1.json", "artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json"], "ClosureCriterion": "Separately authorized OS/container/server and safe SQL fault campaign.", "Owner": "Reliability owner"},
+    {"Id": "BLK-007", "Severity": "HIGH", "Name": "Production identity and grant workflow unverified", "Evidence": ["artifacts/validation/mediawiki-category-admin-authorization-v1.json", "artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json"], "ClosureCriterion": "Production actor binding, issuance/revocation, audit retention, and incident response review.", "Owner": "Security/operations owner"},
+    {"Id": "BLK-008", "Severity": "MEDIUM", "Name": "Multi-worker lease semantics not modeled", "Evidence": ["artifacts/validation/mediawiki-category-operational-readiness-v1.json"], "ClosureCriterion": "Explicit single-worker decision or lease owner/expiry design and certification.", "Owner": "Reliability owner"},
+    {"Id": "BLK-009", "Severity": "HIGH", "Name": "Broader historical MediaWiki parity remains separate", "Evidence": ["docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"], "ClosureCriterion": "Independent source/reference evidence for the broader migration scope.", "Owner": "Migration owner"}
+  ],
+  "Risks": [
+    "Stale, incomplete, or failed category indexes must not be represented as successful empty categories.",
+    "Snapshot rollback may lose writes after the snapshot and requires write-journal reconciliation.",
+    "Recovery is recoverable two-phase, not cross-store atomic or exactly-once.",
+    "Enabling a provider without target-bound readiness would bypass the intended rejecting default boundary.",
+    "Administrative API availability does not imply safe activation or production authorization.",
+    "Historical MediaWiki/Cargo/Scribunto/extension evidence is outside category deployment readiness."
+  ],
+  "NextMilestones": [
+    {"Id": "CW-M5-026A", "Name": "Production-specific authorization and target readiness worksheet", "Authorization": "Explicit production approval required", "DoNotDeploy": true},
+    {"Id": "CW-M5-026B", "Name": "Category-inclusive backup/restore rehearsal", "Authorization": "New disposable database authority required", "DoNotDeploy": true},
+    {"Id": "CW-M5-026C", "Name": "Production-like migration and backfill dry run", "Authorization": "New disposable or staging authority required", "DoNotDeploy": true},
+    {"Id": "CW-M5-026D", "Name": "Monitoring and fault campaign", "Authorization": "Reliability/test authority required", "DoNotDeploy": true},
+    {"Id": "CW-M5-026E", "Name": "Final activation and rollback decision", "Authorization": "Separate production activation approval required", "DoNotDeploy": true}
+  ],
+  "ActionsPerformed": [
+    "Read repository source, SQL, architecture/runbook documents, and nonsecret validation reports.",
+    "Compared source registration and activation contracts with bounded certification reports.",
+    "Recorded evidence tiers, dependency order, production gates, blockers, risks, and remediation milestones.",
+    "Validated the generated report with Python's standard-library JSON parser.",
+    "Ran no database, Podman, migration, live test, cleanup, authorization, or activation operation."
+  ],
+  "Verification": {
+    "JsonValidation": "PASSED: python3 -m json.tool artifacts/validation/mediawiki-category-deployment-readiness-v1.json",
+    "DiffCheck": "PASSED: git diff --check",
+    "FullDebugTests": "PASSED SOURCE-SAFE: env -u live authorization variables dotnet test TightWiki.Tests/TightWiki.Tests.csproj -c Debug --no-restore -m:1; 435 passed, 44 skipped, 0 failed, 479 total; all gated database tests skipped",
+    "ReleaseBuild": "PASSED: dotnet build TightWiki.Tests/TightWiki.Tests.csproj -c Release --no-restore -m:1; 0 warnings, 0 errors",
+    "DatabaseTestExecution": "NOT RUN; no CW-M5-026 database authorization or connection",
+    "SecretValuesRead": false,
+    "DatabaseContacted": false,
+    "ProductionContacted": false
+  }
+}

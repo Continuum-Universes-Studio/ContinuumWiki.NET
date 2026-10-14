@@ -1,0 +1,1274 @@
+{
+  "ReportVersion": "cw-m5-026b-data-readiness-v2",
+  "GeneratedAtUtc": "2026-10-12T13:35:30.738179Z",
+  "Milestone": "CW-M5-026B-PREFLIGHT-READINESS",
+  "Classification": "CATEGORY_REHEARSAL_DATA_READINESS_SOURCE_VERIFIED",
+  "SourceAssessment": "SOURCE_EVIDENCE_VERIFIED",
+  "HistoricalRuntimeEvidence": "HISTORICAL_ONLY",
+  "LiveInspection": "LIVE_INSPECTION_REQUIRED",
+  "SourceGrantRemediation": "SOURCE_REMEDIATION_REQUIRES_AUTHORIZATION",
+  "SchemaAndFixtureReadiness": "SCHEMA_OR_FIXTURE_INSUFFICIENT",
+  "Certification": "NOT_CERTIFIED",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "EvidenceIntegrity": {
+    "Evidence": [
+      {
+        "Reference": "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+        "Sha256": "bd25a8ea1c0663287c8ba288d10469cae9951a993becd2486aa39cdb9a591a81",
+        "TrustGrade": "RETAINED_OPERATOR_OR_REPOSITORY_EVIDENCE_STRUCTURAL_ONLY",
+        "EvidenceAtUtc": "2026-10-12T09:38:00.420372Z",
+        "RecordedClassification": "PROVISIONING_FAILED_RESOURCES_RETAINED"
+      },
+      {
+        "Reference": "secure/evidence/cw-m5-026b-source-verification-authorization-20261012-002.json",
+        "Sha256": "994b5adb6c89e5b5910cd52e617dbcd23fa020019f549494f6d3679e0ebb860a",
+        "TrustGrade": "RETAINED_OPERATOR_OR_REPOSITORY_EVIDENCE_STRUCTURAL_ONLY",
+        "AuthorizationUse": "HISTORICAL_TARGET_BINDING_EVIDENCE_ONLY_NOT_REHEARSAL_AUTHORITY"
+      },
+      {
+        "Reference": "secure/evidence/cw-m5-026b-destination-provisioning-authorization-20261012-002.json",
+        "Sha256": "7ca783d223828bd66f552ec3b0b460cbbc3289a1712f45fdf0cd1106a899c694",
+        "TrustGrade": "RETAINED_OPERATOR_OR_REPOSITORY_EVIDENCE_STRUCTURAL_ONLY",
+        "AuthorizationUse": "HISTORICAL_TARGET_BINDING_EVIDENCE_ONLY_NOT_REHEARSAL_AUTHORITY"
+      },
+      {
+        "Reference": "secure/evidence/cw-m5-026b-continuation-preflight-20261012-003.json",
+        "Sha256": "3d322957e94e4c44084a627cfd5ed81b13b6d00114ee6c2dc34b17518594164d",
+        "TrustGrade": "RETAINED_OPERATOR_OR_REPOSITORY_EVIDENCE_STRUCTURAL_ONLY",
+        "EvidenceAtUtc": "2026-10-12T12:34:36.493522Z",
+        "RecordedClassification": "CATEGORY_CONTINUATION_AUTHORIZATIONS_VALID_NONCONNECTING"
+      },
+      {
+        "Reference": "secure/evidence/cw-m5-026b-continuation-result-20261012-003.json",
+        "Sha256": "5f1c62fac87f3185371c5294ff3acf441dbc01b9c9bdd9c7de6b484a23eca353",
+        "TrustGrade": "RETAINED_OPERATOR_OR_REPOSITORY_EVIDENCE_STRUCTURAL_ONLY",
+        "EvidenceAtUtc": "2026-10-12T12:34:46.231876Z",
+        "RecordedClassification": "SOURCE_VERIFIED_DESTINATION_PROVISIONED"
+      }
+    ],
+    "SensitiveValuesIncluded": false,
+    "RawGrantTextIncluded": false,
+    "PageOrCategoryRowsIncluded": false
+  },
+  "IdentityAndRuntime": {
+    "RecordedTargetBinding": {
+      "SourceMatchesProvisioningAuthorizationAndContinuation": true,
+      "DestinationMatchesContinuationAuthorization": true,
+      "PinnedImmutableImageMatches": true,
+      "SourceContainerIdSha256": "8168c7ad995bebd5a2794e0d2a11a189730bd7f650387053bdca41790c20f1d3",
+      "DestinationContainerIdSha256": "e4931aa918c765aa27490ed3fbf36169eaea19252cbc3e841cca6d08cb7aa554",
+      "ProvisioningRunIdSha256": "2f5af9c9928e8532c8f8949b88e9322f8730820b2da32636dc02de4d0e0c795c",
+      "ContinuationImplementationCheckedProvisioningRunIdAgainstContainerAndVolumeLabels": true,
+      "ContinuationResultPersistedRunId": false,
+      "RunIdFreshness": "HISTORICAL_ONLY_NOT_REATTESTED",
+      "SourceAndDestinationIdentityPrefixesReconciled": true,
+      "ContinuationAuthorizationHashesMatchPreflightAndManifests": true,
+      "ContinuationRunnerSha256": "4cd3ca551e9547d0db29916045776320c6c53d53b53ec7c2c04f34aff31f8e78",
+      "LastSuccessfulContinuationAtUtc": "2026-10-12T12:34:46.231876Z",
+      "CurrentRuntimeExistenceHealthAndIdentity": "UNVERIFIED"
+    },
+    "HistoricalApplicationGrantEvidence": {
+      "Source": false,
+      "Destination": true,
+      "SourceEvidenceConflict": false,
+      "CurrentSourceStatus": "UNKNOWN/NOT_OBSERVED",
+      "CurrentDestinationStatus": "UNKNOWN/NOT_OBSERVED",
+      "Reason": "Provisioning and continuation timestamps are historical; continuation did not inspect current application privileges."
+    },
+    "Timeline": {
+      "ProvisioningEvidenceAtUtc": "2026-10-12T09:38:00.420372Z",
+      "ContinuationPreflightAtUtc": "2026-10-12T12:34:36.493522Z",
+      "ContinuationCompletedAtUtc": "2026-10-12T12:34:46.231876Z",
+      "FreshHostAttestation": "NOT_PERFORMED"
+    }
+  },
+  "GrantReadiness": {
+    "CurrentSource": "UNKNOWN/NOT_OBSERVED",
+    "CurrentDestination": "UNKNOWN/NOT_OBSERVED",
+    "HistoricalSourceObservation": "SCHEMA_SCOPE_CHECK_FAILED_AT_PROVISIONING_EVIDENCE_TIME",
+    "HistoricalDestinationObservation": "SCHEMA_SCOPED_REPORTED_AT_CONTINUATION_TIME",
+    "ClassificationEnum": [
+      "VERIFIED_SCHEMA_SCOPED",
+      "CONFIRMED_OVERPRIVILEGED",
+      "UNKNOWN/NOT_OBSERVED",
+      "INSPECTION_FAILED"
+    ],
+    "RunnerCheck": "Rehearsal runner rejects global grants, grant option, unscoped role/grant statements, and grants outside the target schema; it does not compare a minimum privilege allowlist.",
+    "CurrentClassification": "UNKNOWN/NOT_OBSERVED",
+    "ClassificationSemantics": {
+      "VERIFIED_SCHEMA_SCOPED": "Fresh identity-specific evidence shows no effective global privileges, grant option, unrelated schema grant, or unscoped role; this is confinement evidence, not a least-privilege certificate.",
+      "CONFIRMED_OVERPRIVILEGED": "Fresh evidence confirms effective global, unrelated-schema, grant-option, or unscoped privilege.",
+      "UNKNOWN/NOT_OBSERVED": "No fresh privilege inspection or evidence is historical/ambiguous.",
+      "INSPECTION_FAILED": "The bounded inspection could not complete or returned malformed/ambiguous evidence."
+    },
+    "Remediation": "Only if a newly authorized read-only inspection confirms a grant defect; any grant change requires independent operation-specific approval."
+  },
+  "SchemaExpectations": {
+    "MigrationOrder": [
+      "Page V1 base",
+      "Page V2 support",
+      "Page V3 deleted revisions",
+      "Category V1",
+      "Category V2 recovery durability",
+      "Category V3 administrative grants"
+    ],
+    "Migrations": [
+      {
+        "Source": "TightWiki.Repository/Scripts/MySql/Pages/V1__PageSchema.sql",
+        "Sha256": "428b82205169ee43b0ff89170ce6db1760d3ee9bfaab4aada3bcdf9d17f42ad9",
+        "CreatesTables": [
+          "MySqlPageSchemaVersion",
+          "Page",
+          "PageRevision",
+          "PageTag",
+          "PageReference"
+        ],
+        "ExpectedStorageEngines": [
+          "InnoDB"
+        ],
+        "KeysAndConstraints": [
+          {
+            "Table": "MySqlPageSchemaVersion",
+            "Name": "PK_MySqlPageSchemaVersion",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "Domain"
+            ]
+          },
+          {
+            "Table": "Page",
+            "Name": "PK_Page",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "Id"
+            ]
+          },
+          {
+            "Table": "Page",
+            "Name": "UX_Page_ActiveNavigation",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "ActiveNavigation"
+            ]
+          },
+          {
+            "Table": "Page",
+            "Name": "CK_Page_DeletedState",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "PageRevision",
+            "Name": "PK_PageRevision",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "PageRevision",
+            "Name": "FK_PageRevision_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageRevision",
+            "Name": "UX_PageRevision_Navigation",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "PageId",
+              "Revision",
+              "Navigation"
+            ]
+          },
+          {
+            "Table": "PageTag",
+            "Name": "PK_PageTag",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "Tag"
+            ]
+          },
+          {
+            "Table": "PageTag",
+            "Name": "FK_PageTag_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageReference",
+            "Name": "PK_PageReference",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "ReferencesPageNavigation"
+            ]
+          },
+          {
+            "Table": "PageReference",
+            "Name": "FK_PageReference_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageReference",
+            "Name": "FK_PageReference_Target",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "ReferencesPageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "SET NULL"
+          }
+        ],
+        "SecondaryIndexes": [
+          {
+            "Table": "Page",
+            "Name": "IX_Page_Namespace",
+            "Unique": false,
+            "Columns": [
+              "Namespace"
+            ]
+          },
+          {
+            "Table": "Page",
+            "Name": "IX_Page_Deleted",
+            "Unique": false,
+            "Columns": [
+              "IsDeleted",
+              "ModifiedDate"
+            ]
+          },
+          {
+            "Table": "PageRevision",
+            "Name": "IX_PageRevision_History",
+            "Unique": false,
+            "Columns": [
+              "PageId",
+              "ModifiedDate",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "PageReference",
+            "Name": "IX_PageReference_Target",
+            "Unique": false,
+            "Columns": [
+              "ReferencesPageId"
+            ]
+          }
+        ],
+        "ExpectedLedgerRows": [
+          {
+            "Domain": "pages",
+            "Version": 1
+          }
+        ],
+        "LivePresence": "UNVERIFIED"
+      },
+      {
+        "Source": "TightWiki.Repository/Scripts/MySql/Pages/V2__PageSupportSchema.sql",
+        "Sha256": "5d5220c0e29bd66a523d7d78d7ea908bc7a59a8db9eedbd90d48ffaca681dd63",
+        "CreatesTables": [
+          "PageComment",
+          "PageFile",
+          "PageFileRevision",
+          "PageRevisionAttachment",
+          "PageProcessingInstruction",
+          "PageToken",
+          "CurrentPageEditors"
+        ],
+        "ExpectedStorageEngines": [
+          "InnoDB"
+        ],
+        "KeysAndConstraints": [
+          {
+            "Table": "PageComment",
+            "Name": "PK_PageComment",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "Id"
+            ]
+          },
+          {
+            "Table": "PageComment",
+            "Name": "FK_PageComment_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageFile",
+            "Name": "PK_PageFile",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "Id"
+            ]
+          },
+          {
+            "Table": "PageFile",
+            "Name": "UX_PageFile_PageNameRevision",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "PageId",
+              "Name",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "PageFile",
+            "Name": "FK_PageFile_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageFileRevision",
+            "Name": "PK_PageFileRevision",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageFileId",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "PageFileRevision",
+            "Name": "FK_PageFileRevision_File",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageFileId"
+            ],
+            "ReferencedTable": "PageFile",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageRevisionAttachment",
+            "Name": "PK_PageRevisionAttachment",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "PageFileId",
+              "FileRevision",
+              "PageRevision"
+            ]
+          },
+          {
+            "Table": "PageRevisionAttachment",
+            "Name": "UX_PageRevisionAttachment_PageFileRevision",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "PageId",
+              "PageFileId",
+              "PageRevision"
+            ]
+          },
+          {
+            "Table": "PageRevisionAttachment",
+            "Name": "FK_PageRevisionAttachment_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageRevisionAttachment",
+            "Name": "FK_PageRevisionAttachment_File",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageFileId"
+            ],
+            "ReferencedTable": "PageFile",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageProcessingInstruction",
+            "Name": "PK_PageProcessingInstruction",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "Instruction"
+            ]
+          },
+          {
+            "Table": "PageProcessingInstruction",
+            "Name": "FK_PageProcessingInstruction_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageToken",
+            "Name": "PK_PageToken",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "Token"
+            ]
+          },
+          {
+            "Table": "PageToken",
+            "Name": "FK_PageToken_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "CurrentPageEditors",
+            "Name": "PK_CurrentPageEditors",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "UserId"
+            ]
+          },
+          {
+            "Table": "CurrentPageEditors",
+            "Name": "FK_CurrentPageEditors_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          }
+        ],
+        "SecondaryIndexes": [
+          {
+            "Table": "PageComment",
+            "Name": "IX_PageComment_PageId",
+            "Unique": false,
+            "Columns": [
+              "PageId",
+              "CreatedDate"
+            ]
+          },
+          {
+            "Table": "PageFile",
+            "Name": "IX_PageFile_Navigation",
+            "Unique": false,
+            "Columns": [
+              "PageId",
+              "Navigation",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "PageToken",
+            "Name": "IX_PageToken_Token",
+            "Unique": false,
+            "Columns": [
+              "Token",
+              "PageId",
+              "Weight"
+            ]
+          },
+          {
+            "Table": "PageToken",
+            "Name": "IX_PageToken_DoubleMetaphone",
+            "Unique": false,
+            "Columns": [
+              "DoubleMetaphone",
+              "PageId",
+              "Weight"
+            ]
+          }
+        ],
+        "ExpectedLedgerRows": [
+          {
+            "Domain": "page-support",
+            "Version": 2
+          }
+        ],
+        "LivePresence": "UNVERIFIED"
+      },
+      {
+        "Source": "TightWiki.Repository/Scripts/MySql/Pages/V3__DeletedRevisionSchema.sql",
+        "Sha256": "8443164450bf92d5d57295dd23e745fce7dccbbb92a7f22a50a81abc05f15765",
+        "CreatesTables": [
+          "DeletedPageRevision",
+          "DeletedPageRevisionAttachment"
+        ],
+        "ExpectedStorageEngines": [
+          "InnoDB"
+        ],
+        "KeysAndConstraints": [
+          {
+            "Table": "DeletedPageRevision",
+            "Name": "PK_DeletedPageRevision",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "DeletedPageRevision",
+            "Name": "FK_DeletedPageRevision_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "DeletedPageRevisionAttachment",
+            "Name": "PK_DeletedPageRevisionAttachment",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "PageFileId",
+              "FileRevision",
+              "PageRevision"
+            ]
+          },
+          {
+            "Table": "DeletedPageRevisionAttachment",
+            "Name": "UX_DeletedPageRevisionAttachment_PageFileRevision",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "PageId",
+              "PageFileId",
+              "PageRevision"
+            ]
+          },
+          {
+            "Table": "DeletedPageRevisionAttachment",
+            "Name": "FK_DeletedPageRevisionAttachment_Revision",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId",
+              "PageRevision"
+            ],
+            "ReferencedTable": "DeletedPageRevision",
+            "ReferencedColumns": [
+              "PageId",
+              "Revision"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "DeletedPageRevisionAttachment",
+            "Name": "FK_DeletedPageRevisionAttachment_File",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageFileId"
+            ],
+            "ReferencedTable": "PageFile",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          }
+        ],
+        "SecondaryIndexes": [
+          {
+            "Table": "DeletedPageRevision",
+            "Name": "IX_DeletedPageRevision_PageDate",
+            "Unique": false,
+            "Columns": [
+              "PageId",
+              "DeletedDate",
+              "Revision"
+            ]
+          },
+          {
+            "Table": "DeletedPageRevision",
+            "Name": "IX_DeletedPageRevision_Navigation",
+            "Unique": false,
+            "Columns": [
+              "Navigation"
+            ]
+          }
+        ],
+        "ExpectedLedgerRows": [
+          {
+            "Domain": "deleted-revisions",
+            "Version": 3
+          }
+        ],
+        "LivePresence": "UNVERIFIED"
+      },
+      {
+        "Source": "TightWiki.Repository/Scripts/MySql/Category/V1__CategorySchema.sql",
+        "Sha256": "dd77fb6f3f4ad9cd62987e048103e312c6adfb6aa00b3e080ef1d0d134512aab",
+        "CreatesTables": [
+          "MySqlCategorySchemaVersion",
+          "PageCategoryIndexState",
+          "PageCategoryMembership"
+        ],
+        "ExpectedStorageEngines": [
+          "InnoDB"
+        ],
+        "KeysAndConstraints": [
+          {
+            "Table": "MySqlCategorySchemaVersion",
+            "Name": "PK_MySqlCategorySchemaVersion",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "Domain"
+            ]
+          },
+          {
+            "Table": "PageCategoryIndexState",
+            "Name": "PK_PageCategoryIndexState",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId"
+            ]
+          },
+          {
+            "Table": "PageCategoryIndexState",
+            "Name": "FK_PageCategoryIndexState_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageCategoryIndexState",
+            "Name": "CK_PageCategoryIndexState_State",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "PageCategoryMembership",
+            "Name": "PK_PageCategoryMembership",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "PageId",
+              "CategoryNavigation"
+            ]
+          },
+          {
+            "Table": "PageCategoryMembership",
+            "Name": "FK_PageCategoryMembership_Page",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "PageId"
+            ],
+            "ReferencedTable": "Page",
+            "ReferencedColumns": [
+              "Id"
+            ],
+            "OnDelete": "CASCADE"
+          },
+          {
+            "Table": "PageCategoryMembership",
+            "Name": "CK_PageCategoryMembership_State",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          }
+        ],
+        "SecondaryIndexes": [
+          {
+            "Table": "PageCategoryIndexState",
+            "Name": "IX_PageCategoryIndexState_Revision",
+            "Unique": false,
+            "Columns": [
+              "IndexedPageRevision",
+              "IndexState"
+            ]
+          },
+          {
+            "Table": "PageCategoryMembership",
+            "Name": "IX_PageCategoryMembership_CategorySort",
+            "Unique": false,
+            "Columns": [
+              "CategoryNavigation",
+              "SortKey",
+              "PageId"
+            ]
+          },
+          {
+            "Table": "PageCategoryMembership",
+            "Name": "IX_PageCategoryMembership_PageRevision",
+            "Unique": false,
+            "Columns": [
+              "PageId",
+              "SourcePageRevision"
+            ]
+          }
+        ],
+        "ExpectedLedgerRows": [
+          {
+            "Domain": "category",
+            "Version": 1
+          }
+        ],
+        "LivePresence": "UNVERIFIED"
+      },
+      {
+        "Source": "TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql",
+        "Sha256": "69b26c6bdcd9400519658eb62df9cf889d3d0f6e91d5fc774c0c451d1ac19f87",
+        "CreatesTables": [
+          "TwCategoryRecoveryOperation",
+          "TwCategoryRecoveryAuditEvent"
+        ],
+        "ExpectedStorageEngines": [
+          "InnoDB"
+        ],
+        "KeysAndConstraints": [
+          {
+            "Table": "TwCategoryRecoveryOperation",
+            "Name": "PK_TwCategoryRecoveryOperation",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "OperationId"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryOperation",
+            "Name": "CK_TwCategoryRecoveryOperation_Position",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "TwCategoryRecoveryOperation",
+            "Name": "CK_TwCategoryRecoveryOperation_Status",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "TwCategoryRecoveryAuditEvent",
+            "Name": "PK_TwCategoryRecoveryAuditEvent",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "OperationId",
+              "EventSequence"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryAuditEvent",
+            "Name": "UQ_TwCategoryRecoveryAuditEvent_EventId",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "EventId"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryAuditEvent",
+            "Name": "UQ_TwCategoryRecoveryAuditEvent_EventKey",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "OperationId",
+              "EventKey"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryAuditEvent",
+            "Name": "FK_TwCategoryRecoveryAuditEvent_Operation",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "OperationId"
+            ],
+            "ReferencedTable": "TwCategoryRecoveryOperation",
+            "ReferencedColumns": [
+              "OperationId"
+            ],
+            "OnDelete": "CASCADE"
+          }
+        ],
+        "SecondaryIndexes": [
+          {
+            "Table": "TwCategoryRecoveryOperation",
+            "Name": "IX_TwCategoryRecoveryOperation_Status",
+            "Unique": false,
+            "Columns": [
+              "OperationStatus",
+              "UpdatedAtUtc"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryOperation",
+            "Name": "IX_TwCategoryRecoveryOperation_Scope",
+            "Unique": false,
+            "Columns": [
+              "ScopeFingerprint"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryAuditEvent",
+            "Name": "IX_TwCategoryRecoveryAuditEvent_Position",
+            "Unique": false,
+            "Columns": [
+              "OperationId",
+              "Position",
+              "EventSequence"
+            ]
+          },
+          {
+            "Table": "TwCategoryRecoveryAuditEvent",
+            "Name": "IX_TwCategoryRecoveryAuditEvent_Outcome",
+            "Unique": false,
+            "Columns": [
+              "OperationId",
+              "Outcome",
+              "EventSequence"
+            ]
+          }
+        ],
+        "ExpectedLedgerRows": [
+          {
+            "Domain": "category-recovery",
+            "Version": 2
+          }
+        ],
+        "LivePresence": "UNVERIFIED"
+      },
+      {
+        "Source": "TightWiki.Repository/Scripts/MySql/Category/V3__CategoryAdministrativeGrants.sql",
+        "Sha256": "b34f512a72ca3ccc490e5c5c2e0350323ba229e2cfbeb6b411c0fa7cd608260a",
+        "CreatesTables": [
+          "TwCategoryAdministrativeGrant",
+          "TwCategoryAdministrativeGrantAudit"
+        ],
+        "ExpectedStorageEngines": [
+          "InnoDB"
+        ],
+        "KeysAndConstraints": [
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "PK_TwCategoryAdministrativeGrant",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "GrantId"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "CK_TwCategoryAdministrativeGrant_Operation",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "CK_TwCategoryAdministrativeGrant_State",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "CK_TwCategoryAdministrativeGrant_Revocation",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "CK_TwCategoryAdministrativeGrant_Replay",
+            "Kind": "CHECK",
+            "CheckExpressionSourcePresent": false
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrantAudit",
+            "Name": "PK_TwCategoryAdministrativeGrantAudit",
+            "Kind": "PRIMARY KEY",
+            "Columns": [
+              "GrantId",
+              "EventSequence"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrantAudit",
+            "Name": "UQ_TwCategoryAdministrativeGrantAudit_EventId",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "EventId"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrantAudit",
+            "Name": "UQ_TwCategoryAdministrativeGrantAudit_EventKey",
+            "Kind": "UNIQUE",
+            "Columns": [
+              "GrantId",
+              "EventKey"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrantAudit",
+            "Name": "FK_TwCategoryAdministrativeGrantAudit_Grant",
+            "Kind": "FOREIGN KEY",
+            "Columns": [
+              "GrantId"
+            ],
+            "ReferencedTable": "TwCategoryAdministrativeGrant",
+            "ReferencedColumns": [
+              "GrantId"
+            ],
+            "OnDelete": "CASCADE"
+          }
+        ],
+        "SecondaryIndexes": [
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "IX_TwCategoryAdministrativeGrant_Lookup",
+            "Unique": false,
+            "Columns": [
+              "ActorUserId",
+              "Operation",
+              "ScopeFingerprint",
+              "IssuedAtUtc"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "IX_TwCategoryAdministrativeGrant_State",
+            "Unique": false,
+            "Columns": [
+              "GrantState",
+              "ExpiresAtUtc"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrant",
+            "Name": "IX_TwCategoryAdministrativeGrant_Approval",
+            "Unique": false,
+            "Columns": [
+              "ApprovalId"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrantAudit",
+            "Name": "IX_TwCategoryAdministrativeGrantAudit_Correlation",
+            "Unique": false,
+            "Columns": [
+              "CorrelationId"
+            ]
+          },
+          {
+            "Table": "TwCategoryAdministrativeGrantAudit",
+            "Name": "IX_TwCategoryAdministrativeGrantAudit_Kind",
+            "Unique": false,
+            "Columns": [
+              "GrantId",
+              "EventKind",
+              "EventSequence"
+            ]
+          }
+        ],
+        "ExpectedLedgerRows": [
+          {
+            "Domain": "category-admin-grants",
+            "Version": 3
+          }
+        ],
+        "LivePresence": "UNVERIFIED"
+      }
+    ],
+    "ExpectedTableCount": 21,
+    "ExpectedTables": [
+      "MySqlPageSchemaVersion",
+      "Page",
+      "PageRevision",
+      "PageTag",
+      "PageReference",
+      "PageComment",
+      "PageFile",
+      "PageFileRevision",
+      "PageRevisionAttachment",
+      "PageProcessingInstruction",
+      "PageToken",
+      "CurrentPageEditors",
+      "DeletedPageRevision",
+      "DeletedPageRevisionAttachment",
+      "MySqlCategorySchemaVersion",
+      "PageCategoryIndexState",
+      "PageCategoryMembership",
+      "TwCategoryRecoveryOperation",
+      "TwCategoryRecoveryAuditEvent",
+      "TwCategoryAdministrativeGrant",
+      "TwCategoryAdministrativeGrantAudit"
+    ],
+    "RehearsalRunnerRequiredTables": [
+      "Page",
+      "PageRevision",
+      "PageTag",
+      "PageReference",
+      "PageCategoryIndexState",
+      "PageCategoryMembership",
+      "TwCategoryRecoveryOperation",
+      "TwCategoryRecoveryAuditEvent",
+      "TwCategoryAdministrativeGrant",
+      "TwCategoryAdministrativeGrantAudit"
+    ],
+    "RunnerChecks": {
+      "BaseTableNamesAndInnoDB": true,
+      "SourceHasTenRequiredTables": true,
+      "DestinationHasNoBaseTablesBeforeRestore": true,
+      "TableInventoryComparedAfterRestore": true,
+      "PerTableDumpContentHashesCompared": true,
+      "SchemaColumnsIndexesForeignKeysAndLedgerRows": false,
+      "PageRevisionAndCategoryProvenanceSemantics": false,
+      "RecoveryCheckpointAndAuditSemantics": false,
+      "AdministrativeGrantAndAuditSemantics": false,
+      "ViewsRoutinesEventsOrOtherNonBaseObjectsInDestinationEmptinessCheck": false
+    },
+    "CurrentLiveSchemaStatus": {
+      "Source": "UNKNOWN/NOT_OBSERVED",
+      "Destination": "UNKNOWN/NOT_OBSERVED",
+      "NeitherTargetMayBeAssumedMigrated": true
+    }
+  },
+  "ProvisioningWorkflowEvidence": {
+    "Source": "scripts/cw-m5-026b/provision_targets.py",
+    "Sha256": "81babe9a2342ae284492f2ee53242936a0d3b4dd3f2e357e646df63a7a9ab769",
+    "CreatesDatabaseFromImageEnvironment": true,
+    "AppliesApplicationSchemaMigrations": false,
+    "SeedsApplicationRows": false,
+    "ChecksInitialSchemaObjectCountIsZero": true,
+    "HistoricalApplicationGrantPrivilegesInSource": [
+      "SELECT",
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "CREATE",
+      "ALTER",
+      "INDEX",
+      "REFERENCES"
+    ],
+    "GrantFindingMeaning": "Provisioning report records schema-scope check false; this is a historical failed check and does not identify the exact effective privilege set or current state."
+  },
+  "FixtureSufficiency": {
+    "Status": "NOT_OBSERVED; NO_FIXTURES_CREATED",
+    "DatasetPurpose": "SYNTHETIC_DISPOSABLE_TEST_DATA_ONLY_NOT_HISTORICAL_PRODUCTION_DATA",
+    "RequiredCases": [
+      {
+        "Case": "INDEXED_EMPTY",
+        "Shape": "Active Page with a matching PageRevision; PageCategoryIndexState=Verified and IndexedPageRevision equals Page.Revision; zero PageCategoryMembership rows; stable source provenance and generation."
+      },
+      {
+        "Case": "UNINDEXED",
+        "Shape": "Active Page with matching PageRevision and no PageCategoryIndexState row; no memberships. Must remain distinguishable from a verified empty index."
+      },
+      {
+        "Case": "POPULATED_MEMBERSHIP",
+        "Shape": "Active Page and matching PageRevision; Verified index state at the current revision; at least one membership with the same generation, revision and source provenance."
+      },
+      {
+        "Case": "VISIBILITY",
+        "Shape": "One active and one deleted Page, with state fields consistent with Page constraints; category reads exclude deleted pages and return Unknown/PageUnavailable for direct deleted-page index inspection."
+      },
+      {
+        "Case": "RECOVERY_V2",
+        "Shape": "A deterministic operation/checkpoint plus ordered audit events covering intent, attempted/committed outcome, sequence continuity, event-ID and event-key uniqueness, and an expected version/policy."
+      },
+      {
+        "Case": "ADMIN_GRANT_V3",
+        "Shape": "Separate issued, consumed and revoked grant records with corresponding ordered audit events; preserve single-use/replay, version/CAS, validity, revocation and correlation fields."
+      }
+    ],
+    "FixtureSemantics": [
+      "Missing PageCategoryIndexState means Unindexed; it is not an indexed empty set.",
+      "Verified state at current Page.Revision is Current; older verified revision is Stale; Incomplete, Failed and Unknown remain distinct fail-closed states.",
+      "Membership rows are only trusted when their verified state, source revision, generation and provenance align.",
+      "Do not export source page bodies or private category rows to readiness evidence; report only bounded aggregate checks and pass/fail codes."
+    ],
+    "DDLAndWritesRequired": {
+      "DDL": "Apply Page V1/V2/V3 and Category V1/V2/V3 only if absent/incompatible; each requires separate explicit migration authorization and a schema/target plan.",
+      "DML": "Insert the bounded synthetic Page/PageRevision/index/membership/recovery/audit/grant fixture set; update/delete fixture rows only if separately specified and authorized.",
+      "AuthorizationStatus": "NOT_GRANTED_BY_PROVISIONING_CONTINUATION_OR_REHEARSAL_AUTHORIZATION",
+      "RehearsalRunnerSupport": "NONE; it rejects source seeding and performs no migration or fixture writes."
+    }
+  },
+  "AuthorizationGapRegister": [
+    {
+      "Operation": "Current read-only target/privilege/schema/aggregate inspection",
+      "Status": "REQUIRES_FRESH_DISTINCT_EXACT_TARGET_APPROVAL"
+    },
+    {
+      "Operation": "Source grant remediation",
+      "Status": "SEPARATE_AUTHORIZATION_REQUIRED_IF_INSPECTION_CONFIRMS_NEED"
+    },
+    {
+      "Operation": "Page V1/V2/V3 and Category V1/V2/V3 migrations",
+      "Status": "NOT_AUTHORIZED; EACH MIGRATION_SCOPE_MUST_BE_EXPLICIT"
+    },
+    {
+      "Operation": "Synthetic source fixture seeding",
+      "Status": "NOT_SUPPORTED_BY_RUNNER_AND_NOT_AUTHORIZED"
+    },
+    {
+      "Operation": "Backup/snapshot",
+      "Status": "FRESH_REHEARSAL_AUTHORIZATION_REQUIRED"
+    },
+    {
+      "Operation": "Destination restore",
+      "Status": "FRESH_REHEARSAL_AUTHORIZATION_REQUIRED_AFTER_EMPTYNESS_PROOF"
+    },
+    {
+      "Operation": "Comparison/evidence retention",
+      "Status": "EXPLICIT_BOUNDED_AUTHORIZATION_REQUIRED"
+    },
+    {
+      "Operation": "Fault injection/crash tests/post-snapshot writes",
+      "Status": "EXCLUDED; SEPARATE_IMPLEMENTATION_AND_AUTHORIZATION_REQUIRED"
+    }
+  ],
+  "InspectionPlan": {
+    "Mode": "NONCONNECTING_PLAN_ONLY",
+    "Operation": "READ_ONLY_SOURCE_AND_DESTINATION_DATA_READINESS_INSPECTION",
+    "FreshDistinctOperatorApprovalRequired": true,
+    "ExistingProvisioningAndContinuationApprovalsTransfer": false,
+    "Targets": "Exact retained CW-M5-026B source and destination only; reconfirm runtime identities on host immediately before connection.",
+    "CredentialTransport": {
+      "Required": "Owner-owned 0600 client option files or an already approved OS secret-store adapter.",
+      "HistoricalProvisionerCreated": "0600 environment.env and application.env files in 0700 directories.",
+      "Compatibility": "Those environment files are not MariaDB client option files; the rehearsal runner's --defaults-extra-file requirement is not established by the provisioning evidence.",
+      "CredentialValuesReadOrChangedHere": false
+    },
+    "PlannedReadOnlySql": [
+      {
+        "Purpose": "IdentityAndVersion",
+        "Sql": "SELECT DATABASE(), VERSION(), @@version_comment, CURRENT_USER();",
+        "ReportOutput": "MATCH/MISMATCH codes only; do not persist raw CURRENT_USER or output."
+      },
+      {
+        "Purpose": "EffectiveGrantScope",
+        "Sql": "SHOW GRANTS;",
+        "Handling": "Read output in memory only; persist booleans/codes for global privileges, grant option, schema confinement and role/unscoped grants; never persist grant text."
+      },
+      {
+        "Purpose": "TablesAndEngines",
+        "Sql": "SELECT TABLE_NAME, TABLE_TYPE, COALESCE(ENGINE,'') FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME, TABLE_TYPE;",
+        "Handling": "Compare to static migration inventory; report counts/missing object names only."
+      },
+      {
+        "Purpose": "Columns",
+        "Sql": "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_KEY FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME, ORDINAL_POSITION;",
+        "Handling": "Compare exact required structural metadata; no row values."
+      },
+      {
+        "Purpose": "Indexes",
+        "Sql": "SELECT TABLE_NAME, INDEX_NAME, NON_UNIQUE, SEQ_IN_INDEX, COLUMN_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX;",
+        "Handling": "Compare primary, unique and secondary index metadata."
+      },
+      {
+        "Purpose": "Constraints",
+        "Sql": "SELECT TABLE_NAME, CONSTRAINT_NAME, CONSTRAINT_TYPE, REFERENCED_TABLE_NAME FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() ORDER BY TABLE_NAME, CONSTRAINT_NAME;",
+        "Handling": "Compare foreign/unique/check constraints and referenced tables."
+      },
+      {
+        "Purpose": "MigrationLedgers",
+        "Sql": "SELECT 'pages' AS ledger_domain, Version FROM MySqlPageSchemaVersion WHERE Domain='pages' UNION ALL SELECT 'page-support', Version FROM MySqlPageSchemaVersion WHERE Domain='page-support' UNION ALL SELECT 'deleted-revisions', Version FROM MySqlPageSchemaVersion WHERE Domain='deleted-revisions' UNION ALL SELECT 'category', Version FROM MySqlCategorySchemaVersion WHERE Domain='category' UNION ALL SELECT 'category-recovery', Version FROM MySqlCategorySchemaVersion WHERE Domain='category-recovery' UNION ALL SELECT 'category-admin-grants', Version FROM MySqlCategorySchemaVersion WHERE Domain='category-admin-grants';",
+        "Handling": "Persist only expected domain/version match codes; no timestamps or data values."
+      },
+      {
+        "Purpose": "FixtureAggregateSufficiency",
+        "Sql": "SELECT 'Page' AS FixtureClass, COUNT(*) AS AggregateCount FROM Page UNION ALL SELECT 'PageRevision', COUNT(*) FROM PageRevision UNION ALL SELECT CONCAT('IndexState:', IndexState), COUNT(*) FROM PageCategoryIndexState GROUP BY IndexState UNION ALL SELECT 'Membership', COUNT(*) FROM PageCategoryMembership UNION ALL SELECT 'RecoveryOperation', COUNT(*) FROM TwCategoryRecoveryOperation UNION ALL SELECT 'RecoveryAudit', COUNT(*) FROM TwCategoryRecoveryAuditEvent UNION ALL SELECT 'AdministrativeGrant', COUNT(*) FROM TwCategoryAdministrativeGrant UNION ALL SELECT 'AdministrativeGrantAudit', COUNT(*) FROM TwCategoryAdministrativeGrantAudit;",
+        "Handling": "Aggregate counts and index-state counts only; do not export Page.Body, ScopeJson, grant details, or private row values."
+      },
+      {
+        "Purpose": "IndexCaseAndVisibilityCounts",
+        "Sql": "SELECT (SELECT COUNT(*) FROM Page P JOIN PageCategoryIndexState S ON S.PageId=P.Id WHERE P.IsDeleted=FALSE AND S.IndexState='Verified' AND S.IndexedPageRevision=P.Revision AND NOT EXISTS (SELECT 1 FROM PageCategoryMembership M WHERE M.PageId=P.Id)) AS IndexedEmptyPages, (SELECT COUNT(*) FROM Page P LEFT JOIN PageCategoryIndexState S ON S.PageId=P.Id WHERE P.IsDeleted=FALSE AND S.PageId IS NULL) AS UnindexedPages, (SELECT COUNT(DISTINCT M.PageId) FROM PageCategoryMembership M JOIN Page P ON P.Id=M.PageId JOIN PageCategoryIndexState S ON S.PageId=P.Id WHERE P.IsDeleted=FALSE AND S.IndexState='Verified' AND S.IndexedPageRevision=P.Revision AND M.SourcePageRevision=P.Revision AND M.IndexGeneration=S.IndexGeneration) AS PopulatedCurrentPages, (SELECT COUNT(*) FROM Page WHERE IsDeleted=FALSE) AS ActivePages, (SELECT COUNT(*) FROM Page WHERE IsDeleted=TRUE) AS DeletedPages;",
+        "Handling": "Returns aggregate counts distinguishing verified-empty, unindexed, current populated, active, and deleted pages; cannot prove a particular synthetic fixture exists without an approved fixture marker."
+      }
+    ],
+    "DestinationEmptiness": {
+      "Sql": "SELECT 'TABLES_OR_VIEWS' AS ObjectType, COUNT(*) AS ObjectCount FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() UNION ALL SELECT 'ROUTINES', COUNT(*) FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA=DATABASE() UNION ALL SELECT 'EVENTS', COUNT(*) FROM information_schema.EVENTS WHERE EVENT_SCHEMA=DATABASE() UNION ALL SELECT 'TRIGGERS', COUNT(*) FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA=DATABASE();",
+      "Requirement": "All counts must be zero before considering a future restore; report counts only. The current restore runner independently checks base tables only."
+    },
+    "NoOperations": {
+      "Podman": 0,
+      "DatabaseConnections": 0,
+      "DatabaseQueries": 0,
+      "DatabaseMutations": 0,
+      "CredentialReads": 0,
+      "CredentialWrites": 0
+    }
+  },
+  "RunnerLimitations": [
+    "The current runner does not apply migrations or seed test fixtures.",
+    "The current runner requires all ten base tables and InnoDB, and only compares table/engine inventories plus per-table dump content hashes.",
+    "It does not validate schema columns, indexes, foreign keys, schema ledger versions, page/category provenance, recovery checkpoints/audits, or administrative-grant/audit semantics.",
+    "Its destination emptiness check counts base tables only; this readiness plan requires broader object inventory before any future restore.",
+    "A content-hash match is not schema/recovery certification and does not prove historical data provenance or point-in-time recovery."
+  ],
+  "ResourceOperationCounts": {
+    "Podman": 0,
+    "DatabaseConnections": 0,
+    "DatabaseQueries": 0,
+    "DatabaseMutations": 0,
+    "GrantChanges": 0,
+    "Migrations": 0,
+    "FixtureWrites": 0,
+    "Backup": 0,
+    "Restore": 0,
+    "Cleanup": 0,
+    "CredentialValueReads": 0,
+    "CredentialWrites": 0
+  }
+}

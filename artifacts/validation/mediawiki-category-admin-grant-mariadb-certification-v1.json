@@ -1,0 +1,92 @@
+{
+  "ReportVersion": "cw-m5-025-category-admin-grant-mariadb-certification-v1",
+  "GeneratedAtUtc": "2026-10-12T05:13:23Z",
+  "Classification": "CATEGORY_ADMIN_GRANT_MARIADB_CERTIFICATION_VERIFIED_DISPOSABLE_TARGET",
+  "RunMode": "AUTHORIZED_DISPOSABLE_LIVE",
+  "Authorization": {
+    "ManifestVersionRequired": "cw-m5-025-authorization-v1",
+    "IndependentManifestProvided": true,
+    "AuthoritativeManifestCreated": true,
+    "M5_019OrM5_020AuthorityReused": false,
+    "PreflightImplementation": "scripts/preflight-m5-025.py",
+    "PreflightDatabaseConnections": 0,
+    "PreflightDatabaseMutations": 0,
+    "TargetBoundLiveGateImplemented": true,
+    "ManifestPath": "secure/evidence/cw-m5-025-authorization.json",
+    "PreflightReport": "secure/evidence/cw-m5-025-preflight.json",
+    "PreflightClassification": "CATEGORY_ADMIN_GRANT_MARIADB_AUTHORIZATION_MANIFEST_VALID_NONCONNECTING",
+    "ManifestSha256": "aa6d9493e61ac339077406dce5d10e3de4cd95240da04f8cfc6e66d137e3d6d1"
+  },
+  "Target": {
+    "Status": "CERTIFICATION_COMPLETED_DISPOSABLE_TARGET",
+    "ProvisioningMetadata": "secure/evidence/cw-m5-025c-provisioning.json",
+    "ContainerName": "continuumwiki-m5-025-20261012050509-c4a0edf8",
+    "VolumeName": "continuumwiki-m5-025-20261012050509-c4a0edf8-data",
+    "DatabaseName": "cw_m5_025_20261012050509_c4a0edf8",
+    "Endpoint": "127.0.0.1:13325",
+    "DatabaseIdentity": "continuumwiki_m5_025_app",
+    "InstanceIdentity": "container=continuumwiki-m5-025-20261012050509-c4a0edf8;database=cw_m5_025_20261012050509_c4a0edf8;endpoint=127.0.0.1:13325;volume=continuumwiki-m5-025-20261012050509-c4a0edf8-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "NonSecretFingerprint": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "MariaDbVersion": "11.8.9-MariaDB-ubu2404",
+    "RootlessPodman": true,
+    "LoopbackOnly": true,
+    "EmptyBeforeCertification": true,
+    "ContainerVolumeDatabaseCleanup": "NOT_AUTHORIZED"
+  },
+  "Migrations": {
+    "BasePagePrerequisiteApplied": true,
+    "V1PrerequisitesApplied": true,
+    "V2PrerequisitesApplied": true,
+    "V3CategoryAdministrativeGrantsApplied": true,
+    "SchemaReadback": "VERIFIED; MySqlCategorySchemaVersion=1; category-recovery=2; category-admin-grants=3; InnoDB grant and audit tables; primary and unique audit indexes"
+  },
+  "LiveScenarios": {
+    "V3MigrationAndSchemaReadback": "PASSED",
+    "SeparateConnectionSingleUseConsumeRace": "PASSED",
+    "ExpiredAndPrematureBoundaryRejection": "PASSED",
+    "ActorActionScopeAndForgedIdentifierRejection": "PASSED",
+    "RevokeConsumeRace": "PASSED",
+    "AuditIdempotenceAndConflict": "PASSED",
+    "RecreatedServiceReplayRejection": "PASSED",
+    "AcknowledgmentLossReadback": "PASSED",
+    "TransactionalRollbackBeforeAudit": "PASSED",
+    "GrantConsumptionVersusRecoveryOutcome": "PASSED",
+    "TestSummary": "8 passed, 0 failed, 0 skipped"
+  },
+  "SourceOnlyCoverage": {
+    "PythonPreflightTestsPassed": 9,
+    "PythonPreflightTestsFailed": 0,
+    "ControlledGrantStoreConcurrencyAndRevocationTests": "PASSED_IN_PREDECESSOR",
+    "LiveFaultBoundariesExecuted": true,
+    "OsContainerOrMariaDbCrashTest": "NOT_CLAIMED"
+  },
+  "DatabaseContacts": {
+    "Connections": "AUTHORIZED LIVE CONNECTIONS PERFORMED; exact count not separately instrumented",
+    "Mutations": "AUTHORIZED SCHEMA and CERTIFICATION MUTATIONS PERFORMED; exact count not separately instrumented",
+    "ProvisioningOnlyHealthChecks": true,
+    "ProvisioningOnlyMigrations": 0,
+    "ExactCountsInstrumented": false,
+    "CleanupPerformed": false,
+    "ResidualRows": "28 grants and 47 grant-audit rows retained; cleanup was explicitly prohibited"
+  },
+  "Gates": {
+    "RejectingGrantStoreDefault": true,
+    "AdministrativeApiDisabledByDefault": true,
+    "ProductionMigration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "WorkerOrSystemdChanged": false,
+    "ProductionOrSharedDatabaseContacted": false
+  },
+  "FailureAttributionAndCorrections": {
+    "InitialFailure": "Category V1 was attempted before the base Page schema; MariaDB errno 150 reported the PageCategoryIndexState foreign key target Page was absent.",
+    "Correction": "Certification setup now applies the existing MySqlSchemaInitializer before category V1.",
+    "SecondFailure": "Audit replay lookup materialized ActorUserId as Guid while GrantAuditRow declared string; audit event-key lookup also now shares the enum-based key builder with inserts.",
+    "RegressionEvidence": "Focused source tests 9 passed; full Debug tests 435 passed and 44 skipped; Release build 0 warnings and 0 errors; live certification 8 passed."
+  },
+  "RemainingIndependentGates": [
+    "OS, container, and MariaDB-server crash behavior is not claimed; the acknowledgment-loss case is application-level.",
+    "Production migration remains NO_GO.",
+    "Repository activation remains NO_GO.",
+    "Container, volume, schema, and database cleanup remain unauthorized and were not performed."
+  ]
+}

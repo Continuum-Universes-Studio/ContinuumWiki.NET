@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-stopped-source-restart-preflight-v1",
+  "title": "Nonconnecting preflight for one CW-M5-026B source start",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ReportVersion", "GeneratedAtUtc", "Classification", "Errors", "ApprovalId", "ManifestSha256", "DiagnosticReportSha256", "DiagnosticReportPath", "ResultReportPath", "ResourceOperationCounts"],
+  "properties": {
+    "ReportVersion": {"const": "cw-m5-026b-stopped-source-restart-preflight-v1"},
+    "GeneratedAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "Classification": {"enum": ["CATEGORY_STOPPED_SOURCE_RESTART_AUTHORIZATION_VALID_NONCONNECTING", "CATEGORY_STOPPED_SOURCE_RESTART_AUTHORIZATION_INVALID"]},
+    "Errors": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z0-9_]{1,100}$"}},
+    "ApprovalId": {"type": "string", "pattern": "^CW-M5-026B-RECOVERY-START-[A-Za-z0-9._:-]{1,80}$"},
+    "ManifestSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "DiagnosticReportSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "DiagnosticReportPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/[A-Za-z0-9._/-]+$"},
+    "ResultReportPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/[A-Za-z0-9._/-]+$"},
+    "ResourceOperationCounts": {"type": "object", "additionalProperties": false, "required": ["Podman", "DatabaseConnections", "DatabaseMutations", "CredentialReads"], "properties": {"Podman": {"const": 0}, "DatabaseConnections": {"const": 0}, "DatabaseMutations": {"const": 0}, "CredentialReads": {"const": 0}}}
+  }
+}

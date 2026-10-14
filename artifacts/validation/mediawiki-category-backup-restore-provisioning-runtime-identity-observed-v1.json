@@ -1,0 +1,49 @@
+{
+  "ReportVersion": "cw-m5-026b-runtime-identity-observation-v1",
+  "ObservedAtUtc": "2026-10-12T10:35:00.026394Z",
+  "Classification": "RUNTIME_IDENTITY_DIAGNOSTIC_FAILURE",
+  "Target": {
+    "ContainerName": "continuumwiki-m5-026b-source-ro1",
+    "ContainerIdVerified": true,
+    "DatabaseNameVerifiedFromMetadata": true,
+    "EndpointVerifiedFromMetadata": true
+  },
+  "SqlStatementsAttempted": 1,
+  "Diagnostic": {
+    "Accepted": false,
+    "Codes": [
+      "VERSION_COMMENT_MISMATCH"
+    ],
+    "Checks": {
+      "DatabaseName": "MATCH",
+      "VersionFamily": "MATCH",
+      "VersionComment": "MISMATCH"
+    },
+    "FieldShape": {
+      "Database": {
+        "Present": true,
+        "Length": 21,
+        "IsNullLiteral": false,
+        "HasLeadingOrTrailingWhitespace": false
+      },
+      "Version": {
+        "Present": true,
+        "Length": 22,
+        "IsNullLiteral": false,
+        "HasLeadingOrTrailingWhitespace": false,
+        "Family": "11.8"
+      },
+      "VersionComment": {
+        "Present": true,
+        "Length": 31,
+        "IsNullLiteral": false,
+        "HasLeadingOrTrailingWhitespace": false,
+        "ContainsCaseSensitiveMariaDB": false,
+        "ContainsCaseInsensitiveMariaDB": true
+      }
+    }
+  },
+  "ProvisioningRetried": false,
+  "DatabaseMutationsRequested": false,
+  "CleanupPerformed": false
+}

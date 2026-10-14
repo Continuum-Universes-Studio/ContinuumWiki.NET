@@ -1,0 +1,62 @@
+CREATE TABLE IF NOT EXISTS TwCategoryAdministrativeGrant (
+    GrantId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ApprovalId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ApproverUserId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ActorUserId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    Operation VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ScopeFingerprint CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ScopePolicyVersion VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ScopeJson TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    IssuedAtUtc DATETIME(6) NOT NULL,
+    NotBeforeUtc DATETIME(6) NOT NULL,
+    ExpiresAtUtc DATETIME(6) NOT NULL,
+    RevocationState VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ReplayMode VARCHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    IssuerEvidenceReference VARCHAR(192) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    GrantState VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    Version BIGINT UNSIGNED NOT NULL,
+    RevokedAtUtc DATETIME(6) NULL,
+    RevokedByActorUserId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    RevocationReason VARCHAR(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    ConsumedAtUtc DATETIME(6) NULL,
+    ConsumedByActorUserId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    ConsumedOperationId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    ConsumedCorrelationId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    LastAuditSequence BIGINT UNSIGNED NOT NULL,
+    SchemaVersion INT UNSIGNED NOT NULL,
+    CreatedAtUtc DATETIME(6) NOT NULL,
+    UpdatedAtUtc DATETIME(6) NOT NULL,
+    CONSTRAINT PK_TwCategoryAdministrativeGrant PRIMARY KEY (GrantId),
+    CONSTRAINT CK_TwCategoryAdministrativeGrant_Operation CHECK (Operation IN ('Preview', 'Execute')),
+    CONSTRAINT CK_TwCategoryAdministrativeGrant_State CHECK (GrantState IN ('Issued', 'Consumed', 'Revoked')),
+    CONSTRAINT CK_TwCategoryAdministrativeGrant_Revocation CHECK (RevocationState IN ('Active', 'Revoked')),
+    CONSTRAINT CK_TwCategoryAdministrativeGrant_Replay CHECK (ReplayMode IN ('ReusableWithinValidityWindow', 'SingleUse')),
+    INDEX IX_TwCategoryAdministrativeGrant_Lookup (ActorUserId, Operation, ScopeFingerprint, IssuedAtUtc),
+    INDEX IX_TwCategoryAdministrativeGrant_State (GrantState, ExpiresAtUtc),
+    INDEX IX_TwCategoryAdministrativeGrant_Approval (ApprovalId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE IF NOT EXISTS TwCategoryAdministrativeGrantAudit (
+    GrantId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    EventSequence BIGINT UNSIGNED NOT NULL,
+    EventId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    EventKey VARCHAR(192) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    EventKind VARCHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    ActorUserId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    Operation VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    CorrelationId CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    OccurredAtUtc DATETIME(6) NOT NULL,
+    Outcome VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    DiagnosticCode VARCHAR(128) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    SchemaVersion INT UNSIGNED NOT NULL,
+    CONSTRAINT PK_TwCategoryAdministrativeGrantAudit PRIMARY KEY (GrantId, EventSequence),
+    CONSTRAINT UQ_TwCategoryAdministrativeGrantAudit_EventId UNIQUE (EventId),
+    CONSTRAINT UQ_TwCategoryAdministrativeGrantAudit_EventKey UNIQUE (GrantId, EventKey),
+    CONSTRAINT FK_TwCategoryAdministrativeGrantAudit_Grant FOREIGN KEY (GrantId) REFERENCES TwCategoryAdministrativeGrant (GrantId) ON DELETE CASCADE,
+    INDEX IX_TwCategoryAdministrativeGrantAudit_Correlation (CorrelationId),
+    INDEX IX_TwCategoryAdministrativeGrantAudit_Kind (GrantId, EventKind, EventSequence)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO MySqlCategorySchemaVersion (Domain, Version, AppliedAtUtc)
+VALUES ('category-admin-grants', 3, UTC_TIMESTAMP(6))
+ON DUPLICATE KEY UPDATE Version = GREATEST(Version, VALUES(Version)), AppliedAtUtc = VALUES(AppliedAtUtc);

@@ -1,0 +1,166 @@
+{
+  "ReportVersion": "cw-m5-026b-provisioning-runtime-identity-diagnostic-v1",
+  "Milestone": "CW-M5-026B-PROVISION",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "CATEGORY_PROVISIONING_VERSION_COMMENT_FIX_SOURCE_VERIFIED",
+  "LiveOperationalState": "PROVISIONING_FAILED_RESOURCES_RETAINED",
+  "LiveFailureClassification": "VERSION_COMMENT_MISMATCH_CONFIRMED",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "Scope": {
+    "PodmanCommandsThisDiagnostic": 0,
+    "DatabaseConnectionsThisDiagnostic": 0,
+    "DatabaseMutationsThisDiagnostic": 0,
+    "ProvisioningRetried": false,
+    "ResourcesChanged": false,
+    "AuthoritativeManifestChanged": false,
+    "SourceOnlyChanges": true
+  },
+  "SourceImplementation": {
+    "Status": "SOURCE_VERIFIED",
+    "Implementation": "scripts/cw-m5-026b/provision_targets.py",
+    "PureFunctions": [
+      "parse_runtime_identity_output",
+      "evaluate_runtime_identity",
+      "classify_runtime_identity_query",
+      "sanitize_runtime_identity_diagnostic"
+    ],
+    "FailureMetadataPath": "Failure",
+    "DiagnosticCodes": [
+      "RUNTIME_QUERY_COMMAND_FAILED",
+      "OUTPUT_FORMAT_INVALID",
+      "ROW_SHAPE_INVALID",
+      "FIELD_EMPTY",
+      "FIELD_NULL",
+      "WHITESPACE_MISMATCH",
+      "DATABASE_NAME_MISMATCH",
+      "VERSION_FAMILY_MISMATCH",
+      "VERSION_COMMENT_MISMATCH"
+    ],
+    "StrictPredicatesPreserved": {
+      "DatabaseName": "exact ordinal equality",
+      "VersionFamily": "11.8. prefix",
+      "VersionComment": "case-insensitive MariaDB substring via casefold()"
+    },
+    "RawTuplePersisted": false,
+    "CredentialsOrSqlOutputPersisted": false
+  },
+  "Failure": {
+    "Message": "continuumwiki-m5-026b-source-ro1 runtime identity/version mismatch",
+    "Source": "scripts/cw-m5-026b/provision_targets.py:344-346 (current diagnostic path; the retained attempt used the pre-refactor combined predicate)",
+    "FailureStage": "SourceRuntimeIdentityVerification",
+    "CommandSucceededBeforePredicate": true,
+    "ActualTupleRecorded": false,
+    "ActualTupleAvailableInSanitizedEvidence": false,
+    "ActualPredicateResultsRecorded": true
+  },
+  "AuthorizedRuntimeEvidence": {
+    "QueryExecutionCount": 1,
+    "DatabaseName": "MATCH",
+    "VersionFamily": "MATCH",
+    "VersionCommentCaseSensitive": "MISMATCH",
+    "VersionCommentCaseInsensitive": "MATCH",
+    "FailedPredicate": "VERSION_COMMENT_MISMATCH under the former case-sensitive comparison",
+    "RawTuplePersisted": false
+  },
+  "VerifierQuery": {
+    "Command": "podman exec --env-file <source-credential-directory>/environment.env <source-container> mariadb --protocol=socket -uroot -D cw_m5_026b_source_ro1 -N -B -e 'SELECT DATABASE(), VERSION(), @@version_comment;'",
+    "ColumnsInOrder": [
+      "DATABASE()",
+      "VERSION()",
+      "@@version_comment"
+    ],
+    "CredentialValuesIncluded": false
+  },
+  "Parsing": {
+    "Implementation": "The runtime query captures stdout without normalization; the parser accepts exactly one tab-separated row with exactly three fields and removes only one expected trailing newline",
+    "WhitespaceNormalization": "Fields are never repaired; leading or trailing field whitespace is rejected",
+    "NonzeroCommandHandling": "A nonzero query result is classified as RUNTIME_QUERY_COMMAND_FAILED with the exit code; stderr and field values are not persisted",
+    "MalformedFieldCountHandling": "Missing, extra, multiple-row, null, empty, carriage-return, and whitespace-mismatched output receive explicit shape/field diagnostics",
+    "AmbiguousOutputHandling": "Rejected fail-closed; no padding, truncation, delimiter repair, or predicate evaluation is used for invalid shape"
+  },
+  "ExpectedComparisons": [
+    {
+      "Field": "DATABASE()",
+      "Expected": "cw_m5_026b_source_ro1",
+      "Comparison": "exact ordinal string equality",
+      "SourceConfiguration": "The same value is supplied as MARIADB_DATABASE and -D database",
+      "Result": "MATCH"
+    },
+    {
+      "Field": "VERSION()",
+      "Expected": "any string beginning with 11.8.",
+      "Comparison": "version.startswith('11.8.')",
+      "Important": "The code does not compare VERSION() with the literal label 'MariaDB 11.8.x'",
+      "Result": "MATCH"
+    },
+    {
+      "Field": "@@version_comment",
+      "Expected": "a value containing the substring 'mariadb' under casefold()",
+      "Comparison": "'mariadb' in comment.casefold()",
+      "Result": "MATCH; former case-sensitive comparison was the failed predicate"
+    }
+  ],
+  "IndependentChecks": {
+    "DatabaseNameFailurePossible": true,
+    "ServerVersionPrefixFailurePossible": true,
+    "VersionCommentCaseSensitiveFailurePossible": true,
+    "VersionCommentCaseInsensitiveFailurePossible": false,
+    "ApplicationUsernameFailureAtThisStage": false,
+    "SchemaGrantFailureAtThisStage": false,
+    "ApplicationIdentityCheckReached": false,
+    "Reason": "DatabaseIdentity and schema privilege checks occur after this predicate and were not reached"
+  },
+  "ConfirmedSourceFindings": [
+    "The authorized runtime diagnostic identified the former case-sensitive version-comment predicate as the only failed predicate.",
+    "The manifest's EngineVersion value is enforced by preflight but is not compared literally to VERSION().",
+    "The runtime query obtains database identity from DATABASE(), version from VERSION(), and product text from @@version_comment.",
+    "The verifier now records predicate-level sanitized diagnostics in provisioning metadata while omitting raw tuple values, stderr, credentials, and SQL output.",
+    "The application user/schema privilege comparisons are later in the function and were not reached by the retained failed source attempt.",
+    "The confirmed verifier defect was corrected to use casefold() for the MariaDB product-name comparison; exact database equality and the 11.8. version-family check remain unchanged."
+  ],
+  "UnconfirmedHypotheses": [
+    "No remaining runtime identity predicate is unconfirmed for the authorized one-shot diagnostic; the retained resources have not been reprovisioned or rechecked after the source correction."
+  ],
+  "MinimalProposedCorrection": {
+    "Status": "CONFIRMED_DEFECT_CORRECTED_SOURCE_ONLY",
+    "FirstChange": "Implemented a case-insensitive MariaDB product-name comparison using comment.casefold(), while retaining nonempty product validation and sanitized diagnostics.",
+    "ConditionalCompatibilityChange": "Not applicable; the authorized evidence confirmed the exact source defect and the minimal correction was applied.",
+    "DoNotChange": [
+      "Do not replace the version-prefix check with an unbounded version acceptance rule",
+      "Do not weaken exact database identity equality",
+      "Do not skip root-host, schema-scope, grant-option, or empty-schema checks",
+      "Do not retry provisioning or access the retained database in this source-only correction"
+    ]
+  },
+  "RegressionCoverage": {
+    "FocusedSourceTests": "PASSED: scripts/test_m5_026b_provisioning.py; 16 passed, 0 failed",
+    "CombinedSourceTests": "PASSED: authorization preflight plus provisioning suites; 28 passed, 0 failed",
+    "NewDiagnosticTests": [
+      "valid MariaDB 11.8 tuple",
+      "independent database/version/comment predicate failures",
+      "mixed-case MariaDB comment acceptance",
+      "non-MariaDB comment rejection",
+      "unsupported version-family rejection",
+      "missing/extra/multi-row/null/empty/whitespace-invalid output",
+      "command failure classification and redaction",
+      "deterministic sanitized diagnostics"
+    ],
+    "PodmanOrDatabaseTests": "NOT_RUN_BY_CONSTRAINT"
+  },
+  "Evidence": [
+    "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+    "artifacts/validation/mediawiki-category-backup-restore-live-v1.json",
+    "scripts/cw-m5-026b/provision_targets.py",
+    "scripts/test_m5_026b_provisioning.py",
+    "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+    "docs/operations/CW-M5-026B-PROVISIONING-OPERATOR-DECISION-PACKET.md",
+    "docs/architecture/CW-M3-007-MEDIAWIKI-COMPATIBILITY-ROADMAP.md"
+  ],
+  "RemainingBlockers": [
+    "raw DATABASE(), VERSION(), and @@version_comment values are intentionally unavailable; sanitized predicate evidence is recorded",
+    "source container and volume remain retained",
+    "destination was not created",
+    "post-correction runtime revalidation was not authorized or performed"
+  ]
+}

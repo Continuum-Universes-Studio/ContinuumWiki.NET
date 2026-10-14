@@ -3382,6 +3382,9 @@
             The page ID this permission is scoped to, or null if it applies across all pages.
             </summary>
         </member>
+        <member name="T:TightWiki.Plugin.Models.RejectingTwCategoryAdministrativeGrantStore">
+            <summary>Fail-closed store used by the default application graph.</summary>
+        </member>
         <member name="T:TightWiki.Plugin.Models.TwCategoryAdministrativeCaller">
             <summary>
             Server-derived caller context. Controllers must construct this only from

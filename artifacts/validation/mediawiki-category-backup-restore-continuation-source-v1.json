@@ -1,0 +1,80 @@
+{
+  "ReportVersion": "cw-m5-026b-continuation-source-validation-v1",
+  "GeneratedAtUtc": "2026-10-12T11:18:57Z",
+  "Milestone": "CW-M5-026B-RESUME",
+  "SourceClassification": "CATEGORY_CONTINUATION_IMPLEMENTATION_SOURCE_VERIFIED",
+  "LiveClassification": "PROVISIONING_FAILED_RESOURCES_RETAINED",
+  "LiveStateFreshness": "Prior sanitized evidence only; resources were not rechecked in this source-only task",
+  "LiveContinuation": "NOT_RUN_BY_OPERATOR_SCOPE",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "ResourceOperations": {
+    "PodmanCommands": 0,
+    "DatabaseConnections": 0,
+    "DatabaseQueries": 0,
+    "DatabaseMutations": 0,
+    "CredentialReads": 0,
+    "CredentialWrites": 0,
+    "ResourceRecreation": 0,
+    "CleanupOrDeletion": 0
+  },
+  "ContinuationContract": {
+    "ManifestVersion": "cw-m5-026b-continuation-authorization-v1",
+    "SeparateSourceVerificationAuthorizationRequired": true,
+    "SeparateDestinationProvisioningAuthorizationRequired": true,
+    "ApprovalIdsMustBeDistinct": true,
+    "ApprovalIdsMustDifferFromOriginalProvisioningApproval": true,
+    "MaximumAuthorizationValidityHours": 24,
+    "SourceAction": "One exact read-only runtime identity query after exact container/image/volume/credential/loopback inspection",
+    "DestinationAction": "Provision only the named destination after source verification and immediate collision recheck",
+    "ProductionAndDestructivePermissions": false,
+    "CreateOnlyEvidenceReports": true
+  },
+  "PriorEvidence": {
+    "ProvisioningReport": {
+      "Path": "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+      "Sha256": "bd25a8ea1c0663287c8ba288d10469cae9951a993becd2486aa39cdb9a591a81",
+      "Classification": "PROVISIONING_FAILED_RESOURCES_RETAINED",
+      "SourceContainerId": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914",
+      "SourceImageDigest": "sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "DestinationObservedStatus": "not-created"
+    },
+    "OriginalProvisioningAuthorization": {
+      "Path": "secure/evidence/cw-m5-026b-provisioning-authorization.json",
+      "Sha256": "56c445d08e655070e7e4fd0f97c2af77e0a1a34dbb2a40873c8450aede819d77",
+      "UsedOnlyAsHistoricalTargetAndActorProvenance": true,
+      "ReusedAsContinuationAuthorization": false
+    },
+    "ReadOnlyHostEvidence": {
+      "Path": "artifacts/validation/mediawiki-category-backup-restore-readonly-host-inspection-v1.json",
+      "Sha256": "55ea82f6868bd6c30e68c986218e2aa91abc84e3a01a6047fad0399262ac1bf8",
+      "UsedToBindHostUnixUserUidAndRootlessRequirement": true
+    }
+  },
+  "Validation": {
+    "ContinuationRegressionTests": 16,
+    "ExistingProvisioningSourceTests": 16,
+    "ExistingAuthorizationPreflightSourceTests": 12,
+    "TotalTestsPassed": 44,
+    "PythonCompilation": "PASSED",
+    "ShellSyntax": "PASSED",
+    "JSONParsing": "PASSED",
+    "TextWhitespaceAndFinalNewlineChecks": "PASSED",
+    "JSONSchemaLibraryValidation": "UNAVAILABLE_LIBRARY_NOT_INSTALLED; custom preflight contract tests passed",
+    "ActualAuthorizationPreflight": "NOT_RUN_NO_OPERATION_SPECIFIC_MANIFESTS",
+    "LiveSourceIdentityVerification": "NOT_RUN",
+    "LiveDestinationProvisioning": "NOT_RUN"
+  },
+  "OutstandingAuthorization": [
+    "A genuine, current source-only VerifyRetainedSourceIdentity approval and manifest bound to the exact retained source container ID, immutable image, volume, database, endpoint, credentials path, host account, and single identity query",
+    "A separate genuine, current ProvisionDestinationTarget approval and manifest bound to the exact destination container, volume, database, endpoint, credential path, and immutable image",
+    "Distinct new approval IDs and actual ApprovedAtUtc/ExpiresAtUtc timestamps for both manifests; neither may reuse the original provisioning approval ID",
+    "Current live collision and host/runtime checks after nonconnecting preflight; no live check was performed in this source-only task"
+  ],
+  "EvidenceIntegrity": {
+    "OriginalProvisioningReportModified": false,
+    "OriginalAuthorizationModified": false,
+    "HostEvidenceModified": false,
+    "SecretsIncluded": false
+  }
+}

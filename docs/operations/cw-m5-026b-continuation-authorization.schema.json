@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-continuation-authorization-v1",
+  "title": "CW-M5-026B operation-specific continuation authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ManifestVersion", "Operation", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc",
+    "Approver", "Operator", "TargetOwner", "Host", "Target", "Permissions", "Scope"
+  ],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-continuation-authorization-v1"},
+    "Operation": {"enum": ["VerifyRetainedSourceIdentity", "ProvisionDestinationTarget"]},
+    "ApprovalId": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time"},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "TargetOwner": {"type": "string", "minLength": 1, "maxLength": 160},
+    "Host": {
+      "type": "object", "additionalProperties": false,
+      "required": ["HostName", "UnixUser", "Uid", "RootlessPodmanRequired"],
+      "properties": {
+        "HostName": {"const": "christian-laptop"},
+        "UnixUser": {"const": "cdjensen94"},
+        "Uid": {"const": 1000},
+        "RootlessPodmanRequired": {"const": true}
+      }
+    },
+    "Target": {"type": "object"},
+    "Permissions": {"type": "object"},
+    "Scope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["Production", "SharedWithProduction", "RehearsalRightsGranted", "BackupAllowed", "RestoreAllowed", "SchemaMigrationAllowed", "CertificationAllowed", "CleanupAllowed", "SchemaDeletionAllowed", "ContainerVolumeDeletionAllowed"],
+      "properties": {
+        "Production": {"const": false}, "SharedWithProduction": {"const": false},
+        "RehearsalRightsGranted": {"const": false}, "BackupAllowed": {"const": false},
+        "RestoreAllowed": {"const": false}, "SchemaMigrationAllowed": {"const": false},
+        "CertificationAllowed": {"const": false}, "CleanupAllowed": {"const": false},
+        "SchemaDeletionAllowed": {"const": false}, "ContainerVolumeDeletionAllowed": {"const": false}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"Operation": {"const": "VerifyRetainedSourceIdentity"}}},
+      "then": {
+        "properties": {
+          "Target": {
+            "type": "object", "additionalProperties": false,
+            "required": ["ContainerName", "ContainerId", "VolumeName", "DatabaseName", "Endpoint", "DatabaseIdentity", "ImageReference", "CredentialDirectory", "IdentityPrefix", "Sql"],
+            "properties": {
+              "ContainerName": {"const": "continuumwiki-m5-026b-source-ro1"},
+              "ContainerId": {"const": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914"},
+              "VolumeName": {"const": "continuumwiki-m5-026b-source-ro1-data"},
+              "DatabaseName": {"const": "cw_m5_026b_source_ro1"},
+              "Endpoint": {"const": "127.0.0.1:13326"},
+              "DatabaseIdentity": {"const": "continuumwiki_m5_026b_source_app"},
+              "ImageReference": {"const": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"},
+              "CredentialDirectory": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1"},
+              "IdentityPrefix": {"type": "string", "minLength": 1, "maxLength": 512},
+              "Sql": {"const": "SELECT DATABASE(), VERSION(), @@version_comment;"}
+            }
+          },
+          "Permissions": {
+            "type": "object", "additionalProperties": false,
+            "required": ["VerifyRetainedSourceIdentity", "ProvisionDestinationTarget", "RetainSanitizedEvidence"],
+            "properties": {"VerifyRetainedSourceIdentity": {"const": true}, "ProvisionDestinationTarget": {"const": false}, "RetainSanitizedEvidence": {"const": true}}
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"Operation": {"const": "ProvisionDestinationTarget"}}},
+      "then": {
+        "properties": {
+          "Target": {
+            "type": "object", "additionalProperties": false,
+            "required": ["ContainerName", "VolumeName", "DatabaseName", "Endpoint", "DatabaseIdentity", "CredentialDirectory", "IdentityPrefix", "ImageReference"],
+            "properties": {
+              "ContainerName": {"const": "continuumwiki-m5-026b-destination-ro1"},
+              "VolumeName": {"const": "continuumwiki-m5-026b-destination-ro1-data"},
+              "DatabaseName": {"const": "cw_m5_026b_destination_ro1"},
+              "Endpoint": {"const": "127.0.0.1:13327"},
+              "DatabaseIdentity": {"const": "continuumwiki_m5_026b_destination_app"},
+              "CredentialDirectory": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1"},
+              "IdentityPrefix": {"type": "string", "minLength": 1, "maxLength": 512},
+              "ImageReference": {"const": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"}
+            }
+          },
+          "Permissions": {
+            "type": "object", "additionalProperties": false,
+            "required": ["VerifyRetainedSourceIdentity", "ProvisionDestinationTarget", "RetainSanitizedEvidence"],
+            "properties": {"VerifyRetainedSourceIdentity": {"const": false}, "ProvisionDestinationTarget": {"const": true}, "RetainSanitizedEvidence": {"const": true}}
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "person": {
+      "type": "object", "additionalProperties": false,
+      "required": ["Name", "Role"],
+      "properties": {"Name": {"type": "string", "minLength": 1, "maxLength": 160}, "Role": {"type": "string", "minLength": 1, "maxLength": 160}}
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "ReportVersion": "cw-m5-026b-continuation-preflight-v1",
+  "GeneratedAtUtc": "2026-10-12T12:25:13.562448Z",
+  "Classification": "CATEGORY_CONTINUATION_AUTHORIZATIONS_VALID_NONCONNECTING",
+  "Valid": true,
+  "Operations": {
+    "Source": "VerifyRetainedSourceIdentity",
+    "Destination": "ProvisionDestinationTarget"
+  },
+  "AuthorizationFiles": {
+    "SourceSha256": "994b5adb6c89e5b5910cd52e617dbcd23fa020019f549494f6d3679e0ebb860a",
+    "DestinationSha256": "7ca783d223828bd66f552ec3b0b460cbbc3289a1712f45fdf0cd1106a899c694",
+    "ApprovalIdsDistinct": true
+  },
+  "PodmanCommands": 0,
+  "DatabaseConnections": 0,
+  "DatabaseQueries": 0,
+  "DatabaseMutations": 0,
+  "Errors": [],
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO"
+}

@@ -1,0 +1,79 @@
+{
+  "ReportVersion": "cw-m5-025b-authorization-draft-unapproved-v1",
+  "Milestone": "CW-M5-025B",
+  "Classification": "CATEGORY_ADMIN_GRANT_AUTHORIZATION_HANDOFF_SOURCE_VERIFIED",
+  "AuthorizationStatus": "DRAFT_UNAPPROVED",
+  "AuthoritativeManifestWritten": false,
+  "DoNotPassToPreflight": true,
+  "ManifestSchema": {
+    "Path": "docs/operations/cw-m5-025-authorization-manifest.schema.json",
+    "ManifestVersion": "cw-m5-025-authorization-v1",
+    "PlaceholdersAcceptedBySchema": false
+  },
+  "SourceEvidence": {
+    "ExistingOperator4Provisioning": "secure/evidence/cw-m5-019a-provisioning-operator4.json",
+    "ExistingOperator4Inspection": "secure/evidence/cw-m5-019a-inspection-operator4.json",
+    "ExistingOperator4Authorization": "secure/evidence/cw-m5-019-authorization.json",
+    "M5_025CProvisioningMetadata": "secure/evidence/cw-m5-025c-provisioning.json",
+    "M5_025SourceReport": "artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json"
+  },
+  "VerifiedNonSecretFacts": {
+    "ExistingOperator4Target": {
+      "ContainerName": "continuumwiki-m5-019-operator4",
+      "VolumeName": "continuumwiki-m5-019-operator4-data",
+      "DatabaseName": "cw_m5_019_operator4",
+      "Endpoint": "127.0.0.1:13321",
+      "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+      "DatabaseIdentity": "continuumwiki_m5_019_app",
+      "LoopbackBinding": true,
+      "ProductionConnections": 0,
+      "ProductionMutations": 0
+    },
+    "M5_025Compatibility": {
+      "SchemaCompatible": true,
+      "AuthorizationTransferAllowed": false,
+      "Reasons": [
+        "The existing target uses the cw-m5-019 container and database prefixes.",
+        "The existing target uses continuumwiki_m5_019_app, not continuumwiki_m5_025_app.",
+        "The existing approval is cw-m5-019-authorization-v2 and cannot authorize M5-025 V3 operations.",
+        "The newly provisioned M5-025 target facts are schema-compatible, but no certification approval, validity, or permissions were supplied."
+      ]
+    },
+    "ProvisionedM5_025Target": {
+      "ContainerName": "continuumwiki-m5-025-20261012050509-c4a0edf8",
+      "VolumeName": "continuumwiki-m5-025-20261012050509-c4a0edf8-data",
+      "DatabaseName": "cw_m5_025_20261012050509_c4a0edf8",
+      "Endpoint": "127.0.0.1:13325",
+      "InstanceIdentity": "container=continuumwiki-m5-025-20261012050509-c4a0edf8;database=cw_m5_025_20261012050509_c4a0edf8;endpoint=127.0.0.1:13325;volume=continuumwiki-m5-025-20261012050509-c4a0edf8-data;image=docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "EngineVersion": "MariaDB 11.8.x",
+      "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+      "DatabaseIdentity": "continuumwiki_m5_025_app",
+      "RootlessPodman": true,
+      "LoopbackOnly": true,
+      "EmptyBeforeCertification": true
+    }
+  },
+  "CandidateManifest": null,
+  "MissingOperatorSuppliedFacts": [
+    "Genuine M5-025 approver name and role",
+    "Genuine M5-025 operator name and role",
+    "Target owner",
+    "Unique M5-025 approval ID",
+    "Actual UTC approval and expiry timestamps",
+    "Current approval to use the provisioned M5-025 target for certification",
+    "Isolation proof confirmation by the responsible approver for the exact M5-025 target",
+    "All required true M5-025 certification permissions",
+    "Explicit false cleanup, schema-deletion, and container/volume-deletion permissions",
+    "Bounded M5-025 test suite and required crash-boundary scope"
+  ],
+  "DatabaseContactsForThisMilestone": {
+    "Connections": 0,
+    "Mutations": 0,
+    "LiveCertificationExecuted": false
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "WorkerOrSystemdChanged": false
+  }
+}

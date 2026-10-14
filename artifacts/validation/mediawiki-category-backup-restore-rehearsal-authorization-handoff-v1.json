@@ -1,0 +1,179 @@
+{
+  "ReportVersion": "cw-m5-026b-rehearsal-authorization-handoff-v1",
+  "Milestone": "CW-M5-026B",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "CATEGORY_BACKUP_RESTORE_REHEARSAL_AUTHORIZATION_PREPARED_SOURCE_VERIFIED",
+  "AuthorizationStatus": "REVIEW_ONLY_NO_REHEARSAL_APPROVAL_OR_MANIFEST",
+  "RunMode": "NONCONNECTING_SOURCE_AND_EVIDENCE_REVIEW",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "OperationsObservedThisTask": {
+    "PodmanCommands": 0,
+    "DatabaseConnections": 0,
+    "DatabaseQueries": 0,
+    "DatabaseMutations": 0,
+    "CredentialValuesRead": false,
+    "BackupExecuted": false,
+    "RestoreExecuted": false,
+    "CertificationExecuted": false,
+    "CleanupOrDeletion": false
+  },
+  "TargetEvidence": {
+    "ObservedAtUtc": "2026-10-12T12:34:46.231876Z",
+    "CurrentRuntimeState": "UNVERIFIED_AFTER_RECORDED_CONTINUATION",
+    "Source": {
+      "ContainerName": "continuumwiki-m5-026b-source-ro1",
+      "ContainerId": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914",
+      "VolumeName": "continuumwiki-m5-026b-source-ro1-data",
+      "DatabaseName": "cw_m5_026b_source_ro1",
+      "Endpoint": "127.0.0.1:13326",
+      "InstanceIdentity": "milestone=CW-M5-026B;role=source;container=continuumwiki-m5-026b-source-ro1;volume=continuumwiki-m5-026b-source-ro1-data;database=cw_m5_026b_source_ro1;endpoint=127.0.0.1:13326;",
+      "DatabaseIdentity": "continuumwiki_m5_026b_source_app",
+      "CredentialReference": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1",
+      "ImageReference": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "SourceRuntimeIdentityQuery": "ACCEPTED_AT_CONTINUATION_TIME",
+      "EngineVersionFamily": "11.8_MATCH_AT_CONTINUATION_TIME",
+      "VersionCommentCheck": "MATCH_AT_CONTINUATION_TIME; raw value not retained",
+      "ApplicationIdentitySchemaScoped": "NOT_VERIFIED_BY_CONTINUATION; PRIOR_PROVISIONING_REPORT_FALSE",
+      "PageV1V2V3SchemaAndFixtureState": "NOT_VERIFIED"
+    },
+    "Destination": {
+      "ContainerName": "continuumwiki-m5-026b-destination-ro1",
+      "ContainerId": "1c58a2f370d36af443e53283d4212604e997188e9fbf81175655446b7c3ea1f5",
+      "VolumeName": "continuumwiki-m5-026b-destination-ro1-data",
+      "DatabaseName": "cw_m5_026b_destination_ro1",
+      "Endpoint": "127.0.0.1:13327",
+      "InstanceIdentity": "milestone=CW-M5-026B;role=destination;container=continuumwiki-m5-026b-destination-ro1;volume=continuumwiki-m5-026b-destination-ro1-data;database=cw_m5_026b_destination_ro1;endpoint=127.0.0.1:13327;",
+      "DatabaseIdentity": "continuumwiki_m5_026b_destination_app",
+      "CredentialReference": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1",
+      "ImageReference": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+      "EngineVersionObserved": "11.8.9-MariaDB-ubu2404",
+      "ApplicationIdentitySchemaScoped": true,
+      "AtProvisioning": "Provisioner success path checks for zero tables; numeric count is not included in sanitized continuation result",
+      "CurrentEmptyState": "UNVERIFIED"
+    },
+    "IdentityReconciliation": {
+      "SourceProvisioningAndContinuationFields": "MATCH",
+      "DestinationContinuationAndApprovedPlanFields": "MATCH",
+      "PinnedImage": "MATCH",
+      "ContinuationPreflightManifestHashes": "MATCH",
+      "CurrentContainerOrDatabaseInspection": false
+    }
+  },
+  "ContinuationEvidence": {
+    "Preflight": "secure/evidence/cw-m5-026b-continuation-preflight-20261012-003.json",
+    "PreflightClassification": "CATEGORY_CONTINUATION_AUTHORIZATIONS_VALID_NONCONNECTING",
+    "ContinuationResult": "secure/evidence/cw-m5-026b-continuation-result-20261012-003.json",
+    "ContinuationClassification": "SOURCE_VERIFIED_DESTINATION_PROVISIONED",
+    "ProvisioningReport": "secure/evidence/mediawiki-category-backup-restore-provisioning-v1.json",
+    "PriorContinuationApprovalsNotTransferableToRehearsal": true,
+    "Sha256": {
+      "ProvisioningReport": "bd25a8ea1c0663287c8ba288d10469cae9951a993becd2486aa39cdb9a591a81",
+      "ContinuationPreflight": "3d322957e94e4c44084a627cfd5ed81b13b6d00114ee6c2dc34b17518594164d",
+      "ContinuationResult": "5f1c62fac87f3185371c5294ff3acf441dbc01b9c9bdd9c7de6b484a23eca353",
+      "RehearsalAuthorizationSchema": "7ca109fb20429ce8cebb20adf58f25aec4f2d170e50689a36d8ce86e4e522d46"
+    }
+  },
+  "AuthorizationContract": {
+    "ManifestVersion": "cw-m5-026b-authorization-v1",
+    "Schema": "docs/operations/cw-m5-026b-authorization-manifest.schema.json",
+    "Preflight": "scripts/preflight-m5-026b.py",
+    "AuthoritativeManifestCreated": false,
+    "ReviewOnlySchemaShapedDraftCreated": false,
+    "ReasonNoDraft": "The strict manifest schema requires actual approval fields and rejects null placeholders; a null-filled schema-shaped draft risks being mistaken for authority.",
+    "SchemaExpiryMaximum": "NO_MAXIMUM_ENFORCED_BY_SCHEMA_OR_PREFLIGHT"
+  },
+  "PermissionProposal": {
+    "CorePermissionsRequiredTrueByPreflight": [
+      "ConnectSource",
+      "VerifySourceIsolation",
+      "SeedDisposableSource",
+      "BackupSource",
+      "VerifyBackupArtifact",
+      "ConnectDestination",
+      "VerifyDestinationIsolation",
+      "RestoreDestination",
+      "VerifyRestore",
+      "RetainSanitizedEvidence"
+    ],
+    "OptionalPermissionsRecommendedFalsePendingExplicitDecision": [
+      "FaultInjection",
+      "CleanupSource",
+      "CleanupDestination",
+      "SchemaDeletionSource",
+      "SchemaDeletionDestination",
+      "ContainerVolumeDeletionSource",
+      "ContainerVolumeDeletionDestination"
+    ],
+    "AuthorizationDecisionsOutstanding": [
+      "new unique approval ID, approver, operator, target owner, and roles",
+      "actual ApprovedAtUtc and ExpiresAtUtc plus a bounded validity policy",
+      "fresh target, host, isolation, credential-reference, and protected artifact-directory proof",
+      "exact source seed/test fixture and post-snapshot write scope",
+      "whether source Page/V1/V2/V3 migrations are needed; schema has no migration permission fields",
+      "fault-injection decision and reconciliation of mandatory crash-boundary labels with execution permission",
+      "suite, worker count, crash-boundary scope, and all destructive permissions"
+    ]
+  },
+  "RequiredSnapshotPlan": {
+    "Client": "mariadb-dump",
+    "SingleTransaction": true,
+    "IncludeRoutines": true,
+    "IncludeEvents": true,
+    "IncludeTriggers": true,
+    "IncludeHexBlob": true,
+    "CharacterSet": "utf8mb4",
+    "PostSnapshotWritePolicy": "record-divergence-and-reconcile-explicitly",
+    "ArtifactDirectory": "OPERATOR_REQUIRED_PRIVATE_PATH",
+    "CredentialTransport": "OPERATOR_DECISION_OPTION_FILE_OR_SECRET_STORE",
+    "Limits": [
+      "single-transaction consistency applies only to InnoDB tables",
+      "concurrent DDL is not transactional under this dump mode",
+      "partial or nonzero dump and checksum mismatch abort; retain residual evidence"
+    ]
+  },
+  "VerificationScope": [
+    "Page, PageRevision, PageTag, PageReference and Page/category schema ledgers",
+    "category index states: unindexed, indexed-empty, populated, incomplete, failed, unknown",
+    "membership order/generation and source/revision/wiki provenance",
+    "recovery checkpoint CAS, audit continuity, event-key uniqueness, replay/idempotency",
+    "grant issue/consume/revoke/expiry/replay state and grant-audit continuity",
+    "engines, columns, indexes, foreign keys, orphans, aggregate counts, redacted stable hashes",
+    "post-snapshot source-versus-restored divergence and explicit reconciliation"
+  ],
+  "AbortThresholds": [
+    "any authorization expiry, actor/target mismatch, production/shared scope, or unknown current target state",
+    "source grant/isolation or required Page/V1/V2/V3/fixture state unresolved",
+    "destination nonempty or ambiguous before restore",
+    "non-InnoDB table or concurrent DDL invalidates snapshot assumptions",
+    "partial backup, checksum mismatch, import interruption, schema/ledger/FK/orphan/provenance/audit mismatch",
+    "unreconciled post-snapshot writes or any request for unapproved cleanup/deletion"
+  ],
+  "ImplementationLimitations": [
+    "Snapshot, restore, verify, and evidence shell entrypoints call a plan-only stage planner; none launches Podman, MariaDB, mariadb-dump, or a subprocess.",
+    "No live backup, checksum, restore, table-readback, crash-injection, or post-snapshot reconciliation procedure is implemented in these stage entrypoints.",
+    "The source application identity was reported not schema-scoped, and continuation did not verify or change that grant.",
+    "The schema requires SeedDisposableSource and PostSnapshotWriteCases but has no granular test-data bounds or separate post-snapshot mutation permission.",
+    "Destination emptiness and both targets' current state require fresh host-side proof before any future restore."
+  ],
+  "NotExecutedCommands": [
+    "scripts/preflight-m5-026b.sh",
+    "scripts/cw-m5-026b/snapshot-m5-026b.sh",
+    "scripts/cw-m5-026b/restore-m5-026b.sh",
+    "scripts/cw-m5-026b/verify-m5-026b.sh",
+    "scripts/cw-m5-026b/evidence-m5-026b.sh"
+  ],
+  "Validation": {
+    "Draft202012SchemaMetaValidation": "PASSED: jsonschema Draft202012Validator.check_schema on rehearsal manifest schema; no authoritative manifest was validated or created",
+    "HandoffJsonValidation": "PASSED: python json parse",
+    "TargetEvidenceReconciliation": "PASSED: 17 source/destination identity, image, and continuation-preflight-hash comparisons",
+    "FocusedPreflightAndStagePlannerTests": "PASSED: python3 -m unittest -v scripts.test_m5_026b_authorization_preflight scripts.test_m5_026b_continuation; 31 passed, 0 failed",
+    "PythonCompilation": "PASSED: in-memory compile of scripts/preflight-m5-026b.py and scripts/cw-m5-026b/stage.py",
+    "ShellSyntax": "PASSED: bash -n on preflight plus snapshot, restore, verify, and evidence entrypoints",
+    "DiffAndWhitespaceChecks": "git diff --check passed for tracked roadmap; whitespace scan found one pre-existing trailing space at line 9 of the untracked M5-026A readiness document, outside the edited section and left unchanged"
+  },
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO"
+  }
+}

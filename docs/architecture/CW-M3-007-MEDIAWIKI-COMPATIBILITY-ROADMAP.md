@@ -803,3 +803,295 @@ was performed. Production migration and repository activation remain `NO_GO`.
 Evidence is recorded in
 `docs/architecture/CW-M5-023-CATEGORY-ADMIN-AUTHORIZATION.md` and
 `artifacts/validation/mediawiki-category-admin-authorization-v1.json`.
+
+### CW-M5-024 — durable administrative grants and atomic authorization consumption
+
+CATEGORY_ADMIN_GRANT_DURABILITY_SOURCE_VERIFIED. Administrative grants now
+have a typed durable-store contract, definition-only version-3 MariaDB schema,
+target-bound readiness proof, and explicit opt-in activation. The store uses
+transactional row locking and version/state checks so only one competing
+single-use consumer can commit; revocation and consumption are deterministically
+ordered by the grant-row transaction. Grant transition audit is bounded and
+committed with the transition. Execution outcome audit is separate from grant
+consumption, and an interruption between consumption and the category recovery
+coordinator leaves the grant consumed rather than silently reissued.
+
+The rejecting grant source/provider, rejecting category repositories, disabled
+administrative API, production-disabled Lua, and all existing security gates
+remain the defaults. Source-only concurrency/revocation/restart-model tests
+pass; real MariaDB certification is independently authorization-gated and was
+not run. No production migration, provider activation, cleanup, or operator4
+authority reuse occurred. Production migration and repository activation
+remain NO_GO.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-024-ADMIN-GRANT-DURABILITY.md` and
+`artifacts/validation/mediawiki-category-admin-grant-durability-v1.json`.
+
+### CW-M5-025 — administrative grant MariaDB certification and restart recovery
+
+CATEGORY_ADMIN_GRANT_MARIADB_CERTIFICATION_VERIFIED_DISPOSABLE_TARGET. The
+operator supplied a target-specific manifest, the nonconnecting preflight
+passed, and the authorized disposable MariaDB suite completed with 8 passed,
+0 failed, and 0 skipped tests. The run covered V1 base-schema dependency
+ordering, V2 and V3 read-back, separate-connection consume and revoke races,
+validity and binding rejection, audit idempotence/conflict, recreated-store
+replay refusal, application acknowledgment-loss, transactional rollback, and
+separation of grant consumption from recovery outcome. Diagnostic rows were
+retained because cleanup, schema deletion, and container/volume deletion were
+explicitly false.
+
+The first live attempt exposed and corrected a missing Page-schema prerequisite;
+the audit replay DTO mismatch was also corrected and covered by the rerun.
+No operator4 resource was reused, no production operation occurred, and
+production migration and repository activation remain `NO_GO`. OS, container,
+and MariaDB-server crash behavior is not claimed.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-025-ADMIN-GRANT-MARIADB-CERTIFICATION.md` and
+`artifacts/validation/mediawiki-category-admin-grant-mariadb-certification-v1.json`.
+
+### CW-M5-025B — operator authorization and controlled V3 certification handoff
+
+`CATEGORY_ADMIN_GRANT_AUTHORIZATION_HANDOFF_SOURCE_VERIFIED`. At the time of
+this handoff artifact, the exact M5-025 v1 schema, preflight, live gate, and V3
+certification scope were inspected. A clearly marked unapproved draft and
+operator worksheet recorded the missing genuine approval and target facts.
+Existing M5-019 operator4 evidence was explicitly not reusable: its milestone
+prefixes and application identity did not satisfy the M5-025 schema. The
+subsequent M5-025 authorization and live result are recorded separately below;
+this handoff artifact itself authorized no connection, migration, mutation, or
+cleanup.
+
+Evidence is recorded in
+`docs/operations/CW-M5-025B-OPERATOR-AUTHORIZATION-WORKSHEET.md`,
+`artifacts/validation/cw-m5-025b-authorization-draft-unapproved-v1.json`, and
+`artifacts/validation/mediawiki-category-admin-grant-authorization-handoff-m5-025b-v1.json`.
+
+### CW-M5-025C — disposable MariaDB target provisioning
+
+`CATEGORY_ADMIN_GRANT_TARGET_PROVISIONED_AUTHORIZATION_REQUIRED`. At the time
+of this provisioning artifact, the M5-025-specific rootless Podman workflow
+had created a fresh M5-025-scoped target but had not run V1/V2/V3 migration,
+certification, authorization, or cleanup. The verified metadata records the
+loopback port, immutable MariaDB image digest, schema-scoped
+`continuumwiki_m5_025_app` identity, owner-only credential paths, and empty
+pre-certification schema. The later target-specific authorization and live
+certification are recorded in the M5-025 section above.
+
+Production migration and repository activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/operations/CW-M5-025C-DISPOSABLE-TARGET-PROVISIONING.md` and
+`artifacts/validation/mediawiki-category-admin-grant-mariadb-provisioning-m5-025c-v1.json`.
+
+### CW-M5-026 — category deployment readiness and production migration gap analysis
+
+`CATEGORY_DEPLOYMENT_READINESS_ASSESSED`. This is a nonconnecting evidence
+assessment. Source contracts and the bounded disposable MariaDB evidence from
+M5-019, M5-020, and M5-025 are separated from production readiness. The
+dependency order is base Page schema → category V1 → recovery V2 →
+administrative-grant V3; explicit provider activation still requires
+target-bound readiness proofs and feature flags. The default category,
+recovery, and grant registrations remain rejecting, and the administrative
+recovery route remains disabled by configuration.
+
+Production migration and repository activation remain `NO_GO`. Open gates are
+production-specific authorization, production schema/migration and rollback
+evidence, category-inclusive backup/restore, production-like index backfill
+and reconciliation, monitoring/failure detection, production identity and
+grant workflow, OS/container/MariaDB-server crash coverage, and broader
+MediaWiki/Cargo/Scribunto parity. No CW-M5-026 database, migration, test,
+authorization, activation, cleanup, or infrastructure operation was performed.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-026-CATEGORY-DEPLOYMENT-READINESS.md` and
+`artifacts/validation/mediawiki-category-deployment-readiness-v1.json`.
+
+### CW-M5-026A — production authorization and target-readiness preparation
+
+`CATEGORY_PRODUCTION_AUTHORIZATION_READINESS_SOURCE_VERIFIED`. This is a
+DRAFT/UNAPPROVED, nonconnecting source and evidence package. No production
+target identity, approval, isolation proof, credentials, authoritative
+manifest, migration, backup/restore, provider activation, or infrastructure
+operation was created or performed. Source review confirms the dependency
+order base Page schema → category V1 → recovery V2 → administrative-grant V3,
+the rejecting defaults, and the explicit readiness and activation boundaries.
+
+All production target fields, approval fields, permissions, backup/restore
+evidence, rollback evidence, backfill/reconciliation evidence, monitoring and
+fault evidence, and administrative grant policy remain operator-required or
+blocked. Disposable M5-019/M5-020/M5-025 approvals and evidence are not
+transferable. Production migration and repository activation remain `NO_GO`.
+
+The next separately authorized milestone is CW-M5-026B, a category-inclusive
+backup/restore rehearsal on a new disposable target. Evidence is recorded in
+`docs/architecture/CW-M5-026A-PRODUCTION-AUTHORIZATION-READINESS.md` and
+`artifacts/validation/mediawiki-category-production-authorization-readiness-v1.json`.
+
+### CW-M5-026B — category-inclusive backup and restore rehearsal preparation
+
+`CATEGORY_BACKUP_RESTORE_PREPARATION_SOURCE_VERIFIED`. The source-only
+preparation maps the actual Page, category V1, recovery V2, and administrative
+grant V3 tables and their dependency order. A new two-target authorization
+contract requires distinct disposable loopback-bound source and destination
+identities, explicit per-stage permissions, checksummed InnoDB snapshot
+semantics, redacted evidence, and separate destructive/fault permissions.
+
+Snapshot, restore, verification, and evidence planning are separate
+entrypoints; none launches Podman or MariaDB in this source-only stage. No
+backup, restore, migration, database connection, cleanup, production access,
+or prior-approval reuse occurred. The destination must be empty and
+independently authorized; post-snapshot writes remain an explicit divergence
+and reconciliation boundary rather than an implied lossless rollback.
+
+Production migration, category repository activation, and administrative
+recovery activation remain `NO_GO`. Live classification remains blocked until
+separate source/destination authorization and the full checksummed rehearsal
+are completed.
+
+Evidence is recorded in
+`docs/architecture/CW-M5-026B-CATEGORY-BACKUP-RESTORE-REHEARSAL.md`,
+`docs/operations/cw-m5-026b-authorization-manifest.schema.json`, and
+`artifacts/validation/mediawiki-category-backup-restore-rehearsal-v1.json`.
+
+### CW-M5-026B-LIVE — disposable two-target provisioning handoff
+
+`CATEGORY_BACKUP_RESTORE_PREPARATION_SOURCE_VERIFIED`. The live handoff adds
+a separate provisioning authorization contract and fail-closed two-target
+rootless-Podman workflow. Provisioning authority is limited to creating and
+isolating two fresh loopback-bound MariaDB 11.8.x targets with independent
+credentials and sanitized evidence; it does not grant backup, restore,
+migration, certification, or cleanup rights.
+
+The authoritative provisioning manifest was created and passed its
+nonconnecting preflight. The controlled attempt then retained the exact
+source container and volume after the source runtime identity check failed;
+the destination was not created. No backup, restore, migration,
+certification, cleanup, or production database operation occurred. Production
+migration and provider activation remain `NO_GO`.
+
+Evidence is recorded in
+`docs/operations/CW-M5-026B-LIVE-PROVISIONING-AUTHORIZATION-WORKSHEET.md`,
+`docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json`,
+and `artifacts/validation/mediawiki-category-backup-restore-live-v1.json`.
+
+### CW-M5-026B-LIVE — confirmed runtime verifier defect and source correction
+
+`CATEGORY_PROVISIONING_VERSION_COMMENT_FIX_SOURCE_VERIFIED`. The separately
+authorized one-shot diagnostic recorded database-name and `11.8` version-family
+matches, but the former case-sensitive `MariaDB` version-comment predicate
+failed while the same comment matched under case-insensitive comparison. The
+verifier now uses `comment.casefold()` for that product-name check and retains
+the exact database-name and `11.8.` version-prefix checks.
+
+The correction is source-only and covered by focused regression tests for
+mixed-case comments, non-MariaDB comments, unsupported versions, malformed
+output, and sanitized diagnostics. The live operational state remains
+`PROVISIONING_FAILED_RESOURCES_RETAINED` until a separately authorized
+continuation performs any required revalidation; no provisioning retry or
+resource change was performed. Evidence is recorded in
+`artifacts/validation/mediawiki-category-backup-restore-provisioning-runtime-identity-diagnostic-v1.json`.
+
+### CW-M5-026B-CONTINUATION — source verified and destination provisioned
+
+The later authorized continuation report records
+`SOURCE_VERIFIED_DESTINATION_PROVISIONED` at
+`2026-10-12T12:34:46.231876Z`. The retained source identity query passed and
+the separate destination target was provisioned with the pinned MariaDB image.
+This is continuation evidence only: no rehearsal authorization, source
+schema/fixture inventory, category-inclusive backup, checksum, restore,
+verification matrix, or post-snapshot reconciliation was performed. The
+earlier provisioning report recorded a failed source schema-scope check; the
+continuation did not inspect source application grants, so the current source
+and destination grant states are both unknown. The successful result does not
+persist its provisioning run ID although the continuation implementation
+checks that ID against container and volume labels. Current target state,
+schema/fixture inventory, and destination emptiness are not established.
+
+The current non-authorizing field inventory and runbook limitations are in
+`docs/operations/CW-M5-026B-REHEARSAL-OPERATOR-DECISION-PACKET.md` and
+`artifacts/validation/mediawiki-category-backup-restore-rehearsal-authorization-handoff-v1.json`.
+Fresh rehearsal-specific approval is required; prior provisioning or
+continuation authority does not transfer. Existing snapshot/restore/verify
+entrypoints remain plan-only. Production migration and repository activation
+remain `NO_GO`.
+
+### CW-M5-026B — source-only rehearsal data-readiness assessment
+
+`CATEGORY_REHEARSAL_DATA_READINESS_SOURCE_VERIFIED` records structural
+reconciliation of retained provisioning/continuation evidence and the actual
+Page V1/V2/V3 plus Category V1/V2/V3 SQL. The derived 21-table inventory and
+six schema-ledger expectations are source contracts only; no live schema or
+fixture presence is claimed. Grant readiness is `UNKNOWN/NOT_OBSERVED` for
+both targets, the historical source schema-scope failure is not treated as
+current truth, and destination emptiness remains unverified. The report
+specifies aggregate-only read-only inspection and synthetic disposable fixture
+shapes, but performs no host or database operations. Fresh, distinct approval
+is required for read-only inspection; separate approvals are required for any
+grant change, migrations, fixture writes, backup, restore, or certification.
+
+Evidence: `scripts/cw-m5-026b/readiness.py`,
+`scripts/test_m5_026b_readiness.py`,
+`docs/operations/CW-M5-026B-READINESS-INSPECTION-AUTHORIZATION-WORKSHEET.md`,
+`docs/architecture/CW-M5-026B-CATEGORY-BACKUP-RESTORE-REHEARSAL.md`, and
+`artifacts/validation/mediawiki-category-backup-restore-data-readiness-v3.json`.
+Live rehearsal remains `NOT_EXECUTED`; production migration and repository
+activation remain `NO_GO`.
+
+### CW-M5-026B-INSPECT — read-only target inspection source implementation
+
+`CATEGORY_READONLY_INSPECTION_SOURCE_VERIFIED` is a source-only implementation
+classification, not current database evidence or certification. The independent
+Draft 2020-12 contract pins both retained container IDs, volumes, databases,
+loopback endpoints, the immutable image, provisioning RunId, host identity and
+credential-file references. Its separate nonconnecting preflight rejects
+expired/overlong approvals, target mismatches and any permission outside the
+fixed read-only scope. The host runner uses fixed Podman and SQL allowlists,
+checks both target identities before database access, compares table/column/
+index/constraint/foreign-key/ledger metadata with the six Page/Category
+migrations, summarizes source fixture evidence without row values, and assesses
+destination emptiness independently. Grant text and query output are reduced
+in memory; reports are create-only and sanitized.
+
+Only mocked source-safe tests were run. No Podman command, database connection,
+credential inspection or live query occurred. Current grants, schema,
+fixtures, runtime identities and destination emptiness therefore remain
+unverified. An operator must still establish fresh approval fields and a
+compatible, owner-only MariaDB option-file transport; the retained environment
+files are not assumed compatible. Readiness is not certified, and production
+migration and repository activation remain `NO_GO`.
+
+Evidence and implementation: `docs/operations/cw-m5-026b-readonly-inspection-authorization.schema.json`,
+`scripts/preflight-m5-026b-inspection.py`,
+`scripts/cw-m5-026b/inspect_readiness.py`,
+`scripts/test_m5_026b_inspection.py`, and the read-only inspection worksheet.
+
+### CW-M5-026B — stopped source container recovery assessment
+
+`CATEGORY_RUNTIME_RECOVERY_ASSESSMENT_SOURCE_VERIFIED` is based on the two
+retained, sanitized inspection reports only. The latest result reached
+`CONTAINER_NOT_RUNNING` after matching the expected source container ID, but
+did not persist the state string or exit code and did not proceed to verify
+image digest, labels, volume, or endpoint. It therefore does not establish the
+current container state or justify a restart. A separate diagnostic-only
+Draft 2020-12 authorization, nonconnecting preflight, and host runner now
+distinguish absent, Podman storage inaccessible, recreated, stopped-but-identity-
+matched, running, and identity-mismatched states. The runner accepts only the
+fixed rootless read-only Podman allowlist, writes sanitized owner-only
+create-only evidence, and consumes the authorization before the first read.
+This code has only been exercised with mocked Podman results; no live Podman or
+database command was run.
+
+Any start/restart remains inactive and requires a separate one-operation
+authorization after a fresh read-only diagnostic proves the exact retained
+identity. No prior inspection authorization transfers. Evidence and decision
+packet: `artifacts/validation/cw-m5-026b-stopped-container-recovery-assessment-v1.json`,
+`docs/operations/CW-M5-026B-STOPPED-CONTAINER-RECOVERY-DECISION.md`,
+`docs/operations/cw-m5-026b-stopped-source-diagnostic-authorization.schema.json`,
+`docs/operations/cw-m5-026b-stopped-source-diagnostic-report.schema.json`,
+`scripts/preflight-m5-026b-stopped-source-diagnostic.py`,
+`scripts/cw-m5-026b/stopped_source_diagnostic.py`,
+`scripts/cw-m5-026b/diagnose_stopped_source.py`, and the two
+`scripts/test_m5_026b_stopped_source_*.py` suites. Production migration and
+repository activation remain `NO_GO`.

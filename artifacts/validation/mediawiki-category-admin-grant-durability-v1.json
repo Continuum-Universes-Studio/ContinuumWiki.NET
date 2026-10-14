@@ -1,0 +1,111 @@
+{
+  "ReportVersion": "cw-m5-024-category-admin-grant-durability-v1",
+  "GeneratedAtUtc": "2026-10-12T04:02:32Z",
+  "Classification": "CATEGORY_ADMIN_GRANT_DURABILITY_SOURCE_VERIFIED",
+  "RunMode": "SOURCE_ONLY",
+  "DatabaseContacts": {
+    "Connections": 0,
+    "Mutations": 0,
+    "LiveMariaDbTestsRun": false,
+    "MigrationsApplied": false,
+    "Operator4AuthorizationReused": false,
+    "CleanupPerformed": false,
+    "UnknownContacts": false
+  },
+  "Defaults": {
+    "AdministrativeApiEnabled": false,
+    "GrantEvidenceSource": "RejectingTwCategoryAdministrativeGrantEvidenceSource",
+    "GrantStore": "RejectingTwCategoryAdministrativeGrantStore",
+    "GrantProvider": "TwCategoryAdministrativeGrantProvider",
+    "DefaultGrantDecision": "MissingGrant",
+    "CategoryMembershipRepository": "RejectingTwCategoryMembershipRepository",
+    "CategoryRecoveryDurabilityStore": "RejectingTwCategoryRecoveryDurabilityStore",
+    "ProductionMigration": "NO_GO",
+    "RepositoryActivation": "NO_GO"
+  },
+  "Schema": {
+    "DefinitionOnlyMigration": "V3__CategoryAdministrativeGrants.sql",
+    "SchemaVersion": 3,
+    "GrantTable": "TwCategoryAdministrativeGrant",
+    "AuditTable": "TwCategoryAdministrativeGrantAudit",
+    "InitializerCalled": false,
+    "ReadinessProofRequired": true,
+    "StartupActivation": false
+  },
+  "GrantContract": {
+    "ImmutableGrantAndApprovalIdentity": true,
+    "IssuerEvidenceRequired": true,
+    "ActorBinding": true,
+    "OperationBinding": true,
+    "ExactScopeBinding": true,
+    "UtcValidityRequired": true,
+    "VersionedOptimisticConcurrency": true,
+    "DurableRevocation": true,
+    "DurableSingleUseConsumption": true,
+    "ConsumeAndTransitionAuditAtomicWithinGrantDatabase": true,
+    "GrantConsumptionAtomicWithCategoryRecovery": false,
+    "RevocationRetroactive": false,
+    "MaxAuditEventsPerGrant": 128
+  },
+  "ExecutionSemantics": {
+    "PreviewConsumesExecuteGrant": false,
+    "ExecuteConsumesSingleUseBeforeRecoveryCoordinator": true,
+    "RetryWithConsumedGrantStartsSecondExecution": false,
+    "OutcomeRecordedSeparately": true,
+    "OutcomeAuditFailureIsIndeterminate": true,
+    "CrashBetweenConsumeAndRecoveryAutomaticallyReissues": false,
+    "CrossStoreExactlyOnceClaim": false
+  },
+  "Activation": {
+    "ExplicitMethod": "MySqlCategoryAdministrativeGrantActivation.AddAuthorizedMySqlCategoryAdministrativeGrantAuthorization",
+    "RequiresMysql": true,
+    "RequiresEnabledConfiguration": true,
+    "RequiresSchemaVersion3": true,
+    "RequiresTargetBoundReadinessProof": true,
+    "Called": false,
+    "ProductionReadinessEvidenceAvailable": false
+  },
+  "Tests": {
+    "FocusedSourcePassed": 28,
+    "FocusedSourceFailed": 0,
+    "FocusedGatedSkipped": 2,
+    "FullDebug": {
+      "Passed": 435,
+      "Failed": 0,
+      "Skipped": 36,
+      "Total": 471
+    },
+    "ReleaseBuild": {
+      "Succeeded": true,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    "JsonValidation": true,
+    "DiffCheck": true
+  },
+  "LiveCertification": {
+    "Classification": "AUTHORIZATION_REQUIRED_NOT_RUN",
+    "SeparateConnectionConsumeRace": "NOT_RUN",
+    "SeparateConnectionRevokeRace": "NOT_RUN",
+    "RestartPersistence": "NOT_RUN",
+    "AcknowledgmentLoss": "NOT_RUN",
+    "OsOrServerCrash": "NOT_CLAIMED",
+    "DiagnosticRowsRetained": "NOT_APPLICABLE"
+  },
+  "IndependentBlockers": [
+    "independent valid M5-024 target-bound authorization manifest",
+    "real MariaDB version-3 schema and separate-connection certification",
+    "live restart and acknowledgment-loss evidence",
+    "production-bound readiness evidence",
+    "explicit production provider activation authorization"
+  ],
+  "Production": {
+    "Migration": "NO_GO",
+    "RepositoryActivation": "NO_GO",
+    "ServicesChanged": false,
+    "WorkersChanged": false,
+    "ContainersChanged": false,
+    "LuaChanged": false,
+    "CargoChanged": false
+  }
+}

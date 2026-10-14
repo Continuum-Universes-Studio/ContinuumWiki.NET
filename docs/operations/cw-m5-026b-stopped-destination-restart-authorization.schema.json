@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-stopped-destination-restart-authorization-v1",
+  "title": "One-shot authorization to start the existing CW-M5-026B destination container",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc", "Approver", "Operator", "TargetOwner", "ExecutionHost", "Target", "DiagnosticClassification", "DiagnosticReportSha256", "PermittedOperations", "ResultReportPath"],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-stopped-destination-restart-authorization-v1"},
+    "ApprovalId": {"type": "string", "pattern": "^CW-M5-026B-RECOVERY-START-[A-Za-z0-9._:-]{1,80}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "TargetOwner": {"type": "string", "minLength": 1, "maxLength": 160},
+    "ExecutionHost": {"type": "object", "additionalProperties": false, "required": ["HostName", "UnixUser", "Uid", "RootlessPodman"], "properties": {"HostName": {"const": "christian-laptop"}, "UnixUser": {"const": "cdjensen94"}, "Uid": {"const": 1000}, "RootlessPodman": {"const": true}}},
+    "Target": {"type": "object", "additionalProperties": false, "required": ["ContainerName", "ContainerId", "ImageReference", "VolumeName", "DatabaseName", "Endpoint", "ProvisioningRunId"], "properties": {
+      "ContainerName": {"const": "continuumwiki-m5-026b-destination-ro1"},
+      "ContainerId": {"const": "1c58a2f370d36af443e53283d4212604e997188e9fbf81175655446b7c3ea1f5"},
+      "ImageReference": {"const": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"},
+      "VolumeName": {"const": "continuumwiki-m5-026b-destination-ro1-data"},
+      "DatabaseName": {"const": "cw_m5_026b_destination_ro1"},
+      "Endpoint": {"const": "127.0.0.1:13327"},
+      "ProvisioningRunId": {"type": "string", "pattern": "^\\d{8}T\\d{6}Z-[A-Za-z0-9._-]+$"}
+    }},
+    "DiagnosticClassification": {"const": "DESTINATION_CONTAINER_STOPPED_IDENTITY_MATCH"},
+    "DiagnosticReportSha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "PermittedOperations": {"type": "object", "additionalProperties": false, "required": ["StartStoppedDestinationContainerOnce", "ContainerCreation", "ContainerRecreation", "ContainerRestart", "ImageOrVolumeChanges", "DatabaseConnections", "DatabaseMutations", "Migrations", "GrantChanges", "FixtureWrites", "Backup", "Restore", "Cleanup", "ContainerVolumeDeletion", "ProductionAccess"], "properties": {
+      "StartStoppedDestinationContainerOnce": {"const": true}, "ContainerCreation": {"const": false}, "ContainerRecreation": {"const": false}, "ContainerRestart": {"const": false}, "ImageOrVolumeChanges": {"const": false}, "DatabaseConnections": {"const": false}, "DatabaseMutations": {"const": false}, "Migrations": {"const": false}, "GrantChanges": {"const": false}, "FixtureWrites": {"const": false}, "Backup": {"const": false}, "Restore": {"const": false}, "Cleanup": {"const": false}, "ContainerVolumeDeletion": {"const": false}, "ProductionAccess": {"const": false}
+    }},
+    "ResultReportPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/[A-Za-z0-9._/-]+$"}
+  },
+  "$defs": {"person": {"type": "object", "additionalProperties": false, "required": ["Name", "Role"], "properties": {"Name": {"type": "string", "minLength": 1, "maxLength": 160}, "Role": {"type": "string", "minLength": 1, "maxLength": 160}}}}
+}

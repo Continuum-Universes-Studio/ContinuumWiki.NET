@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-readonly-inspection-authorization-v1",
+  "title": "CW-M5-026B exact-target read-only readiness inspection authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc",
+    "Approver", "Operator", "TargetOwner", "ExecutionHost", "Source",
+    "Destination", "Isolation", "PermittedOperations", "ReportPath"
+  ],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-readonly-inspection-authorization-v1"},
+    "ApprovalId": {"type": "string", "pattern": "^CW-M5-026B-INSPECT-[A-Za-z0-9._:-]{1,96}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "TargetOwner": {"type": "string", "minLength": 1, "maxLength": 160},
+    "ExecutionHost": {
+      "type": "object", "additionalProperties": false,
+      "required": ["HostName", "UnixUser", "Uid", "RootlessPodman"],
+      "properties": {
+        "HostName": {"const": "christian-laptop"},
+        "UnixUser": {"const": "cdjensen94"},
+        "Uid": {"const": 1000},
+        "RootlessPodman": {"const": true}
+      }
+    },
+    "Source": {"$ref": "#/$defs/source"},
+    "Destination": {"$ref": "#/$defs/destination"},
+    "Isolation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["Disposable", "Production", "SharedWithProduction"],
+      "properties": {
+        "Disposable": {"const": true},
+        "Production": {"const": false},
+        "SharedWithProduction": {"const": false}
+      }
+    },
+    "PermittedOperations": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "InspectHostIsolation", "ConnectSourceReadOnly", "InspectSourceMetadata",
+        "InspectSourceGrantScope", "InspectSourceFixtureAggregates",
+        "ConnectDestinationReadOnly", "InspectDestinationMetadata",
+        "InspectDestinationEmptiness", "RetainSanitizedEvidence",
+        "DatabaseMutations", "GrantChanges", "Migrations", "FixtureWrites",
+        "Backup", "Restore", "FaultInjection", "Certification", "Cleanup",
+        "SchemaDeletion", "ContainerVolumeDeletion", "ProductionAccess"
+      ],
+      "properties": {
+        "InspectHostIsolation": {"const": true},
+        "ConnectSourceReadOnly": {"const": true},
+        "InspectSourceMetadata": {"const": true},
+        "InspectSourceGrantScope": {"const": true},
+        "InspectSourceFixtureAggregates": {"const": true},
+        "ConnectDestinationReadOnly": {"const": true},
+        "InspectDestinationMetadata": {"const": true},
+        "InspectDestinationEmptiness": {"const": true},
+        "RetainSanitizedEvidence": {"const": true},
+        "DatabaseMutations": {"const": false},
+        "GrantChanges": {"const": false},
+        "Migrations": {"const": false},
+        "FixtureWrites": {"const": false},
+        "Backup": {"const": false},
+        "Restore": {"const": false},
+        "FaultInjection": {"const": false},
+        "Certification": {"const": false},
+        "Cleanup": {"const": false},
+        "SchemaDeletion": {"const": false},
+        "ContainerVolumeDeletion": {"const": false},
+        "ProductionAccess": {"const": false}
+      }
+    },
+    "ReportPath": {"type": "string", "pattern": "^/home/cdjensen94/continuumwiki-validation/[A-Za-z0-9._/-]+$"}
+  },
+  "$defs": {
+    "person": {
+      "type": "object", "additionalProperties": false,
+      "required": ["Name", "Role"],
+      "properties": {
+        "Name": {"type": "string", "minLength": 1, "maxLength": 160},
+        "Role": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "commonTarget": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "Disposable", "ContainerName", "ContainerId", "VolumeName", "DatabaseName",
+        "Endpoint", "ImageReference", "ProvisioningRunId", "DatabaseIdentity",
+        "EngineVersion", "InstanceIdentity", "CredentialDirectory", "CredentialOptionFile"
+      ],
+      "properties": {
+        "Disposable": {"const": true},
+        "ContainerName": {"type": "string", "pattern": "^continuumwiki-m5-026b-(source|destination)-ro1$"},
+        "ContainerId": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "VolumeName": {"type": "string", "pattern": "^continuumwiki-m5-026b-(source|destination)-ro1-data$"},
+        "DatabaseName": {"type": "string", "pattern": "^cw_m5_026b_(source|destination)_ro1$"},
+        "ImageReference": {"const": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15"},
+        "ProvisioningRunId": {"type": "string", "pattern": "^\\d{8}T\\d{6}Z-[A-Za-z0-9._-]+$"},
+        "Endpoint": {"type": "string", "pattern": "^127\\.0\\.0\\.1:1[0-9]{4}$"},
+        "DatabaseIdentity": {"type": "string", "pattern": "^continuumwiki_m5_026b_(source|destination)_app$"},
+        "EngineVersion": {"const": "MariaDB 11.8.x"},
+        "InstanceIdentity": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "CredentialDirectory": {"type": "string", "pattern": "^/home/cdjensen94/\\.local/state/continuumwiki/cw-m5-026b/(source|destination)-ro1$"},
+        "CredentialOptionFile": {"type": "string", "pattern": "^/home/cdjensen94/\\.local/state/continuumwiki/cw-m5-026b/(source|destination)-ro1/inspection-client\\.cnf$"}
+      }
+    },
+    "source": {
+      "allOf": [
+        {"$ref": "#/$defs/commonTarget"},
+        {"type": "object", "properties": {
+          "ContainerName": {"const": "continuumwiki-m5-026b-source-ro1"},
+          "ContainerId": {"const": "6a4d4f8707ee4f5b14dddfff183db6d26ce7453eaba377b7c9d081bc1157f914"},
+          "VolumeName": {"const": "continuumwiki-m5-026b-source-ro1-data"},
+          "DatabaseName": {"const": "cw_m5_026b_source_ro1"},
+          "ProvisioningRunId": {"const": "20261012T093746Z-86380"},
+          "Endpoint": {"const": "127.0.0.1:13326"},
+          "DatabaseIdentity": {"const": "continuumwiki_m5_026b_source_app"},
+          "CredentialDirectory": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1"},
+          "CredentialOptionFile": {"pattern": "^/home/cdjensen94/\\.local/state/continuumwiki/cw-m5-026b/source-ro1/inspection-client\\.cnf$"}
+        }}
+      ]
+    },
+    "destination": {
+      "allOf": [
+        {"$ref": "#/$defs/commonTarget"},
+        {"type": "object", "properties": {
+          "ContainerName": {"const": "continuumwiki-m5-026b-destination-ro1"},
+          "ContainerId": {"const": "1c58a2f370d36af443e53283d4212604e997188e9fbf81175655446b7c3ea1f5"},
+          "VolumeName": {"const": "continuumwiki-m5-026b-destination-ro1-data"},
+          "DatabaseName": {"const": "cw_m5_026b_destination_ro1"},
+          "Endpoint": {"const": "127.0.0.1:13327"},
+          "DatabaseIdentity": {"const": "continuumwiki_m5_026b_destination_app"},
+          "CredentialDirectory": {"const": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1"},
+          "CredentialOptionFile": {"pattern": "^/home/cdjensen94/\\.local/state/continuumwiki/cw-m5-026b/destination-ro1/inspection-client\\.cnf$"}
+        }}
+      ]
+    }
+  }
+}

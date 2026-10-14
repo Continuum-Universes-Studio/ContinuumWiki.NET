@@ -82,7 +82,8 @@ public sealed record TwCategoryAdministrativeRecoveryRequest(
 public sealed record TwCategoryAdministrativeAuthorizationRequest(
     TwCategoryAdministrativeOperation Operation,
     Guid ActorUserId,
-    TwCategoryRecoveryScope Scope);
+    TwCategoryRecoveryScope Scope,
+    Guid? CorrelationId = null);
 
 /// <summary>
 /// A server/provider-issued grant. It is never accepted from the HTTP request
@@ -112,7 +113,9 @@ public sealed record TwCategoryAdministrativeAuthorizationDecision(
 public sealed record TwCategoryAdministrativeGrantEvidenceResult(
     TwCategoryAdministrativeGrant? Grant,
     bool ReplayAlreadyConsumed = false,
-    bool DurableReplayProtectionAvailable = false);
+    bool DurableReplayProtectionAvailable = false,
+    long? Version = null,
+    string? DiagnosticCode = null);
 
 public interface ITwCategoryAdministrativeGrantEvidenceSource
 {

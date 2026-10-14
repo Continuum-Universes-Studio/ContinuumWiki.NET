@@ -1,0 +1,128 @@
+{
+  "ReportVersion": "cw-m5-026b-readonly-host-inspection-v1",
+  "Milestone": "CW-M5-026B-PROVISION",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "APPROVAL_RECORDED_MANIFEST_INCOMPLETE",
+  "InspectionStatus": "READONLY_INSPECTION_COMPLETED_WITH_PARTIAL_INVENTORY",
+  "AuthorizationStatus": "APPROVAL_RECORDED_MANIFEST_INCOMPLETE",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "AuthoritativeManifestCreated": false,
+  "ProvisioningExecuted": false,
+  "DatabaseConnections": 0,
+  "DatabaseMutations": 0,
+  "CredentialsCreated": false,
+  "CredentialsRead": false,
+  "PodmanMutatingCommandsIssued": 0,
+  "ObservedHost": {
+    "Status": "VERIFIED_READ_ONLY",
+    "Hostname": "christian-laptop",
+    "InvokingUid": 1000,
+    "InvokingUser": "cdjensen94",
+    "EvidenceCommands": ["hostname", "id -u", "id -un"]
+  },
+  "PodmanInspection": {
+    "Status": "PARTIAL_OPERATOR_EVIDENCE",
+    "PodmanInstalled": "COMMAND_PRESENT",
+    "Rootless": "VERIFIED_OPERATOR_EVIDENCE",
+    "Version": "6.1.2",
+    "Containers": "UNVERIFIED_BROAD_INVENTORY",
+    "Volumes": "PARTIAL_EXACT_PROPOSAL_CHECKS",
+    "Images": "UNVERIFIED_BROAD_INVENTORY",
+    "CommandsAttempted": [
+      "podman version --format '{{.Client.Version}}'",
+      "podman info --format 'rootless={{.Host.Security.Rootless}}'",
+      "podman ps -a --format '{{.Names}}\\t{{.Image}}\\t{{.Ports}}'",
+      "podman volume ls --format '{{.Name}}'",
+      "podman images --digests --format '{{.Repository}}\\t{{.Tag}}\\t{{.Digest}}'"
+    ],
+    "Failure": "Podman initialization failed because /run/user/1000/libpod is read-only.",
+    "InternalCleanupReported": true,
+    "InternalCleanupEvidence": "stale pause PID reported; pause marker remained present on read-only filesystem check",
+    "ExactVolumeChecks": {
+      "continuumwiki-m5-026b-source-ro1-data": "NOT_FOUND",
+      "continuumwiki-m5-026b-destination-ro1-data": "NOT_FOUND"
+    },
+    "ResourceStateObtained": "PARTIAL"
+  },
+  "NetworkInspection": {
+    "Status": "PARTIAL",
+    "SsResult": "BLOCKED_NETLINK_OPERATION_NOT_PERMITTED",
+    "ProcfsTcpListeners": [],
+    "ProcfsTcp6Listeners": [],
+    "PortAvailability": "NO_LISTENER_OBSERVED_NOT_RESERVED",
+    "ProposedPortsMustBeRevalidated": true
+  },
+  "ImageEvidence": {
+    "Status": "VERIFIED_OPERATOR_EVIDENCE",
+    "Reference": "docker.io/library/mariadb@sha256:6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "Digest": "6422478cb8e159f080fb1d8ccf65101e26fe51385787fde7d16c3b165a331f15",
+    "MariaDb118Evidence": "operator-verified local MariaDB 11.8 image",
+    "DigestWasGuessed": false
+  },
+  "ProposedTargets": {
+    "Status": "PROPOSED_NOT_CREATED",
+    "CollisionProof": "PARTIAL_EXACT_VOLUME_CHECKS_ONLY",
+    "Source": {
+      "ContainerName": "continuumwiki-m5-026b-source-ro1",
+      "VolumeName": "continuumwiki-m5-026b-source-ro1-data",
+      "DatabaseName": "cw_m5_026b_source_ro1",
+      "Endpoint": "127.0.0.1:13326",
+      "DatabaseIdentity": "continuumwiki_m5_026b_source_app",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/source-ro1",
+      "IdentityPrefix": "milestone=CW-M5-026B;role=source;container=continuumwiki-m5-026b-source-ro1;volume=continuumwiki-m5-026b-source-ro1-data;database=cw_m5_026b_source_ro1;endpoint=127.0.0.1:13326;",
+      "Status": "PROPOSED_NOT_CREATED"
+    },
+    "Destination": {
+      "ContainerName": "continuumwiki-m5-026b-destination-ro1",
+      "VolumeName": "continuumwiki-m5-026b-destination-ro1-data",
+      "DatabaseName": "cw_m5_026b_destination_ro1",
+      "Endpoint": "127.0.0.1:13327",
+      "DatabaseIdentity": "continuumwiki_m5_026b_destination_app",
+      "CredentialDirectory": "/home/cdjensen94/.local/state/continuumwiki/cw-m5-026b/destination-ro1",
+      "IdentityPrefix": "milestone=CW-M5-026B;role=destination;container=continuumwiki-m5-026b-destination-ro1;volume=continuumwiki-m5-026b-destination-ro1-data;database=cw_m5_026b_destination_ro1;endpoint=127.0.0.1:13327;",
+      "Status": "PROPOSED_NOT_CREATED"
+    }
+  },
+  "OutstandingOperatorDecisions": [
+    "approver, operator, target owner, and roles",
+    "approval ID and actual finite ApprovedAtUtc and ExpiresAtUtc",
+    "authorized hostname and rootless-Podman evidence",
+    "approval or replacement of both proposed target plans, including volume names and credential-directory paths",
+    "complete collision verification after Podman inventory access is restored",
+    "final exclusions and complete explicit permission object"
+  ],
+  "ContractConstraints": {
+    "ManifestVersion": "cw-m5-026b-provisioning-authorization-v1",
+    "AllowedEndpointHost": "127.0.0.1",
+    "FreshTargetsRequired": true,
+    "ReuseExistingResources": false,
+    "DedicatedCredentials": true,
+    "RehearsalRightsGranted": false,
+    "BackupAllowed": false,
+    "RestoreAllowed": false,
+    "SchemaMigrationAllowed": false,
+    "CertificationAllowed": false,
+    "CleanupAllowed": false,
+    "SchemaDeletionAllowed": false,
+    "ContainerVolumeDeletionAllowed": false
+  },
+  "Validation": {
+    "ReportJsonParse": "PASSED",
+    "SchemaContractInspection": "PASSED_SOURCE_READ",
+    "AuthoritativeManifestJsonParse": "NOT_APPLICABLE_MANIFEST_ABSENT",
+    "ProvisioningPreflight": "NOT_RUN_MANIFEST_INCOMPLETE",
+    "LiveProvisioning": "NOT_RUN_BY_CONSTRAINT",
+    "DatabaseContact": "NOT_RUN_BY_CONSTRAINT",
+    "MutatingPodmanCommands": "0",
+    "InfrastructureMutation": "NOT_OBSERVED"
+  },
+  "EvidenceFiles": [
+    "docs/operations/CW-M5-026B-READONLY-HOST-INSPECTION-AND-TARGET-PROPOSAL.md",
+    "artifacts/validation/cw-m5-026b-provisioning-authorization-draft-unapproved-v1.json",
+    "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+    "docs/operations/CW-M5-026B-LIVE-PROVISIONING-AUTHORIZATION-WORKSHEET.md",
+    "docs/operations/CW-M5-026B-PROVISIONING-OPERATOR-DECISION-PACKET.md"
+  ],
+  "NextOperatorAction": "Explicitly approve or replace the proposed target plans and supply every outstanding schema-required field; then create the authoritative manifest and run nonconnecting preflight."
+}

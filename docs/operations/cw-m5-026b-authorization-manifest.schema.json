@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cw-m5-026b-authorization-v2",
+  "title": "CW-M5-026B disposable category backup and restore authorization",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ManifestVersion", "ApprovalId", "ApprovedAtUtc", "ExpiresAtUtc",
+    "Approver", "Operator", "TargetOwner", "ExecutionHost", "Source", "Destination",
+    "PermittedOperations", "Isolation", "SnapshotPlan", "TestScope"
+  ],
+  "properties": {
+    "ManifestVersion": {"const": "cw-m5-026b-authorization-v2"},
+    "ApprovalId": {"type": "string", "pattern": "^CW-M5-026B-REHEARSAL-[A-Za-z0-9._:-]{1,96}$"},
+    "ApprovedAtUtc": {"type": "string", "format": "date-time"},
+    "ExpiresAtUtc": {"type": "string", "format": "date-time", "description": "Preflight additionally enforces expiry no more than 24 hours after ApprovedAtUtc."},
+    "Approver": {"$ref": "#/$defs/person"},
+    "Operator": {"$ref": "#/$defs/person"},
+    "TargetOwner": {"type": "string", "minLength": 1, "maxLength": 160},
+    "ExecutionHost": {
+      "type": "object", "additionalProperties": false,
+      "required": ["HostName", "UnixUser", "Uid", "RootlessPodman"],
+      "properties": {
+        "HostName": {"type": "string", "minLength": 1, "maxLength": 255},
+        "UnixUser": {"type": "string", "minLength": 1, "maxLength": 160},
+        "Uid": {"type": "integer", "minimum": 1},
+        "RootlessPodman": {"const": true}
+      }
+    },
+    "Source": {"$ref": "#/$defs/target"},
+    "Destination": {"$ref": "#/$defs/target"},
+    "PermittedOperations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ConnectSource", "VerifySourceIsolation", "SeedDisposableSource", "BackupSource",
+        "VerifyBackupArtifact", "ConnectDestination", "VerifyDestinationIsolation",
+        "RestoreDestination", "VerifyRestore", "RetainSanitizedEvidence",
+        "FaultInjection", "CleanupSource", "CleanupDestination",
+        "SchemaDeletionSource", "SchemaDeletionDestination",
+        "ContainerVolumeDeletionSource", "ContainerVolumeDeletionDestination"
+      ],
+      "properties": {
+        "ConnectSource": {"const": true},
+        "VerifySourceIsolation": {"const": true},
+        "SeedDisposableSource": {"type": "boolean"},
+        "BackupSource": {"const": true},
+        "VerifyBackupArtifact": {"const": true},
+        "ConnectDestination": {"const": true},
+        "VerifyDestinationIsolation": {"const": true},
+        "RestoreDestination": {"const": true},
+        "VerifyRestore": {"const": true},
+        "RetainSanitizedEvidence": {"const": true},
+        "FaultInjection": {"type": "boolean"},
+        "CleanupSource": {"type": "boolean"},
+        "CleanupDestination": {"type": "boolean"},
+        "SchemaDeletionSource": {"type": "boolean"},
+        "SchemaDeletionDestination": {"type": "boolean"},
+        "ContainerVolumeDeletionSource": {"type": "boolean"},
+        "ContainerVolumeDeletionDestination": {"type": "boolean"}
+      }
+    },
+    "Isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Production", "SharedWithProduction", "DedicatedCredentials", "Proof"],
+      "properties": {
+        "Production": {"const": false},
+        "SharedWithProduction": {"const": false},
+        "DedicatedCredentials": {"const": true},
+        "Proof": {"type": "string", "minLength": 1, "maxLength": 2048}
+      }
+    },
+    "SnapshotPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Client", "SingleTransaction", "IncludeRoutines", "IncludeEvents",
+        "IncludeTriggers", "IncludeHexBlob", "CharacterSet", "ArtifactDirectory",
+        "CredentialTransport", "PostSnapshotWritePolicy", "DdlFreezeConfirmed"
+      ],
+      "properties": {
+        "Client": {"const": "mariadb-dump"},
+        "SingleTransaction": {"const": true},
+        "IncludeRoutines": {"const": true},
+        "IncludeEvents": {"const": true},
+        "IncludeTriggers": {"const": true},
+        "IncludeHexBlob": {"const": true},
+        "CharacterSet": {"const": "utf8mb4"},
+        "ArtifactDirectory": {"type": "string", "pattern": "^(?!.*(?:password|secret|token|credential))[^\n]{1,512}$"},
+        "CredentialTransport": {"enum": ["option-file", "secret-store"]},
+        "PostSnapshotWritePolicy": {"const": "record-divergence-and-reconcile-explicitly"},
+        "DdlFreezeConfirmed": {"const": true}
+      }
+    },
+    "TestScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Suite", "MaxConcurrentWorkers", "CrashBoundaries", "PostSnapshotWriteCases"],
+      "properties": {
+        "Suite": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["snapshot", "restore", "table-content-readback"]}},
+        "MaxConcurrentWorkers": {"const": 1},
+        "CrashBoundaries": {"const": []},
+        "PostSnapshotWriteCases": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["Name", "Role"],
+      "properties": {
+        "Name": {"type": "string", "minLength": 1, "maxLength": 160},
+        "Role": {"type": "string", "minLength": 1, "maxLength": 160}
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Disposable", "ContainerName", "VolumeName", "DatabaseName", "Endpoint",
+        "InstanceIdentity", "EngineVersion", "DatabaseIdentity", "CredentialReference"
+      ],
+      "properties": {
+        "Disposable": {"const": true},
+        "ContainerName": {"type": "string", "pattern": "^continuumwiki-m5-026b-(source|destination)-[a-z0-9-]{1,40}$"},
+        "VolumeName": {"type": "string", "pattern": "^continuumwiki-m5-026b-(source|destination)-[a-z0-9-]{1,40}-data$"},
+        "DatabaseName": {"type": "string", "pattern": "^cw_m5_026b_(source|destination)_[a-z0-9_]{1,40}$"},
+        "Endpoint": {"type": "string", "pattern": "^(127\\.0\\.0\\.1|localhost|\\[::1\\]):[1-9][0-9]{2,4}$"},
+        "InstanceIdentity": {"type": "string", "maxLength": 1536, "pattern": "^milestone=CW-M5-026B;role=(source|destination);container=continuumwiki-m5-026b-(source|destination)-[a-z0-9-]{1,40};volume=continuumwiki-m5-026b-(source|destination)-[a-z0-9-]{1,40}-data;database=cw_m5_026b_(source|destination)_[a-z0-9_]{1,40};endpoint=(127\\.0\\.0\\.1|localhost|\\[::1\\]):[1-9][0-9]{2,4};image=docker\\.io/library/mariadb@sha256:[0-9a-f]{64};containerId=[0-9a-f]{64};runId=[A-Za-z0-9._:-]{1,128};$"},
+        "EngineVersion": {"const": "MariaDB 11.8.x"},
+        "DatabaseIdentity": {"type": "string", "pattern": "^continuumwiki_m5_026b_(source|destination)_app$"},
+        "CredentialReference": {"type": "string", "pattern": "^(?!.*(?:password|secret|token|credentialmaterial))[^\n]{1,512}$"}
+      }
+    }
+  }
+}

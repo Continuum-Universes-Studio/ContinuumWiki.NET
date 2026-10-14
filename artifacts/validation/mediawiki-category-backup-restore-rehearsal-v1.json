@@ -1,0 +1,149 @@
+{
+  "ReportVersion": "cw-m5-026b-category-backup-restore-rehearsal-v1",
+  "Milestone": "CW-M5-026B",
+  "AssessmentDateUtc": "2026-10-12",
+  "Classification": "CATEGORY_BACKUP_RESTORE_PREPARATION_SOURCE_VERIFIED",
+  "OverallDecision": "SOURCE_ONLY_PREPARATION",
+  "ProductionMigration": "NO_GO",
+  "RepositoryActivation": "NO_GO",
+  "RunMode": "NONCONNECTING_SOURCE_ONLY",
+  "ProductionContacted": false,
+  "DatabaseConnections": 0,
+  "DatabaseMutations": 0,
+  "PodmanCommands": 0,
+  "InfrastructureModified": false,
+  "AuthoritativeManifestCreated": false,
+  "PreviousApprovalReused": false,
+  "LiveRehearsal": {
+    "Status": "BLOCKED_PENDING_SEPARATE_CW_M5_026B_AUTHORIZATION",
+    "SourceTarget": "UNKNOWN_OPERATOR_REQUIRED",
+    "DestinationTarget": "UNKNOWN_OPERATOR_REQUIRED",
+    "BackupCreated": false,
+    "Restored": false,
+    "Verified": false,
+    "CleanupPerformed": false
+  },
+  "SourceFacts": [
+    {
+      "Fact": "The repository dependency order is base Page schema, category V1, recovery V2, administrative-grant V3.",
+      "Evidence": [
+        "TightWiki.Repository/Scripts/MySql/Pages/V1__PageSchema.sql",
+        "TightWiki.Repository/Scripts/MySql/Category/V1__CategorySchema.sql",
+        "TightWiki.Repository/Scripts/MySql/Category/V2__CategoryRecoveryDurability.sql",
+        "TightWiki.Repository/Scripts/MySql/Category/V3__CategoryAdministrativeGrants.sql"
+      ],
+      "Tier": "SOURCE_VERIFIED"
+    },
+    {
+      "Fact": "The Page scope is Page, PageRevision, PageTag, PageReference, and MySqlPageSchemaVersion; category V1 adds PageCategoryIndexState, PageCategoryMembership, and MySqlCategorySchemaVersion.",
+      "Tier": "SOURCE_VERIFIED"
+    },
+    {
+      "Fact": "Recovery V2 preserves operation/checkpoint state and audit event identity/key uniqueness; grant V3 preserves issue, validity, revocation, consumption, replay, correlation, and audit event identity/key uniqueness.",
+      "Tier": "SOURCE_VERIFIED"
+    },
+    {
+      "Fact": "The repository SQL declares the listed tables as InnoDB and includes explicit primary, foreign, unique, and secondary indexes.",
+      "Tier": "SOURCE_VERIFIED",
+      "Limitation": "Actual target table state and row values require a separately authorized live rehearsal."
+    },
+    {
+      "Fact": "Default category, recovery, and administrative grant registrations remain rejecting; readiness proofs and explicit feature activation are not side effects of restore.",
+      "Evidence": [
+        "TightWiki/Program.cs",
+        "TightWiki/MySqlDevelopmentRuntime.cs",
+        "TightWiki.Repository/Helpers/ProviderNeutralPersistenceServiceCollectionExtensions.cs"
+      ],
+      "Tier": "SOURCE_VERIFIED"
+    }
+  ],
+  "AuthorizationContract": {
+    "ManifestVersion": "cw-m5-026b-authorization-v2",
+    "Schema": "docs/operations/cw-m5-026b-authorization-manifest.schema.json",
+    "Preflight": "scripts/preflight-m5-026b.py",
+    "ProvisioningAuthorizationSeparated": true,
+    "ProvisioningSchema": "docs/operations/cw-m5-026b-provisioning-authorization-manifest.schema.json",
+    "SourceAndDestinationMustDiffer": true,
+    "CoreOperationsExplicit": true,
+    "FaultInjectionSeparate": true,
+    "CleanupSeparate": true,
+    "SchemaDeletionSeparate": true,
+    "ContainerVolumeDeletionSeparate": true,
+    "SecretsAllowed": false
+  },
+  "SnapshotStrategy": {
+    "Client": "mariadb-dump",
+    "SingleTransaction": true,
+    "IncludedOptions": ["routines", "events", "triggers", "hex-blob", "utf8mb4", "skip-comments"],
+    "Consistency": "InnoDB snapshot semantics only; non-InnoDB and concurrent DDL limitations remain",
+    "CredentialTransport": "operator option-file or secret-store; values never enter reports/argv",
+    "PostSnapshotWrites": "not automatically recoverable; divergence and reconciliation required"
+  },
+  "VerificationMatrix": {
+    "SchemaLedgers": ["MySqlPageSchemaVersion", "MySqlCategorySchemaVersion"],
+    "Tables": [
+      "Page", "PageRevision", "PageTag", "PageReference", "PageCategoryIndexState",
+      "PageCategoryMembership", "TwCategoryRecoveryOperation", "TwCategoryRecoveryAuditEvent",
+      "TwCategoryAdministrativeGrant", "TwCategoryAdministrativeGrantAudit"
+    ],
+    "Integrity": ["engines", "columns", "indexes", "foreign-keys", "orphan-checks", "aggregate-counts", "stable-redacted-hashes"],
+    "CategorySemantics": ["unindexed", "indexed-empty", "populated", "incomplete", "failed", "unknown", "sort-order", "index-generation"],
+    "Provenance": ["page/revision identity", "source page/revision identity", "source wiki identity"],
+    "Recovery": ["checkpoint CAS/read-back", "audit continuity", "event-key uniqueness", "idempotency"],
+    "Grants": ["issued", "consumed", "revoked", "expired", "replay mode", "audit continuity", "event-key uniqueness"],
+    "Privacy": "No private row export; only bounded aggregate or redacted evidence"
+  },
+  "StageEntrypoints": {
+    "Snapshot": "scripts/cw-m5-026b/snapshot-m5-026b.sh",
+    "Restore": "scripts/cw-m5-026b/restore-m5-026b.sh",
+    "Verify": "scripts/cw-m5-026b/verify-m5-026b.sh",
+    "Evidence": "scripts/cw-m5-026b/evidence-m5-026b.sh",
+    "ExecutableRehearsal": "scripts/cw-m5-026b/rehearse-m5-026b.sh",
+    "ExecutionMode": "SOURCE_IMPLEMENTATION_WITH_EXPLICIT_AUTHORIZATION_GATE; LIVE_NOT_EXECUTED",
+    "SinglePipeline": false
+  },
+  "FailureCases": [
+    "missing-or-expired-approval",
+    "wrong-or-shared-target",
+    "same-source-and-destination",
+    "populated-destination",
+    "partial-backup",
+    "checksum-mismatch",
+    "incompatible-schema",
+    "import-interruption",
+    "missing-critical-table",
+    "foreign-key-or-orphan-mismatch",
+    "missing-audit",
+    "authorization-expiry-during-phase",
+    "post-snapshot-write-divergence"
+  ],
+  "Blockers": [
+    {"Id": "M5-026B-BLK-001", "Severity": "CRITICAL", "Name": "Fresh exact-target rehearsal authorization absent", "Required": "New valid manifest binding both existing targets, host/UID, container IDs, immutable image digest, run IDs, protected option files, and DDL freeze"},
+    {"Id": "M5-026B-BLK-002", "Severity": "HIGH", "Name": "Current target isolation and destination empty state unverified", "Required": "Host-side checks by the separately authorized runner"},
+    {"Id": "M5-026B-BLK-003", "Severity": "HIGH", "Name": "Live consistent backup and checksum not performed", "Required": "Authorized mariadb-dump artifact and SHA-256 evidence"},
+    {"Id": "M5-026B-BLK-004", "Severity": "HIGH", "Name": "Restore and full integrity matrix not performed", "Required": "Distinct destination restore, schema/relationship/provenance/state/audit verification"},
+    {"Id": "M5-026B-BLK-005", "Severity": "HIGH", "Name": "Post-snapshot reconciliation not performed", "Required": "Explicit source/recovered divergence and operator reconciliation decision"},
+    {"Id": "M5-026B-BLK-006", "Severity": "HIGH", "Name": "Source grant scope unverified and previously reported global", "Required": "Fresh approved SHOW GRANTS check and separate remediation if needed"},
+    {"Id": "M5-026B-BLK-007", "Severity": "HIGH", "Name": "Rehearsal authorization contract strengthened", "Required": "Fresh manifest binding host/UID/container IDs/image digest/run IDs, DDL freeze, option-file credentials and exact limited test scope"}
+  ],
+  "Validation": {
+    "JsonValidation": "PASSED: python3 -m json.tool on report and authorization schema",
+    "AuthorizationSchemaValidation": "PASSED: Draft 2020-12 schema check and test-only contract instance validation",
+    "FocusedSourceTests": "PASSED: source-safe CW-M5-026B preflight, continuation, provisioning, and rehearsal suites; 61 passed, 0 failed",
+    "FullDebugTests": "NOT_RUN_FOR_THIS_SOURCE-ONLY_IMPLEMENTATION_TASK",
+    "ReleaseBuild": "NOT_RUN_FOR_THIS_PYTHON-ONLY_IMPLEMENTATION_TASK",
+    "DiffCheck": "See this task's source validation result",
+    "LiveDatabaseTests": "NOT_RUN_BY_CONSTRAINT; zero connections",
+    "PodmanOperations": "NOT_RUN_BY_CONSTRAINT; zero Podman invocations",
+    "CredentialsRead": false
+  },
+    "ActionsPerformed": [
+    "Inspected actual page/category SQL, repository registration, existing backup guidance, and authorization/preflight conventions.",
+    "Added a separate two-target M5-026B authorization schema and nonconnecting preflight.",
+    "Kept the separate stage planners and added an explicitly gated executable snapshot/restore/table-content-readback runner.",
+    "Tightened the rehearsal contract with host and immutable target bindings, DDL-freeze attestation, and non-mutating test scope.",
+    "Added mocked source tests for identity and grant gates, destination emptiness, create-only artifact/report handling, checksum, restore routing, readback, and failure retention.",
+    "Did not create an authoritative manifest, connect to MariaDB, run Podman, backup, restore, migrate, or clean up."
+  ],
+  "NextOperatorAction": "Obtain separate explicit CW-M5-026B authorization for newly provisioned source and destination targets; do not reuse M5-019, M5-025, or production approvals."
+}
